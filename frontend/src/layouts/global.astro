@@ -1,0 +1,26 @@
+---
+import { SITE_TITLE } from "@consts";
+import Metadata from "../components/metadata.astro";
+
+interface Props {
+    title: string;
+    desc?: string;
+}
+
+const { title, desc } = Astro.props;
+
+const rootAttributes = {
+
+};
+
+---
+
+<!doctype html>
+<html { ...rootAttributes } lang="en">
+    <head>
+        <Metadata 
+            title={title}
+            desc={desc || `"${title}" on ${SITE_TITLE}`}
+        />
+    </head>
+</html>
