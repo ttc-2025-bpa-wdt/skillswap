@@ -1,4 +1,14 @@
 services:
+  nginx:
+    image: nginx:alpine
+    hostname: nginx.bpa.internal
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
   frontend:
     build:
         context: ./frontend
@@ -7,8 +17,6 @@ services:
     environment:
       - DOCKER_WSL2=1
       - ASTRO_TELEMETRY_DISABLED=1
-    ports:
-      - "3000:3000"
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
@@ -20,8 +28,6 @@ services:
     hostname: backend.bpa.internal
     environment:
       - DOCKER_WSL2=1
-    ports:
-      - "8080:80"
     volumes:
       - ./backend:/app
       - backend_node_modules:/app/node_modules
