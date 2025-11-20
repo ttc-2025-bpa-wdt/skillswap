@@ -2,7 +2,10 @@
   "name": "frontend",
   "version": "0.0.1",
   "dependencies": {
-    "astro": "^5.15.3"
+    "astro": "^5.15.3",
+    "astro-icon": "^1.1.5",
+    "sass": "^1.94.0",
+    "typescript": "^5.9.3"
   },
   "private": true,
   "scripts": {
@@ -12,5 +15,12 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "sass-embedded": "^1.93.3",
+    "@iconify-json/fa7-brands": "^1.2.0",
+    "@iconify-json/fa7-regular": "^1.2.1",
+    "@iconify-json/fa7-solid": "^1.2.2",
+    "@iconify-json/mdi": "^1.2.3"
+  }
 }
