@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,5 +13,6 @@ export default defineConfig({
             host: "0.0.0.0",
             watch: { usePolling: process.env.DOCKER_WSL2 !== undefined }
         }
-    }
+    },
+    integrations: [icon()]
 });
