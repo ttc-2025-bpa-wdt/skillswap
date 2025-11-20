@@ -1,0 +1,18 @@
+:root[data-theme="light"] {
+    --background: #ffffff;
+    --foreground: #222222;
+    --accent-1:   #1C5D99;
+    --accent-2:   #639FAB;
+    --accent-3:   #BBCDE5;
+}
+
+:root[data-theme="dark"] {
+    --background: #222222;
+    --foreground: #ffffff;
+    --accent-1:   #1C5D99;
+    --accent-2:   #639FAB;
+    --accent-3:   #BBCDE5;
+}
+
+.accent-1 { color: var(--accent-1) !important; }
+.accent-2 { color: var(--accent-2) !important; }

@@ -1,0 +1,32 @@
+---
+import { SITE_TITLE } from "@consts";
+
+import { Icon } from "astro-icon/components";
+---
+
+<footer>
+    <div class="socials">
+        <Icon name="fa7-brands:x-twitter" size={24} style="margin-right: 1rem;" />
+        <Icon name="fa7-brands:facebook" size={24} style="margin-right: 1rem;" />
+        <Icon name="fa7-brands:instagram" size={24} style="margin-right: 1rem;" />
+        <Icon name="fa7-brands:linkedin" size={24} style="margin-right: 1rem;" />
+    </div>
+    <p>&copy; {new Date().getFullYear()} {SITE_TITLE}. All rights reserved.</p>
+</footer>
+
+<style lang="scss">
+    footer {
+        display: flex;
+        flex-direction: column;
+
+        justify-content: center;
+        align-items: center;
+
+        width: 100vw;
+        height: 6rem;
+    }
+
+    .socials {
+        opacity: 0.8;
+    }
+</style>

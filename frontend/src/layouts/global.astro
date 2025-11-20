@@ -1,6 +1,9 @@
 ---
 import { SITE_TITLE } from "@consts";
-import Metadata from "../components/metadata.astro";
+
+import Metadata from "@components/metadata.astro";
+import Topbar from "@components/topbar.astro";
+import Footer from "@components/footer.astro";
 
 interface Props {
     title: string;
@@ -10,9 +13,10 @@ interface Props {
 const { title, desc } = Astro.props;
 
 const rootAttributes = {
-
+    'data-theme': 'light'
 };
 
+import "@styles/global.scss";
 ---
 
 <!doctype html>
@@ -23,4 +27,14 @@ const rootAttributes = {
             desc={desc || `"${title}" on ${SITE_TITLE}`}
         />
     </head>
+    <body>
+        <header>
+            <Topbar />
+        </header>
+        <span data-overlay />
+        <main>
+            <slot />
+        </main>
+        <Footer />
+    </body>
 </html>

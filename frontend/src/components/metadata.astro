@@ -14,7 +14,7 @@ const {
 } = Astro.props;
 
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+//const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 {/* Primary metadata */}
@@ -23,13 +23,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
 {/* Preload fonts */}
-<link rel="preload" href="/fonts/Raleway.ttf" as="font" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/Lato.ttf" as="font" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/JetBrainsMono.ttf" as="font" crossorigin="anonymous" />
-<link rel="preload" href="/fonts/Caveat.ttf" as="font" crossorigin="anonymous" />
+<link rel="preload" href="/fonts/Lato-Regular.ttf" as="font" crossorigin="anonymous" />
 
 {/* Canonical URL */}
-<link rel="canonical" href={canonicalURL} />
+<!--link rel="canonical" href={canonicalURL} /-->
 
 {/* Metadata for SEO and browser tabs */}
 <title>{title}</title>

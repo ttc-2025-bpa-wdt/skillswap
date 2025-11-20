@@ -1,16 +1,43 @@
 ---
-
+import Layout from "@layouts/global.astro";
+import Topbar from "@components/topbar.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro Example Website</h1>
-	</body>
-</html>
+<Layout title="Home" desc="Welcome to the site">
+	<div class="front-title">
+		<h1 class="gradient-1">Learn what you want.</h1>
+		<h1 class="gradient-2">Teach what you know.</h1>
+	</div>
+</Layout>
+
+<style>
+	.front-title {
+		display: flex;
+		flex-direction: column;
+
+		margin: 5rem;
+
+		align-items: center;
+		justify-content: center;
+		
+		> h1 {
+			font-size: 3rem;
+		}
+	}
+
+	.gradient-1 {
+		background-image: linear-gradient(45deg, var(--accent-1), var(--accent-2) 30%, white 60%);
+		background-position: 0%;
+		background-size: 600%;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.gradient-2 {
+		background-image: linear-gradient(45deg, var(--accent-2), var(--accent-1) 60%);
+		background-position: 0%;
+		background-size: 600%;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+</style>

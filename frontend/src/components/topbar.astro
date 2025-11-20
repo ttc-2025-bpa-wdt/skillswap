@@ -1,0 +1,100 @@
+---
+
+---
+
+<div class="topbar">
+    <button data-hamburger>&#9776;</button>
+</div>
+
+<div data-flyout>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/profile">Profile</a>
+</div>
+
+<script>
+    const hamburger = document.querySelector("[data-hamburger]") as HTMLButtonElement;
+    const flyout    = document.querySelector("[data-flyout]")    as HTMLDivElement;
+    const overlay   = document.querySelector("[data-overlay]")   as HTMLDivElement;
+
+    let enabled: boolean = false;
+    
+    function toggle(absolute: boolean | null = null): void {
+        enabled = absolute ?? !enabled;
+        if (enabled) {
+            flyout.classList.add("active");
+            overlay.classList.add("active");
+        }
+        else {
+            flyout.classList.remove("active");
+            overlay.classList.remove("active");
+        }
+    }
+
+    hamburger.addEventListener("click", () => toggle());
+    overlay.addEventListener("click", () => toggle(false));
+</script>
+
+<style lang="scss">
+    @use "@styles/mixins.scss";
+
+    [data-hamburger] {
+        @include mixins.hover-grow;
+
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: var(--foreground);
+
+        cursor: pointer;
+    }
+
+    [data-flyout] {
+        $transition: 0.3s ease-in-out;
+
+        display: flex;
+        flex-direction: column;
+
+        position: absolute;
+        top: 0;
+        left: -100%;
+        z-index: 1;
+
+        width: calc(100vw / 3);
+        max-width: 300px;
+        height: 100vh;
+
+        background-color: var(--background);
+
+        &.active {
+            left: 0;
+            transition: left $transition;
+        }
+
+        transition: left $transition;
+    }
+
+    .topbar {
+        display: flex;
+
+        width: 100vw;
+        height: 3rem;
+        padding: 0.25rem;
+
+        font-family: 'Lato', sans-serif;
+        background-color: var(--background);
+
+        border-bottom: 1px solid color-mix(in srgb, var(--background), #000000 20%);
+
+        & > a {
+            align-content: center;
+            text-decoration: none;
+            color: var(--foreground);
+            margin-right: 1rem;
+
+            &:hover {
+                color: #f00;
+            }
+        }
+    }
+</style>

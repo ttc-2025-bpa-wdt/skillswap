@@ -1,0 +1,15 @@
+@font-face {
+    font-family: "Lato";
+    src: url("/fonts/Lato-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("/fonts/Raleway.ttf") format("truetype");
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-family: 'Raleway', sans-serif;
+    color: var(--accent-1);
+}
