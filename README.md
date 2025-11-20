@@ -1,4 +1,4 @@
-# site
+# skillswap
 
 ## Project Structure
 
@@ -26,4 +26,3 @@ The frontend is built using Astro using the Bun runtime. For more information, s
 ## Backend
 
 The backend is a simple Node.JS server using the Bun runtime. For more information, see the `backend/README.md` file.
-
