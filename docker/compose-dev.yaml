@@ -1,0 +1,33 @@
+services:  
+  dev-frontend:
+    build:
+      context: ../project/frontend
+      dockerfile: ./docker/Dockerfile.dev
+    hostname: frontend.dev.skillswap.internal
+    environment:
+      - DOCKER_WSL2=${WSL_DISTRO_NAME:-}  # Detect WSL environment - requires extra config.
+      - ASTRO_TELEMETRY_DISABLED=1        # No, Astro. Don't track us.
+    volumes:
+      - ../project/frontend:/app:rw
+      - dev-frontend-node_modules:/app/node_modules:rw
+      - dev-frontend-astro-cache:/app/.astro:rw
+    restart: unless-stopped
+    profiles: [dev]
+
+  dev-backend:
+    build:
+      context: ../project/backend
+      dockerfile: ./docker/Dockerfile.dev
+    hostname: backend.dev.skillswap.internal
+    environment:
+      - DOCKER_WSL2=${WSL_DISTRO_NAME:-} # Detect WSL environment - requires extra config.
+    volumes:
+      - ../project/backend:/app:rw
+      - dev-backend-node_modules:/app/node_modules:rw
+    restart: unless-stopped
+    profiles: [dev]
+
+volumes:
+  dev-frontend-node_modules:
+  dev-frontend-astro-cache:
+  dev-backend-node_modules:
