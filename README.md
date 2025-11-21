@@ -9,6 +9,21 @@ the respective component. The reverse proxy configuration is also stored under t
 
 ## Quick Start
 
+### Cloning the Repository
+
+If you do not have [Git](https://git-scm.com/) installed, please follow the [Git installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for your operating system.
+
+You will need to authenticate with GitHub to clone the repository. A common way to do this is using an SSH key. If you
+do not have an SSH key set up, reference [GitHub's official guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+
+Clone the repository using the following command:
+```bash
+git clone git@github.com:ttc-2025-bpa-wdt/skillswap.git
+```
+
+This will create a local copy of the repository in a directory named `skillswap`. It will contain the entire project
+structure with its respective source code and configuration files.
+
 ### Installing Dependencies
 
 There is no development environment in this project. To get started with development you will need to have
@@ -39,6 +54,21 @@ docker compose --profile dev up --build
 This command will build the necessary Docker images and start the containers defined in the `dev` profile of the
 Docker Compose configuration. If the command fails due to a connection problem, make sure that Docker is running on your
 system.
+
+### Accessing the Application
+
+The NGINX reverse proxy is configured to route requests based on the host header. We recommend using the `Ports` feature
+in Visual Studio Code to map the internal Docker ports to your host machine for easier access. You can also configure
+a DNS server or hosts file to resolve the Docker hostnames on your machine, but we recommend using the `Ports` feature
+for simplicity.
+
+You will need the [Remote - Tunnels](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
+extension installed in Visual Studio Code to use the `Ports` feature. Once you have the extension installed, simply
+open the `Ports` view in the sidebar, and add your Docker hosts.
+
+![Port Entry](./.github/assets/quick-start-ports-menu.png)
+
+![Port Mapped](./.github/assets/quick-start-tunnel-example.png)
 
 ## Docker Configuration
 
