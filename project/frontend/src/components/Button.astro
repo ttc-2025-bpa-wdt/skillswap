@@ -1,0 +1,36 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'social';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  iconOnly?: boolean;
+  block?: boolean;
+  class?: string;
+  [key: string]: any;
+}
+
+const { 
+  variant = 'primary', 
+  size = 'md', 
+  href, 
+  iconOnly = false, 
+  block = false,
+  class: className, 
+  ...rest 
+} = Astro.props;
+
+const classes = [
+  'btn-base',
+  variant,
+  size !== 'md' ? size : '',
+  iconOnly ? 'icon-only' : '',
+  block ? 'block' : '',
+  className
+].filter(Boolean).join(' ');
+
+const Element = href ? 'a' : 'button';
+---
+
+<Element href={href} class={classes} {...rest}>
+  <slot />
+</Element>

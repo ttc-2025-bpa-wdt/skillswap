@@ -1,0 +1,441 @@
+---
+import Layout from "@layouts/global.astro";
+import Button from "@components/Button.astro";
+import Card from "@components/Card.astro";
+
+const team = [
+    {
+        name: "Alex Johnson",
+        role: "Founder & CEO",
+        desc: "Passionate about ed-tech and community building.",
+        email: "alex@skillswap.com",
+        phone: "+1 (555) 123-4567"
+    },
+    {
+        name: "Sarah Chen",
+        role: "Head of Product",
+        desc: "Designing intuitive experiences for learners everywhere.",
+        email: "sarah@skillswap.com",
+        phone: "+1 (555) 987-6543"
+    },
+    {
+        name: "Michael Smith",
+        role: "Lead Developer",
+        desc: "Building the infrastructure that powers connections.",
+        email: "michael@skillswap.com",
+        phone: "+1 (555) 456-7890"
+    },
+    {
+        name: "Emily Davis",
+        role: "Community Manager",
+        desc: "Ensuring SkillSwap remains a safe and welcoming space.",
+        email: "emily@skillswap.com",
+        phone: "+1 (555) 789-0123"
+    }
+];
+---
+
+<Layout title="About Us | SkillSwap" desc="Learn about our vision and the team behind SkillSwap.">
+    <section class="about-hero">
+        <div class="content">
+            <h1 class="gradient-text">Our Vision</h1>
+            <p class="vision-text">
+                At SkillSwap, we believe that everyone has something to teach and something to learn. 
+                Our mission is to democratize education by connecting students and mentors directly, 
+                fostering a community where knowledge flows freely and skills are exchanged with passion.
+                We envision a world where learning is accessible, collaborative, and fun.
+            </p>
+        </div>
+    </section>
+
+    <section class="section-container team-section">
+        <h2 class="section-title">Meet the Team</h2>
+        <div class="team-grid">
+            {team.map((member) => (
+                <Card class="team-card">
+                    <div class="avatar placeholder"></div>
+                    <h3>{member.name}</h3>
+                    <span class="role">{member.role}</span>
+                    <p>{member.desc}</p>
+                    <Button 
+                        variant="outline"
+                        class="btn-contact" 
+                        data-name={member.name}
+                        data-email={member.email}
+                        data-phone={member.phone}
+                    >
+                        Contact
+                    </Button>
+                </Card>
+            ))}
+        </div>
+    </section>
+
+    <div id="team-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h3 id="modal-name">Team Member</h3>
+            <div class="modal-details">
+                <div class="detail-item">
+                    <span class="icon">📧</span>
+                    <a id="modal-email" href="#">email@example.com</a>
+                </div>
+                <div class="detail-item">
+                    <span class="icon">📱</span>
+                    <span id="modal-phone">+1 (555) 000-0000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="contact" class="section-container contact-section bg-alt">
+        <h2 class="section-title">Get in Touch</h2>
+        <Card class="contact-card">
+            <div class="contact-info">
+                <h3>Contact Us</h3>
+                <p>Have questions or feedback? We'd love to hear from you.</p>
+                
+                <div class="info-item">
+                    <span class="icon">📧</span>
+                    <a href="mailto:support@skillswap.com">support@skillswap.com</a>
+                </div>
+                <div class="info-item">
+                    <span class="icon">📍</span>
+                    <span>123 Innovation Drive, Tech City, TC 90210</span>
+                </div>
+                <div class="info-item">
+                    <span class="icon">📱</span>
+                    <span>+1 (555) 123-4567</span>
+                </div>
+            </div>
+            
+            <form class="contact-form" onsubmit="event.preventDefault(); alert('Message sent!');">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" rows="4" placeholder="How can we help?" required></textarea>
+                </div>
+                <Button type="submit" variant="primary" block>Send Message</Button>
+            </form>
+        </Card>
+    </section>
+</Layout>
+
+<style lang="scss">
+    .about-hero {
+        padding: 6rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(44, 116, 196, 0.1) 0%, rgba(42, 157, 143, 0.1) 100%);
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .vision-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: var(--foreground);
+            opacity: 0.9;
+        }
+    }
+
+    .section-container {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        text-align: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--foreground);
+    }
+
+    .bg-alt {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    /* Team Section */
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        padding: 0 1rem;
+    }
+
+    .team-card {
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: var(--accent-1);
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--accent-3);
+            margin: 0 auto 1.5rem;
+            
+            &.placeholder {
+                background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+                opacity: 0.8;
+            }
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        .role {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--accent-1);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-contact {
+            border-radius: 20px;
+        }
+    }
+
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 90%;
+        max-width: 400px;
+
+        &.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-content {
+            background: var(--background);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--accent-3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--foreground);
+            opacity: 0.5;
+            
+            &:hover { opacity: 1; }
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-1);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            
+            .icon { margin-right: 0.75rem; }
+            
+            a {
+                color: var(--foreground);
+                text-decoration: none;
+                &:hover { color: var(--accent-1); }
+            }
+        }
+    }
+
+    /* Contact Section */
+    .contact-section {
+        margin-top: 2rem;
+    }
+
+    .contact-card {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 3rem;
+        padding: 3rem;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            padding: 2rem;
+            gap: 2rem;
+        }
+    }
+
+    .contact-info {
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+
+            .icon {
+                margin-right: 1rem;
+                font-size: 1.2rem;
+            }
+
+            a {
+                color: var(--accent-1);
+                text-decoration: none;
+                &:hover { text-decoration: underline; }
+            }
+        }
+    }
+
+    .contact-form {
+        .form-group {
+            margin-bottom: 1.5rem;
+
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            input, textarea {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid var(--accent-3);
+                border-radius: 8px;
+                background: var(--background);
+                color: var(--foreground);
+                font-family: 'Roboto', sans-serif;
+                box-sizing: border-box; // Ensure padding doesn't break layout
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--accent-1);
+                }
+            }
+        }
+    }
+
+    .gradient-text {
+        background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+
+<script>
+    const modal = document.getElementById('team-modal');
+    const overlay = document.querySelector('[data-overlay]');
+    const closeBtn = document.querySelector('.close-modal');
+    const contactBtns = document.querySelectorAll('.btn-contact');
+    
+    const modalName = document.getElementById('modal-name');
+    const modalEmail = document.getElementById('modal-email') as HTMLAnchorElement;
+    const modalPhone = document.getElementById('modal-phone');
+
+    function openModal(btn: Element) {
+        const name = btn.getAttribute('data-name');
+        const email = btn.getAttribute('data-email');
+        const phone = btn.getAttribute('data-phone');
+
+        if (modalName) modalName.textContent = name;
+        if (modalEmail) {
+            modalEmail.textContent = email;
+            modalEmail.href = `mailto:${email}`;
+        }
+        if (modalPhone) modalPhone.textContent = phone;
+
+        modal?.classList.add('active');
+        overlay?.classList.add('active');
+        
+        // Boost overlay z-index to cover topbar if needed
+        if (overlay instanceof HTMLElement) {
+            overlay.style.zIndex = '999';
+        }
+    }
+
+    function closeModal() {
+        modal?.classList.remove('active');
+        overlay?.classList.remove('active');
+        
+        // Reset overlay z-index
+        if (overlay instanceof HTMLElement) {
+            setTimeout(() => {
+                overlay.style.zIndex = '';
+            }, 300); // Wait for transition
+        }
+    }
+
+    contactBtns.forEach(btn => {
+        btn.addEventListener('click', () => openModal(btn));
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+    
+    // Reuse existing overlay click, but ensure we clean up z-index
+    overlay?.addEventListener('click', () => {
+        if (modal?.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>

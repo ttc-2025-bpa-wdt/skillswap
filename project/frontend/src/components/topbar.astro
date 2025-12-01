@@ -1,15 +1,33 @@
 ---
-
+import Button from "@components/Button.astro";
 ---
 
 <div class="topbar">
+    <div class="logo">
+        <a href="/">SkillSwap</a>
+    </div>
+    
+    <div class="desktop-nav">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/#features">Features</a>
+        <a href="/about#contact">Contact</a>
+        <div class="auth-buttons">
+            <Button href="/auth/login" variant="secondary" size="sm">Log In</Button>
+            <Button href="/auth/register" variant="primary" size="sm">Register</Button>
+        </div>
+    </div>
+
     <button data-hamburger>&#9776;</button>
 </div>
 
 <div data-flyout>
     <a href="/">Home</a>
     <a href="/about">About</a>
-    <a href="/profile">Profile</a>
+    <a href="/#features">Features</a>
+    <a href="/about#contact">Contact</a>
+    <a href="/auth/login">Login</a>
+    <a href="/auth/register">Register</a>
 </div>
 
 <script>
@@ -31,12 +49,69 @@
         }
     }
 
-    hamburger.addEventListener("click", () => toggle());
-    overlay.addEventListener("click", () => toggle(false));
+    if (hamburger) {
+        hamburger.addEventListener("click", () => toggle());
+    }
+    if (overlay) {
+        overlay.addEventListener("click", () => toggle(false));
+    }
 </script>
 
 <style lang="scss">
     @use "@styles/mixins.scss";
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+
+        width: 100vw;
+        height: 4rem;
+        padding: 0 2rem;
+        box-sizing: border-box;
+
+        /* font-family inherited from body */
+        background-color: var(--background);
+        border-bottom: 1px solid var(--accent-3);
+        
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .logo a {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-decoration: none;
+        color: var(--accent-1);
+    }
+
+    .desktop-nav {
+        display: none;
+        align-items: center;
+        gap: 2rem;
+        flex: 1;
+
+        > a {
+            text-decoration: none;
+            color: var(--foreground);
+            font-weight: 500;
+            transition: color 0.2s;
+
+            &:hover {
+                color: var(--accent-1);
+            }
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+
+    }
 
     [data-hamburger] {
         @include mixins.hover-grow;
@@ -45,8 +120,9 @@
         background: none;
         border: none;
         color: var(--foreground);
-
         cursor: pointer;
+        display: block;
+        margin-left: auto;
     }
 
     [data-flyout] {
@@ -54,17 +130,20 @@
 
         display: flex;
         flex-direction: column;
+        padding: 2rem;
+        gap: 1.5rem;
 
-        position: absolute;
+        position: fixed;
         top: 0;
         left: -100%;
-        z-index: 1;
+        z-index: 101;
 
-        width: calc(100vw / 3);
+        width: 80%;
         max-width: 300px;
         height: 100vh;
 
         background-color: var(--background);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 
         &.active {
             left: 0;
@@ -72,29 +151,25 @@
         }
 
         transition: left $transition;
-    }
 
-    .topbar {
-        display: flex;
-
-        width: 100vw;
-        height: 3rem;
-        padding: 0.25rem;
-
-        font-family: 'Lato', sans-serif;
-        background-color: var(--background);
-
-        border-bottom: 1px solid color-mix(in srgb, var(--background), #000000 20%);
-
-        & > a {
-            align-content: center;
+        a {
             text-decoration: none;
             color: var(--foreground);
-            margin-right: 1rem;
-
+            font-size: 1.2rem;
+            
             &:hover {
-                color: #f00;
+                color: var(--accent-1);
             }
+        }
+    }
+
+    @media (min-width: 768px) {
+        .desktop-nav {
+            display: flex;
+        }
+
+        [data-hamburger] {
+            display: none;
         }
     }
 </style>
