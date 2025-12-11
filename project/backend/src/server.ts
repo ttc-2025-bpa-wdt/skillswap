@@ -1,26 +1,10 @@
-import http from "http";
-import express from "express";
-import httpProxy from "http-proxy";
+import { Server } from "@substrant/routeforge/engine";
+import { ApiV1Controller } from "./routes/v1";
 
-const app = express();
-const server = http.createServer(app);
-
-const astroProxy = httpProxy.createProxyServer({
-    target: "http://frontend.bpa.internal:3000",
-    ws: true
+const server = await Server.create({
+    http: { port: 80 },
 });
 
-server.on("upgrade", (req, socket, head) => astroProxy.ws(req, socket, head));
-app.use('/{*splat}', async (req, res) => {
-    const orig = await fetch(`http://frontend.bpa.internal:3000${req.originalUrl}`);
-    orig.headers.forEach((value, key) => res.setHeader(key, value));
-    res.status(orig.status);
+await server.mount("/api/v1", new ApiV1Controller());
+await server.start();
 
-    const data = await orig.arrayBuffer();
-    res.send(Buffer.from(data));
-});
-
-const PORT = process.env.PORT ?? 80;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
