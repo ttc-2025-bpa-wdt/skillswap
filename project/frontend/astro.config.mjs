@@ -10,10 +10,7 @@ export default defineConfig({
         allowedHosts: ["frontend.live.skillswap.internal.", "frontend.dev.skillswap.internal."]
     },
     vite: {
-        server: {
-            host: "0.0.0.0",
-            watch: { usePolling: process.env.DOCKER_WSL2 !== undefined }
-        }
+        server: { host: "0.0.0.0" }
     },
     integrations: [icon()]
 });
