@@ -2,6 +2,7 @@
     "name": "Development Container",
     "dockerComposeFile": "../docker/compose-dev.yaml",
     "service": "dev-workspace",
+    "remoteUser": "runner",
     "containerUser": "runner",
     "workspaceFolder": "/workspace",
     "shutdownAction": "stopCompose",
