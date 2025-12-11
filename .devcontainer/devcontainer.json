@@ -1,7 +1,7 @@
 {
     "name": "Development Container",
     "dockerComposeFile": "../docker/compose-dev.yaml",
-    "service": "dev-workspace",
+    "service": "workspace",
     "remoteUser": "runner",
     "containerUser": "runner",
     "workspaceFolder": "/workspace",
