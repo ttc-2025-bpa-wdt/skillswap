@@ -1,5 +1,6 @@
+name: "skillswap-dev"
 services:  
-  dev-workspace:
+  workspace:
     build:
       context: ../.devcontainer
       dockerfile: ./Dockerfile
@@ -8,7 +9,7 @@ services:
       - ../:/workspace:rw
     restart: unless-stopped
 
-  dev-frontend:
+  frontend:
     build:
       context: ../project/frontend
       dockerfile: ./docker/Dockerfile.dev
@@ -17,21 +18,21 @@ services:
       - ASTRO_TELEMETRY_DISABLED=1
     volumes:
       - ../project/frontend:/app:rw
-      - dev-frontend-node_modules:/app/node_modules:rw
-      - dev-frontend-astro-cache:/app/.astro:rw
+      - frontend-node_modules:/app/node_modules:rw
+      - frontend-astro-cache:/app/.astro:rw
     restart: unless-stopped
 
-  dev-backend:
+  backend:
     build:
       context: ../project/backend
       dockerfile: ./docker/Dockerfile.dev
     hostname: backend.dev.skillswap.internal
     volumes:
       - ../project/backend:/app:rw
-      - dev-backend-node_modules:/app/node_modules:rw
+      - backend-node_modules:/app/node_modules:rw
     restart: unless-stopped
 
-  dev-postgres:
+  postgres:
     image: postgres:18.1-alpine
     hostname: postgres.dev.skillswap.internal
     environment:
@@ -39,12 +40,12 @@ services:
       - POSTGRES_PASSWORD=skillswap_dev_password
       - POSTGRES_DB=skillswap_dev_db
     volumes:
-      - dev-postgres-data:/var/lib/postgresql/data:rw
+      - postgres-data:/var/lib/postgresql/data:rw
     ports:
       - "5432:5432"
     restart: unless-stopped
 
-  dev-nginx:
+  nginx:
     image: nginx:alpine
     hostname: dev.skillswap.internal
     ports:
@@ -55,7 +56,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  dev-frontend-node_modules:
-  dev-frontend-astro-cache:
-  dev-backend-node_modules:
-  dev-postgres-data:
+  frontend-node_modules:
+  frontend-astro-cache:
+  backend-node_modules:
+  postgres-data:
