@@ -1,17 +1,19 @@
 {
 	"folders": [
 		{
-			"name": "frontend",
+			"name": "Frontend",
 			"path": "./project/frontend"
 		},
 		{
-			"name": "backend",
+			"name": "Backend",
 			"path": "./project/backend"
 		},
 		{
-			"name": "nginx",
+			"name": "Reverse Proxy",
 			"path": "./project/nginx"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.editor.labelFormat": "medium"
+	}
 }
