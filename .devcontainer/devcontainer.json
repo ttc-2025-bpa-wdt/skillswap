@@ -20,7 +20,8 @@
                 "ms-azuretools.vscode-docker",      // Docker support for containerized development
                 "GitHub.copilot-chat",              // GitHub Copilot extension, helpful for coding assistance
                 "william-voyek.vscode-nginx",       // Syntax highlighting for NGINX config files
-                "ms-vscode.remote-server"           // Remote development and dev tunnels
+                "ms-vscode.remote-server",          // Remote development and dev tunnels
+                "IvanArjona.cloudflaretunnel"       // Cloudflare Tunnel integration for quick exposure of local servers
             ]
         }
     },
