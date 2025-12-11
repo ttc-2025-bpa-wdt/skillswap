@@ -1,33 +1,61 @@
 services:  
+  dev-workspace:
+    build:
+      context: ../.devcontainer
+      dockerfile: ./Dockerfile
+    hostname: workspace.dev.skillswap.internal
+    volumes:
+      - ../:/workspace:rw
+    restart: unless-stopped
+
   dev-frontend:
     build:
       context: ../project/frontend
       dockerfile: ./docker/Dockerfile.dev
     hostname: frontend.dev.skillswap.internal
     environment:
-      - DOCKER_WSL2=${WSL_DISTRO_NAME:-}  # Detect WSL environment - requires extra config.
-      - ASTRO_TELEMETRY_DISABLED=1        # No, Astro. Don't track us.
+      - ASTRO_TELEMETRY_DISABLED=1
     volumes:
       - ../project/frontend:/app:rw
       - dev-frontend-node_modules:/app/node_modules:rw
       - dev-frontend-astro-cache:/app/.astro:rw
     restart: unless-stopped
-    profiles: [dev]
 
   dev-backend:
     build:
       context: ../project/backend
       dockerfile: ./docker/Dockerfile.dev
     hostname: backend.dev.skillswap.internal
-    environment:
-      - DOCKER_WSL2=${WSL_DISTRO_NAME:-} # Detect WSL environment - requires extra config.
     volumes:
       - ../project/backend:/app:rw
       - dev-backend-node_modules:/app/node_modules:rw
     restart: unless-stopped
-    profiles: [dev]
+
+  dev-postgres:
+    image: postgres:18.1-alpine
+    hostname: postgres.dev.skillswap.internal
+    environment:
+      - POSTGRES_USER=skillswap_dev
+      - POSTGRES_PASSWORD=skillswap_dev_password
+      - POSTGRES_DB=skillswap_dev_db
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  dev-nginx:
+    image: nginx:alpine
+    hostname: dev.skillswap.internal
+    ports:
+      - "${HOST_PORT:-80}:80"
+    volumes:
+      - ../project/nginx/hosts:/etc/nginx/conf.d/hosts:ro
+      - ../project/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
 
 volumes:
   dev-frontend-node_modules:
   dev-frontend-astro-cache:
   dev-backend-node_modules:
+  dev-postgres-data:
