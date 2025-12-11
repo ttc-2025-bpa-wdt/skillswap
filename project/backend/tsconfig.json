@@ -20,6 +20,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
 
+    // Decorators (needed for RouteForge)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
