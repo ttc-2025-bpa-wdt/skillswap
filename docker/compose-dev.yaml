@@ -49,9 +49,9 @@ services:
     image: nginx:alpine
     hostname: dev.skillswap.internal
     ports:
-      - "${HOST_PORT:-80}:80"
+      - "${HOST_PORT:-3000}:80"
     volumes:
-      - ../project/nginx/hosts:/etc/nginx/conf.d/hosts:ro
+      - ../project/nginx/hosts/dev.conf:/etc/nginx/conf.d/hosts/dev.conf:ro
       - ../project/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     restart: unless-stopped
 

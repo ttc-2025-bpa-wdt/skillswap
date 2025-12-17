@@ -2,9 +2,11 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
-# Install dependencies
-COPY package.json bun.lock ./
+# Copy application files and install dependencies
+COPY . .
 RUN bun install --no-save
 
 # Expose port 80
 EXPOSE 80
+
+CMD ["bun", "run", "start"]
