@@ -1,41 +1,55 @@
 ---
+import { Profiles } from "shared/models";
+
 import Layout from "@layouts/global.astro";
-import Button from "@components/Button.astro";
-import Card from "@components/Card.astro";
+import Button from "@components/base/Button.astro";
+import Card from "@components/base/Card.astro";
 
 const team = [
     {
-        name: "Alex Johnson",
-        role: "Founder & CEO",
-        desc: "Passionate about ed-tech and community building.",
-        email: "alex@skillswap.com",
-        phone: "+1 (555) 123-4567"
+        profile: Profiles.fetchByHandle("nicholas.h")!,
+        role: "Development Lead/DevOps Architect",
+        desc: "Leading the development of SkillSwap's platform",
+        email: "nicholas@skillswap.bpariverside.org"
     },
     {
-        name: "Sarah Chen",
-        role: "Head of Product",
-        desc: "Designing intuitive experiences for learners everywhere.",
-        email: "sarah@skillswap.com",
-        phone: "+1 (555) 987-6543"
+        profile: Profiles.fetchByHandle("zachary.v")!,
+        role: "Project Manager and UI/UX Designer",
+        desc: "Crafting the experience and interface of SkillSwap",
+        email: "zvp@skillswap.bpariverside.org"
     },
     {
-        name: "Michael Smith",
-        role: "Lead Developer",
-        desc: "Building the infrastructure that powers connections.",
-        email: "michael@skillswap.com",
-        phone: "+1 (555) 456-7890"
+        profile: Profiles.fetchByHandle("nicholas.g")!,
+        role: "Community Engagement Expert",
+        desc: "Making sure SkillSwap stays fun and engaging",
+        email: "nickg@skillswap.bpariverside.org"
     },
     {
-        name: "Emily Davis",
-        role: "Community Manager",
-        desc: "Ensuring SkillSwap remains a safe and welcoming space.",
-        email: "emily@skillswap.com",
-        phone: "+1 (555) 789-0123"
+        profile: Profiles.fetchByHandle("kyle.j")!,
+        role: "Marketing/Social Coordinator",
+        desc: "Promoting SkillSwap and connecting community",
+        email: "kyle@skillswap.bpariverside.org"
     }
 ];
+
+const competitionMetadata = {
+    title: "(V04) Web Application Team",
+    chapter: "Tulsa Technology Center - Riverside Campus",
+    members: team.map(member => {
+        const name = member.profile.displayName;
+        return member.profile.handle == "nicholas.h" ? `${name} (Captain)` : name;
+    }),
+    theme:   "Personalized Learning and Skill Development",
+    school:  "Tulsa Technology Center - IT System Administration, Cyber Security/Forensics",
+    city:    "Tulsa",
+    state:   "Oklahoma",
+    year:    new Date().getFullYear(),
+    repo:    "https://github.com/ttc-2025-bpa-wdt/skillswap",
+    project: "https://trello.com/b/skill-swap" // todo: impl
+};
 ---
 
-<Layout title="About Us | SkillSwap" desc="Learn about our vision and the team behind SkillSwap.">
+<Layout title="About Us" desc="Learn about our vision and the team behind SkillSwap.">
     <section class="about-hero">
         <div class="content">
             <h1 class="gradient-text">Our Vision</h1>
@@ -51,44 +65,68 @@ const team = [
     <section class="section-container team-section">
         <h2 class="section-title">Meet the Team</h2>
         <div class="team-grid">
-            {team.map((member) => (
+            {team.map(member => (
                 <Card class="team-card">
-                    <div class="avatar placeholder"></div>
-                    <h3>{member.name}</h3>
+                    <img src={member.profile.avatarUrl} alt={member.profile.displayName} class="avatar" />
+                    <h3>{member.profile.displayName.split(" ")[0] /* todo: lol this is hacky */}<br/>{member.profile.displayName.split(" ")[1]}</h3>
                     <span class="role">{member.role}</span>
                     <p>{member.desc}</p>
-                    <Button 
-                        variant="outline"
-                        class="btn-contact" 
-                        data-name={member.name}
-                        data-email={member.email}
-                        data-phone={member.phone}
-                    >
-                        Contact
-                    </Button>
+                    <Button variant="outline" class="btn-contact" data-email={member.email} href={`mailto:${member.email}`}>Email</Button>
                 </Card>
             ))}
         </div>
     </section>
 
-    <div id="team-modal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal">&times;</button>
-            <h3 id="modal-name">Team Member</h3>
-            <div class="modal-details">
-                <div class="detail-item">
-                    <span class="icon">📧</span>
-                    <a id="modal-email" href="#">email@example.com</a>
+    <section class="section-container competition-section bg-alt">
+        <h2 class="section-title">Competition Details</h2>
+        <Card class="competition-card">
+            <div class="card-header">
+                <h3>{competitionMetadata.title}</h3>
+            </div>
+            
+            <div class="divider"></div>
+
+            <div class="card-body">
+                <div class="info-group">
+                    <span class="label">Chapter / School / Class</span>
+                    <span class="chapter">{competitionMetadata.chapter}</span>
+                    <span class="school">{competitionMetadata.school}</span>
                 </div>
-                <div class="detail-item">
-                    <span class="icon">📱</span>
-                    <span id="modal-phone">+1 (555) 000-0000</span>
+
+                <div class="info-group">
+                    <span class="label">Theme</span>
+                    <span class="value highlight">{competitionMetadata.theme}</span>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-group">
+                        <span class="label">Location</span>
+                        <span class="value">{competitionMetadata.city}, {competitionMetadata.state}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="label">Year</span>
+                        <span class="value">{competitionMetadata.year}</span>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <span class="label">Team Members</span>
+                    <div class="member-chips">
+                        {competitionMetadata.members.map(member => (
+                            <span class="chip">{member}</span>
+                        ))}
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <Button variant="primary" href={competitionMetadata.repo}    target="_blank">GitHub Repo</Button>
+                    <Button variant="outline" href={competitionMetadata.project} target="_blank">Project Board</Button>
                 </div>
             </div>
-        </div>
-    </div>
+        </Card>
+    </section>
 
-    <section id="contact" class="section-container contact-section bg-alt">
+    <section id="contact" class="section-container contact-section">
         <h2 class="section-title">Get in Touch</h2>
         <Card class="contact-card">
             <div class="contact-info">
@@ -97,15 +135,15 @@ const team = [
                 
                 <div class="info-item">
                     <span class="icon">📧</span>
-                    <a href="mailto:support@skillswap.com">support@skillswap.com</a>
+                    <a href="mailto:support@skillswap.bpariverside.org">support@skillswap.bpariverside.org</a>
                 </div>
                 <div class="info-item">
                     <span class="icon">📍</span>
-                    <span>123 Innovation Drive, Tech City, TC 90210</span>
-                </div>
-                <div class="info-item">
-                    <span class="icon">📱</span>
-                    <span>+1 (555) 123-4567</span>
+                    <span>801 East 91st Street, Tulsa, OK 74132-4008</span>
+                    <div class="tooltip" tabindex="0" aria-label="Address information">
+                        <span class="tooltip-icon">ℹ️</span>
+                        <span class="tooltip-text">This is the address of our campus. This is not an office for SkillSwap and should not be used for mailing or in-person visits. This is purely for informational purposes laid out in the competition guidelines.</span>
+                    </div>
                 </div>
             </div>
             
@@ -134,6 +172,10 @@ const team = [
         text-align: center;
         background: linear-gradient(135deg, rgba(44, 116, 196, 0.1) 0%, rgba(42, 157, 143, 0.1) 100%);
         
+        @media (max-width: 768px) {
+            padding: 4rem 1.5rem;
+        }
+
         .content {
             max-width: 800px;
             margin: 0 auto;
@@ -143,6 +185,10 @@ const team = [
             font-family: 'Montserrat', sans-serif;
             font-size: 3rem;
             margin-bottom: 1.5rem;
+            
+            @media (max-width: 768px) {
+                font-size: 2.25rem;
+            }
         }
 
         .vision-text {
@@ -150,13 +196,19 @@ const team = [
             line-height: 1.8;
             color: var(--foreground);
             opacity: 0.9;
+            
+            @media (max-width: 768px) {
+                font-size: 1.1rem;
+            }
         }
     }
 
     .section-container {
         padding: 4rem 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
+
+        @media (max-width: 768px) {
+            padding: 3rem 1.5rem;
+        }
     }
 
     .section-title {
@@ -165,23 +217,146 @@ const team = [
         font-size: 2.5rem;
         margin-bottom: 3rem;
         color: var(--foreground);
+        
+        @media (max-width: 768px) {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
     }
 
     .bg-alt {
         background-color: rgba(0, 0, 0, 0.02);
     }
 
+    /* Competition Section */
+    .competition-card {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    .card-header {
+        padding: 2rem 2rem 1.5rem;
+        text-align: center;
+        
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--foreground);
+        }
+
+        .school {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+    }
+
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent-3), transparent);
+        opacity: 0.5;
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .card-body {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .info-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        
+        .chapter {
+            font-size: 1.25rem;
+            color: #BC2035;
+        }
+
+        .school {
+            color: color-mix(in srgb, #BC2035, var(--text-muted) 80%);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .label {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-1);
+        }
+        
+        .value {
+            font-size: 1.1rem;
+            color: var(--foreground);
+            
+            &.highlight {
+                font-size: 1.25rem;
+                font-weight: 500;
+                line-height: 1.4;
+            }
+        }
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+    }
+
+    .member-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        
+        .chip {
+            background-color: var(--background);
+            border: 1px solid var(--accent-3);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: default;
+            transition: all 0.2s;
+            
+            &:hover {
+                border-color: var(--accent-1);
+                color: var(--accent-1);
+                transform: translateY(-2px);
+            }
+        }
+    }
+
     /* Team Section */
     .team-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        /* Reduced min-width to 220px to allow 4 items to fit on a row in a 1200px container */
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 2rem;
         padding: 0 1rem;
+        
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            padding: 0;
+            gap: 1.5rem;
+        }
     }
 
     .team-card {
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
 
         &:hover {
             transform: translateY(-5px);
@@ -193,13 +368,14 @@ const team = [
             width: 100px;
             height: 100px;
             border-radius: 50%;
+            object-fit: cover;
             background-color: var(--accent-3);
             margin: 0 auto 1.5rem;
             
-            &.placeholder {
+            /* &.placeholder {
                 background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
                 opacity: 0.8;
-            }
+            } */
         }
 
         h3 {
@@ -223,83 +399,8 @@ const team = [
             font-size: 0.95rem;
             opacity: 0.8;
             margin-bottom: 1.5rem;
+            flex-grow: 1;
         }
-
-        .btn-contact {
-            border-radius: 20px;
-        }
-    }
-
-    /* Modal Styles */
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0.9);
-        z-index: 1000;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        width: 90%;
-        max-width: 400px;
-
-        &.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .modal-content {
-            background: var(--background);
-            padding: 2rem;
-            border-radius: 16px;
-            border: 1px solid var(--accent-3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            position: relative;
-            text-align: center;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--foreground);
-            opacity: 0.5;
-            
-            &:hover { opacity: 1; }
-        }
-
-        h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent-1);
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            
-            .icon { margin-right: 0.75rem; }
-            
-            a {
-                color: var(--foreground);
-                text-decoration: none;
-                &:hover { color: var(--accent-1); }
-            }
-        }
-    }
-
-    /* Contact Section */
-    .contact-section {
-        margin-top: 2rem;
     }
 
     .contact-card {
@@ -308,10 +409,13 @@ const team = [
         gap: 3rem;
         padding: 3rem;
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             grid-template-columns: 1fr;
-            padding: 2rem;
             gap: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            padding: 1.5rem;
         }
     }
 
@@ -329,13 +433,91 @@ const team = [
 
         .info-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* Align top for multi-line text */
             margin-bottom: 1rem;
             font-size: 1rem;
 
             .icon {
                 margin-right: 1rem;
                 font-size: 1.2rem;
+                flex-shrink: 0; /* Prevent icon from squishing */
+                margin-top: 0.2rem; /* Visual alignment with text */
+            }
+
+            .tooltip {
+                position: relative;
+                display: inline-flex;
+                margin-left: 0.5rem;
+                cursor: help;
+                
+                &:focus {
+                    outline: none;
+                }
+                
+                .tooltip-icon {
+                    font-size: 1rem;
+                    opacity: 0.7;
+                    transition: opacity 0.2s;
+                }
+
+                &:hover .tooltip-icon,
+                &:focus .tooltip-icon {
+                    opacity: 1;
+                }
+
+                .tooltip-text {
+                    visibility: hidden;
+                    background-color: var(--foreground);
+                    color: var(--background);
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    position: absolute;
+                    z-index: 100;
+                    bottom: 140%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    opacity: 0;
+                    transition: opacity 0.2s, visibility 0.2s;
+                    font-size: 0.8rem;
+                    white-space: normal;
+                    line-height: 1.4;
+                    pointer-events: none;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    width: max-content;
+                    max-width: 300px;
+
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        top: 100%;
+                        left: 50%;
+                        margin-left: -5px;
+                        border-width: 5px;
+                        border-style: solid;
+                        border-color: var(--foreground) transparent transparent transparent;
+                    }
+
+                    @media (max-width: 600px) {
+                        max-width: 200px;
+                        /* Shift slightly left on mobile to avoid overflow since icon is on the right */
+                        left: auto;
+                        right: -10px;
+                        transform: none;
+                        
+                        &::after {
+                            left: auto;
+                            right: 14px;
+                        }
+                    }
+                }
+
+                &:hover .tooltip-text,
+                &:focus .tooltip-text,
+                &:focus-within .tooltip-text {
+                    visibility: visible;
+                    opacity: 1;
+                }
             }
 
             a {
@@ -382,60 +564,3 @@ const team = [
         background-clip: text;
     }
 </style>
-
-<script>
-    const modal = document.getElementById('team-modal');
-    const overlay = document.querySelector('[data-overlay]');
-    const closeBtn = document.querySelector('.close-modal');
-    const contactBtns = document.querySelectorAll('.btn-contact');
-    
-    const modalName = document.getElementById('modal-name');
-    const modalEmail = document.getElementById('modal-email') as HTMLAnchorElement;
-    const modalPhone = document.getElementById('modal-phone');
-
-    function openModal(btn: Element) {
-        const name = btn.getAttribute('data-name');
-        const email = btn.getAttribute('data-email');
-        const phone = btn.getAttribute('data-phone');
-
-        if (modalName) modalName.textContent = name;
-        if (modalEmail) {
-            modalEmail.textContent = email;
-            modalEmail.href = `mailto:${email}`;
-        }
-        if (modalPhone) modalPhone.textContent = phone;
-
-        modal?.classList.add('active');
-        overlay?.classList.add('active');
-        
-        // Boost overlay z-index to cover topbar if needed
-        if (overlay instanceof HTMLElement) {
-            overlay.style.zIndex = '999';
-        }
-    }
-
-    function closeModal() {
-        modal?.classList.remove('active');
-        overlay?.classList.remove('active');
-        
-        // Reset overlay z-index
-        if (overlay instanceof HTMLElement) {
-            setTimeout(() => {
-                overlay.style.zIndex = '';
-            }, 300); // Wait for transition
-        }
-    }
-
-    contactBtns.forEach(btn => {
-        btn.addEventListener('click', () => openModal(btn));
-    });
-
-    closeBtn?.addEventListener('click', closeModal);
-    
-    // Reuse existing overlay click, but ensure we clean up z-index
-    overlay?.addEventListener('click', () => {
-        if (modal?.classList.contains('active')) {
-            closeModal();
-        }
-    });
-</script>

@@ -1,7 +1,7 @@
 ---
 import Layout from "@layouts/global.astro";
-import Button from "@components/Button.astro";
-import Card from "@components/Card.astro";
+import Button from "@components/base/Button.astro";
+import Card from "@components/base/Card.astro";
 ---
 
 <Layout title="Home" desc="SkillSwap - Learn. Teach. Connect.">
@@ -15,9 +15,7 @@ import Card from "@components/Card.astro";
 			</div>
 		</div>
         <div class="hero-visual">
-            <div class="preview-image-box">
-                <span>Preview Image</span>
-            </div>
+            <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" class="preview-image" />
         </div>
 	</section>
 
@@ -86,22 +84,22 @@ import Card from "@components/Card.astro";
 	<section id="skills" class="section-container">
         <h2 class="section-title">Featured Skills</h2>
 		<div class="skills-grid">
-			<Card class="skill-card">
+			<Card class="skill-card" href="/search?q=Math">
 				<div class="skill-icon">📐</div>
 				<h3>Math</h3>
                 <p>Calculus, Algebra, Statistics</p>
 			</Card>
-			<Card class="skill-card">
+			<Card class="skill-card" href="/search?q=Guitar">
 				<div class="skill-icon">🎸</div>
 				<h3>Guitar</h3>
                 <p>Acoustic, Electric, Theory</p>
 			</Card>
-			<Card class="skill-card">
+			<Card class="skill-card" href="/search?q=Coding">
 				<div class="skill-icon">💻</div>
 				<h3>Coding</h3>
                 <p>Python, JavaScript, React</p>
 			</Card>
-            <Card class="skill-card">
+            <Card class="skill-card" href="/search?q=Photography">
 				<div class="skill-icon">📷</div>
 				<h3>Photography</h3>
                 <p>Portrait, Landscape, Editing</p>
@@ -139,8 +137,6 @@ import Card from "@components/Card.astro";
         opacity: 0.8;
     }
 
-
-
     .section-container {
         width: 100%;
         padding: 4rem 2rem;
@@ -159,15 +155,12 @@ import Card from "@components/Card.astro";
         background-color: color-mix(in srgb, var(--background), var(--accent-3) 10%);
     }
 
-    /* Hero Section */
 	.hero {
-		display: flex;
+        flex-direction: row;
 		align-items: center;
-		justify-content: space-between;
-		min-height: 80vh;
+		min-height: 40vh;
 		padding: 2rem 5%;
         gap: 2rem;
-        overflow: hidden;
         background: linear-gradient(135deg, var(--background) 0%, color-mix(in srgb, var(--background), var(--accent-3) 20%) 100%);
         border-bottom: 1px solid var(--accent-3);
 	}
@@ -185,20 +178,11 @@ import Card from "@components/Card.astro";
         padding: 2rem;
     }
 
-    .preview-image-box {
+    .preview-image {
         width: 100%;
         max-width: 500px;
-        aspect-ratio: 16/9;
-        background-color: var(--background);
-        border: 2px dashed var(--accent-3);
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--accent-3);
-        font-weight: 700;
-        font-size: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        height: auto;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
     }
 
 	.gradient-text {
@@ -224,9 +208,6 @@ import Card from "@components/Card.astro";
 		gap: 1rem;
 	}
 
-
-
-    /* How It Works */
     .steps-container {
         display: flex;
         justify-content: space-between;

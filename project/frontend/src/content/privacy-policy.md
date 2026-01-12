@@ -1,7 +1,7 @@
 ---
 title: "Privacy Policy"
-date: 2024-12-11
-slug: "privacy-policy"
+date: 2025-01-11
+slug: "privacy"
 ---
 
 SkillSwap ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect,
@@ -23,6 +23,22 @@ We use the information we collect to provide, maintain, and improve the Service,
 - Facilitate user registration and account management.
 - Communicate with you about your account and the Service.
 - Analyze usage patterns to improve the Service.
-- Send you promotional materials, subject to your preferences.
 - Comply with legal obligations.
+
+We use your information to only provide and improve the Service, and we do not use it for any other purposes without
+your consent. You may control your public profile information and communication preferences through your account
+settings.
+
+## 3. Sharing Your Information
+
+We do not sell your personal information. Key points about sharing:
+- Non-negotiables: We do not share your personal information with third parties for their marketing purposes.
+- Service Providers: We may share your information with trusted third-party service providers who assist us in operating
+  the Service, subject to strict confidentiality agreements, such as Google for authentication purposes.
+- Legal Compliance: We may disclose your information if required by law or to protect our rights.
+
+## 4. Data Security
+
+We implement industry standard security measures to protect your information from unauthorized access, alteration,
+disclosure, or destruction, including encryption and secure servers. 
 

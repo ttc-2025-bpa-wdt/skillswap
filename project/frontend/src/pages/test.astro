@@ -1,0 +1,41 @@
+---
+import Button from '@components/base/Button.astro';
+import Card from '@components/base/Card.astro';
+import Layout from '@layouts/global.astro';
+---
+
+<Layout title="Home" desc="SkillSwap - Learn. Teach. Connect.">
+    <h1>Test Page</h1>
+    <p>This is a test page for development purposes.</p>
+
+    <Button variant="primary">Primary Button</Button>
+    <Button variant="secondary">Secondary Button</Button>
+    <Button variant="outline">Outline Button</Button>
+    <Button variant="ghost">Ghost Button</Button>
+
+    <section>
+        <h2>Test Section</h2>
+        <p>This section is used to test components and layouts.</p>
+
+        <Card>
+            <h3>Card Title</h3>
+            <p>This is a card component used for testing.</p>
+            <Button id="test" variant="primary">Card Action</Button>
+        </Card>
+
+        <section>
+            <h3>Nested Section</h3>
+            <p>This nested section is for testing nested layouts and styles.</p>
+            
+            <aside>
+                <span>More details: </span>
+                <span>Publication Date: April 27, 2024</span>
+            </aside>
+        </section>
+
+        <aside>
+            <span>More details: </span>
+            <span>Publication Date: April 27, 2024</span>
+        </aside>
+    </section>
+</Layout>

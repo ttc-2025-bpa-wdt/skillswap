@@ -1,19 +1,7 @@
 @use "@styles/themes.scss";
-@use "@styles/fonts.scss";
 
 *, *::before, *::after {
     box-sizing: border-box;
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Roboto', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    background-color: var(--background);
-    color: var(--foreground);
-    scroll-behavior: smooth;
 }
 
 [data-overlay] {
@@ -38,4 +26,72 @@ html, body {
     }
 
     transition: opacity 0.3s ease-in-out;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+
+    background-color: var(--background);
+    color: var(--foreground);
+    scroll-behavior: smooth;
+}
+
+section, article {
+    display: flex;
+    flex-direction: column;
+}
+
+aside {
+    padding: 0.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+
+    color: var(--foreground);
+}
+
+p {
+    margin: 0 0 1rem 0;
+}
+
+input, textarea, select {
+    font-family: inherit;
+    box-sizing: border-box;
+
+    background: var(--background);
+    color: var(--foreground);
+
+    border: 1px solid var(--accent-3);
+    border-radius: 4px;
+    
+    transition: border-color 0.2s ease;
+
+    &[type='text'], &[type='email'], &[type='password'] {
+        padding: 0.5rem;
+
+        &:focus {
+            border-color: var(--accent-1);
+            outline: none;
+        }
+    }
+
+    &[disabled] {
+        background-color: color-mix(in srgb, var(--background), black 10%) !important; // FUCK YOU
+        cursor: not-allowed;
+    }
+
+    &:hover {
+        border-color: var(--accent-1);
+    }
 }

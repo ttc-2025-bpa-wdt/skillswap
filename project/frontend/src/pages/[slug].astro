@@ -1,12 +1,140 @@
 ---
-import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
+import Layout from "@layouts/global.astro";
+import { Remarkable } from "remarkable";
+import Card from "@components/base/Card.astro";
 
-export async function getStaticPaths() {
-    const posts = await getCollection("posts");
-    return posts.map((post) => ({
-        params: { slug: post.slug },
-        props: { post },
-    }));
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+// Use Vite's import.meta.glob to load raw markdown content
+// This works in both dev and production (SSR)
+const files = import.meta.glob("/src/content/*.md", { query: "?raw", import: "default", eager: true });
+
+let content = null;
+let frontmatter = { title: "", date: "" };
+
+for (const path in files) {
+    const raw = files[path] as string;
+    
+    // Parse frontmatter
+    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+    
+    if (match) {
+        const fmString = match[1];
+        const body = match[2];
+        const fm: any = {};
+        
+        fmString.split('\n').forEach(line => {
+             const parts = line.split(':');
+             if (parts.length >= 2) {
+                 const key = parts[0].trim();
+                 let value = parts.slice(1).join(':').trim();
+                 if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                     value = value.slice(1, -1);
+                 }
+                 fm[key] = value;
+             }
+        });
+
+        // Check if this file matches the requested slug
+        if (fm.slug === slug) {
+            const md = new Remarkable();
+            content = md.render(body);
+            frontmatter = { ...frontmatter, ...fm };
+            break;
+        }
+    }
+}
+
+if (!content) {
+    return Astro.redirect("/404");
 }
 ---
+
+<Layout title={frontmatter.title} desc={frontmatter.title}>
+    <div class="page-container">
+        <Card class="content-card">
+            <header>
+                <h1>{frontmatter.title}</h1>
+                {frontmatter.date && <p class="date">Last updated: {new Date(frontmatter.date).toLocaleDateString()}</p>}
+            </header>
+            <div class="markdown-body" set:html={content}></div>
+        </Card>
+    </div>
+</Layout>
+
+<style lang="scss" is:global>
+    /* Global styles for markdown content since render output is raw HTML */
+    .markdown-body {
+        line-height: 1.6;
+        color: var(--foreground);
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--accent-1);
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--accent-3);
+            padding-bottom: 0.5em;
+        }
+
+        p {
+            margin-bottom: 1.25em;
+        }
+
+        ul, ol {
+            padding-left: 2em;
+            margin-bottom: 1.25em;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        a {
+            color: var(--accent-1);
+            text-decoration: none;
+            &:hover { text-decoration: underline; }
+        }
+    }
+</style>
+
+<style lang="scss">
+    .page-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+
+        @media (max-width: 768px) {
+            padding: 2rem 1rem;
+        }
+    }
+
+    .content-card {
+        padding: 3rem;
+        
+        @media (max-width: 768px) {
+            padding: 1.5rem;
+        }
+    }
+
+    header {
+        margin-bottom: 2rem;
+        text-align: center;
+        border-bottom: 1px solid var(--accent-3);
+        padding-bottom: 2rem;
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    }
+</style>

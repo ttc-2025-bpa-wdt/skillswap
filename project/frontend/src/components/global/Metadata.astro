@@ -1,0 +1,51 @@
+---
+interface Props {
+	title: string;
+	desc: string;
+	image?: string;
+    color?: string;
+}
+
+const {
+    title,
+    desc,
+    image = "/images/logos/logo-lg.png",
+    color = "#FFFFFF"
+} = Astro.props;
+
+
+const canonicalURL = new URL(Astro.request.url, Astro.site);
+---
+
+{/* Primary metadata */}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/png" href="/public/images/logos/logo-sm-transparent.png" />
+
+{/* Preload fonts */}
+<link rel="preload" href="/fonts/Lato-Regular.ttf" as="font" crossorigin="anonymous" />
+
+{/* Canonical URL */}
+<link rel="canonical" href={canonicalURL} />
+
+{/* Metadata for SEO and browser tabs */}
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={desc} />
+
+{/* OpenGraph support (for Discord, LinkedIn, Facebook, etc.) */}
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={desc} />
+<meta property="og:image" content={new URL(image, Astro.url)} />
+
+{/* Twitter support (which is now considered X) */}
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={Astro.url} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={desc} />
+<meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+{/* Base accent color for Discord and other apps */}
+<meta name="theme-color" content={color} />

@@ -1,0 +1,711 @@
+---
+import Layout from "@layouts/global.astro";
+import Button from "@components/base/Button.astro";
+import Card from "@components/base/Card.astro";
+import SessionCard from "@components/cards/SessionCard.astro";
+import SearchBar from "@components/base/SearchBar.astro";
+
+import { sessions as mockSessions } from "shared/mock";
+
+// Mock SSR role check
+const isTeacher = true;
+
+// Mock data for the dashboard
+const sessionRequests = [
+  { id: 1, user: "Alex M.", skill: "Intro to Python", active: true },
+  { id: 2, user: "Sarah K.", skill: "Graphic Design", active: false },
+];
+
+const upcomingSessions = [
+  { id: 1, title: "Advanced CSS Layouts", partner: "Jordan T.", time: "Today, 4:30 PM", type: "learning" },
+  { id: 2, title: "Guitar Basics", partner: "Casey W.", time: "Tomorrow, 10:00 AM", type: "teaching" }
+];
+
+const teachingSessions = [
+  { id: 1, title: "Intro to Python Mentoring", zoomLink: "https://zoom.us/j/123456789", time: "Today, 2:00 PM", status: "Upcoming", details: "Reviewing loops and functions." },
+  { id: 2, title: "Guitar Basics", zoomLink: "https://zoom.us/j/987654321", time: "Tomorrow, 4:00 PM", status: "Pending", details: "First lesson: C, G, D chords." },
+  { id: 3, title: "Advanced React Patterns", zoomLink: "https://zoom.us/j/555555555", time: "Fri, 10:00 AM", status: "Upcoming", details: "Discussing Composition vs. Inheritance." }
+];
+---
+
+<Layout title="Dashboard">
+  <div class="dashboard-container">
+    <header class="welcome-header">
+      <h1>Welcome back!</h1>
+      <p>Here's what's happening in your learning journey.</p>
+    </header>
+
+    <div class="dashboard-grid">
+
+      <!-- Upcoming Sessions -->
+      <Card class="dashboard-card">
+        <h2>Upcoming Sessions</h2>
+        <div class="session-list">
+            {upcomingSessions.map((session) => (
+                <div class="list-item">
+                    <div class="info">
+                        <span class="title">{session.title}</span>
+                        <span class="meta">{session.type === 'learning' ? 'Learning from' : 'Teaching'} {session.partner} • {session.time}</span>
+                    </div>
+                    <Button size="sm" variant="secondary" iconOnly>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path d="M3.196 12.87l-.825.483a.75.75 0 000 1.294l7.25 4.25a.75.75 0 00.758 0l7.25-4.25a.75.75 0 000-1.294l-.825-.484-5.666 3.322a2.25 2.25 0 01-2.276 0L3.196 12.87z" />
+                            <path d="M15.804 7.63l.825-.483a.75.75 0 000-1.294l-7.25-4.25a.75.75 0 00-.758 0l-7.25 4.25a.75.75 0 000 1.294l.825.484 5.666-3.322a2.25 2.25 0 012.276 0l5.666 3.322z" />
+                        </svg>
+                    </Button>
+                </div>
+            ))}
+            {upcomingSessions.length === 0 && <p class="empty-state">No upcoming sessions.</p>}
+        </div>
+        <div class="card-footer">
+            <Button variant="primary" block href="/search">Find a New Mentor</Button>
+        </div>
+      </Card>
+
+      <!-- Requests -->
+      <Card class="dashboard-card">
+        <h2>Pending Requests</h2>
+        <div class="request-list">
+            {sessionRequests.map((req) => (
+                <div class="list-item">
+                    <div class="info">
+                        <span class="title">{req.user}</span>
+                        <span class="meta">Wants to learn {req.skill}</span>
+                    </div>
+                    <div class="actions-row">
+                        <Button size="sm" variant="primary">Accept</Button>
+                        <Button size="sm" variant="outline">Decline</Button>
+                    </div>
+                </div>
+            ))}
+        </div>
+      </Card>
+    </div>
+
+    {isTeacher && (
+        <section class="teacher-dashboard">
+            <Card class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>Your Sessions</h2>
+                    <Button size="sm" href="/create">Create New Session</Button>
+                </div>
+                <div class="teaching-list">
+                    {teachingSessions.map((session) => (
+                        <div class="session-item-detailed">
+                            <div class="session-main">
+                                <div class="session-header">
+                                    <h3>{session.title}</h3>
+                                    <span class={`status-badge ${session.status.toLowerCase()}`}>{session.status}</span>
+                                </div>
+                                <div class="session-details">
+                                    <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                                        Zoom Link
+                                    </a>
+                                    <span class="detail-item">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        {session.time}
+                                    </span>
+                                </div>
+                                <p class="notes">{session.details}</p>
+                            </div>
+                            <div class="session-actions">
+                                <Button size="sm" variant="outline">Reschedule</Button>
+                                <Button size="sm" variant="ghost" class="text-danger">Cancel</Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </Card>
+        </section>
+    )}
+
+    <section class="discover-section">
+      <div class="section-header">
+        <h2>Discover New Skills</h2>
+      </div>
+
+        <Card class="search-card">
+            <SearchBar placeholder="Find a skill (e.g., 'Guitar', 'Python', 'Cooking')...">
+                <div class="vertical-divider"></div>
+                <Button type="submit" variant="primary">Search</Button>
+            </SearchBar>
+        </Card>
+
+      <div class="discover-layout" id="discover-layout">
+        <div class="skills-list">
+            {Object.values(mockSessions).map(session => <SessionCard payload={session} redirects={false} />)}
+        </div>
+
+        <Card class="details-flyout" id="details-flyout">
+            <div class="flyout-header">
+                <h3>Course Details</h3>
+                <button class="close-btn" id="close-flyout" aria-label="Close details">×</button>
+            </div>
+            <div class="flyout-content">
+                <h2 id="flyout-title">Introduction to React</h2>
+                <div class="flyout-bg placeholder-bg"></div>
+                <p class="instructor" id="flyout-instructor">by Sarah Jenkins</p>
+                
+                <div class="tags">
+                    <span class="badge beginner">Beginner</span>
+                    <span class="badge">Frontend</span>
+                </div>
+
+                <p class="description">
+                    This detailed breakdown covers everything you need to know about the course. 
+                    It explores the fundamental concepts, prerequisites, and expected outcomes.
+                    Instructors can share their teaching philosophy and schedule details here.
+                </p>
+
+                <div class="flyout-actions">
+                    <Button variant="primary" block>Request Session</Button>
+                    <Button variant="outline" block>View Profile</Button>
+                </div>
+            </div>
+        </Card>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  const layout = document.getElementById('discover-layout');
+  const flyout = document.getElementById('details-flyout');
+  const closeBtn = document.getElementById('close-flyout');
+  const SessionCards = document.querySelectorAll('.skill-card-horizontal');
+  
+  // Elements to update
+  const titleEl = document.getElementById('flyout-title');
+  const instructorEl = document.getElementById('flyout-instructor');
+  const tagsContainer = document.querySelector('#details-flyout .tags');
+
+  if (layout && closeBtn) {
+    SessionCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            const title = card.querySelector('.skill-title')?.textContent;
+            const instructor = card.querySelector('.instructor-name')?.textContent;
+            const difficultyBadge = card.querySelector('.badge');
+
+            if (title && titleEl) titleEl.textContent = title;
+            if (instructor && instructorEl) instructorEl.textContent = instructor;
+            
+            if (tagsContainer && difficultyBadge) {
+                tagsContainer.innerHTML = '';
+                // Clone the difficulty badge
+                tagsContainer.appendChild(difficultyBadge.cloneNode(true));
+            }
+
+            layout.classList.add('details-open');
+        });
+    });
+
+    closeBtn.addEventListener('click', () => {
+        layout.classList.add('details-closing');
+        layout.classList.remove('details-open');
+        setTimeout(() => {
+            layout.classList.remove('details-closing');
+        }, 400);
+    });
+  }
+</script>
+
+<style lang="scss">
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+
+    @media (max-width: 600px) {
+        padding: 1rem;
+    }
+  }
+
+  .welcome-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem;
+      color: var(--foreground);
+    margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: var(--foreground);
+      opacity: 0.8;
+      font-size: 1.1rem;
+    }
+  }
+
+    .search-card {
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      
+      @media (max-width: 600px) {
+        padding: 1rem;
+        
+        :global(.pagination) {
+            width: 100%;
+            justify-content: center; /* Explicitly center in dashboard search */
+            gap: 1rem;
+        }
+
+        :global(button[type="submit"]) {
+            width: 100%; /* Full width search button */
+        }
+      }
+    }
+
+    .vertical-divider {
+        width: 1px;
+        height: 2.5rem;
+        background-color: var(--accent-3);
+        margin: 0 0.5rem;
+        
+        @media (max-width: 900px) {
+            display: none;
+        }
+    }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .dashboard-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      color: var(--foreground);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--accent-3);
+    }
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 2rem;
+
+    .stat {
+      text-align: center;
+      
+      .value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-1);
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      .label {
+        font-size: 0.85rem;
+        color: var(--foreground);
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+
+      .title {
+        font-weight: 600;
+        color: var(--foreground);
+      }
+
+      .meta {
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
+    }
+  }
+
+  /* Teacher Dashboard */
+  .teacher-dashboard {
+      margin: 2rem 0;
+      
+      .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          border-bottom: 1px solid var(--accent-3);
+          padding-bottom: 0.5rem;
+
+          h2 {
+              border: none;
+              padding: 0;
+              margin: 0;
+          }
+      }
+
+      .session-item-detailed {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 1.25rem 0;
+          border-bottom: 1px solid rgba(0,0,0,0.05);
+          gap: 1rem;
+
+          &:last-child { border-bottom: none; }
+
+          @media (max-width: 600px) {
+              flex-direction: column;
+              align-items: stretch;
+          }
+      }
+
+      .session-main {
+          flex: 1;
+
+          .session-header {
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+              margin-bottom: 0.5rem;
+              
+              h3 { margin: 0; font-size: 1.1rem; }
+          }
+          
+          .status-badge {
+              font-size: 0.75rem;
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+              background: #eee;
+              font-weight: 600;
+              
+              &.upcoming { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+              &.pending { background: rgba(243, 156, 18, 0.15); color: #f39c12; }
+          }
+
+          .session-details {
+              display: flex;
+              gap: 1.5rem;
+              margin-bottom: 0.5rem;
+              color: var(--foreground);
+              opacity: 0.8;
+              font-size: 0.9rem;
+              
+              .detail-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.4rem;
+                  color: inherit;
+                  text-decoration: none;
+              }
+
+              .zoom-link {
+                  color: var(--accent-1);
+                  font-weight: 500;
+                  
+                  &:hover {
+                      text-decoration: underline;
+                  }
+              }
+          }
+
+          .notes {
+              margin: 0;
+              font-size: 0.9rem;
+              opacity: 0.6;
+              font-style: italic;
+          }
+      }
+
+      .session-actions {
+          display: flex;
+          gap: 0.5rem;
+          
+          @media (max-width: 600px) {
+              justify-content: flex-end;
+              margin-top: 1rem;
+          }
+      }
+      
+      .text-danger {
+          color: #e74c3c !important;
+          &:hover { background: rgba(231, 76, 60, 0.1); }
+      }
+  }
+
+  /* order-bottom: 1px solid rgba(0,0,0,0.05);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+
+      .title {
+        font-weight: 600;
+        color: var(--foreground);
+      }
+
+      .meta {
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+
+  .empty-state {
+      text-align: center;
+      padding: 2rem 0;
+      opacity: 0.6;
+      font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+      .dashboard-grid {
+          grid-template-columns: 1fr;
+      }
+  }
+
+  /* Discover Section */
+  .discover-section {
+    margin-top: 3rem;
+    padding: 0; /* wow you're so fucking stupid you can't do this */
+  }
+
+  .discover-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      
+      &.details-open {
+        grid-template-columns: 1fr 350px;
+
+        @media (max-width: 900px) {
+            grid-template-columns: 1fr;
+        }
+      }
+  }
+
+  .details-flyout {
+      position: sticky;
+      top: 2rem;
+      align-self: start;
+      height: calc(100vh - 4rem);
+      max-height: 800px;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      border-left: 1px solid var(--accent-3);
+      padding: 0 !important; /* Override Card padding */
+      animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+      .discover-layout.details-open & {
+        display: flex;
+        
+        @media (max-width: 900px) {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            max-height: 100vh;
+            width: 100%;
+            max-width: 100%;
+            z-index: 100;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+            border-radius: 0;
+        }
+      }
+
+      .discover-layout.details-closing & {
+        display: flex;
+        animation: slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        position: absolute;
+        top: 2rem;
+        right: 0;
+        height: calc(100vh - 4rem);
+        max-height: 800px;
+        width: 350px;
+        z-index: 10;
+
+        @media (max-width: 900px) {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            max-height: 100vh;
+            width: 100%;
+            max-width: 100%;
+            z-index: 100;
+        }
+      }
+  }
+
+  @keyframes slideInRight {
+      from { 
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateX(0);
+      }
+  }
+
+  @keyframes slideOutRight {
+      from { 
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to { 
+        opacity: 0;
+        transform: translateX(20px);
+      }
+  }
+
+  .flyout-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+          font-size: 1.1rem;
+          margin: 0;
+          font-family: 'Montserrat', sans-serif;
+      }
+
+      .close-btn {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          line-height: 1;
+          cursor: pointer;
+          color: var(--foreground);
+          opacity: 0.5;
+          padding: 0.2rem;
+          
+          &:hover { opacity: 1; }
+      }
+  }
+
+  .flyout-content {
+      padding: 1.5rem;
+      
+      h2 {
+          font-family: 'Montserrat', sans-serif;
+          font-size: 1.5rem;
+          margin-bottom: 0.5rem;
+          color: var(--foreground);
+      }
+
+      .instructor {
+          color: var(--foreground);
+          opacity: 0.7;
+          margin-bottom: 1.5rem;
+      }
+      
+      .description {
+          line-height: 1.6;
+          margin-bottom: 2rem;
+          color: var(--foreground);
+          opacity: 0.9;
+      }
+  }
+
+  .flyout-bg {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      opacity: 0.8;
+  }
+
+  .tags {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+  }
+
+  .badge {
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      background-color: rgba(0, 0, 0, 0.05); /* Default badge background */
+      color: var(--foreground);
+
+      &.beginner { background-color: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+      &.intermediate { background-color: rgba(241, 196, 15, 0.15); color: #d4ac0d; }
+      &.advanced { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+  }
+
+  .flyout-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: auto;
+  }
+
+  /* Section Header */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem;
+      color: var(--foreground);
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+</style>

@@ -1,8 +1,0 @@
-FROM oven/bun:alpine
-
-WORKDIR /app
-
-# Expose port 3000
-EXPOSE 3000
-
-CMD ["/bin/sh", "-c", "bun install --no-save && bun run dev:docker"]

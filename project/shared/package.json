@@ -1,0 +1,27 @@
+{
+    "name": "shared",
+    "type": "module",
+    "exports": {
+        "./config": "./src/config.ts",
+        "./helpers": "./src/helpers/index.ts",
+        "./models": "./src/models/index.ts",
+        "./schema": "./src/schema/index.ts",
+        "./mock": "./src/mock.ts"
+    },
+    "private": true,
+    "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "@types/bun": "latest",
+        "@types/jsonwebtoken": "^9.0.10"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cookie": "^1.1.1",
+        "jsonwebtoken": "^9.0.3",
+        "uuid": "^13.0.0",
+        "zod": "^4.3.5"
+    }
+}

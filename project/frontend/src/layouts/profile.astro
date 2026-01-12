@@ -1,0 +1,478 @@
+---
+import Layout from "@layouts/global.astro";
+import Button from "@components/base/Button.astro";
+import Card from "@components/base/Card.astro";
+import { profileTags, type IProfile } from "shared/schema";
+import { User, UserFilter } from "shared/models";
+
+interface Props {
+    payload: IProfile;
+}
+
+const { 
+    displayName,
+    userId,
+    avatarUrl,
+    bio,
+    tags,
+    stats
+} = Astro.props.payload;
+
+const tagStyle = tags && tags.map(tag => profileTags[tag]).filter(Boolean);
+const user = await User.read(userId, UserFilter.Id);
+---
+
+<Layout title={`@${user.handle}`} desc={`Profile of ${displayName}`}>
+    <div class="profile-container">
+        <!-- Profile Banner -->
+        <section class="profile-header">
+            <div class="profile-cover"></div>
+            <div class="profile-info-wrapper">
+                <div class="profile-avatar">
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt={displayName} />
+                    ) : (
+                        <span>{displayName.charAt(0)}</span>
+                    )}
+                </div>
+                <div class="profile-details">
+                    <div class="name-row">
+                        <h1 class="editable" data-field="name">{displayName}</h1>
+                        {tags && tagStyle.map(x => <span class="badge-role" style={`border-color: ${x.color}; color: ${x.color}`}>{x.name}</span>)}
+                    </div>
+                    <p class="handle">@{user.handle}</p>
+                    <div class="info-row">
+                        <div class="stats-row">
+                            <div class="stat">
+                                <span class="value">{stats.sessionCount}</span>
+                                <span class="label">Sessions</span>
+                            </div>
+                            <div class="stat">
+                                <span class="value">{stats.rating} ⭐</span>
+                                <span class="label">Rating</span>
+                            </div>
+                            <div class="stat">
+                                <span class="value">{stats.studentCount}</span>
+                                <span class="label">Students</span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <Button id="edit-profile-btn" variant="secondary">Edit Profile</Button>
+                            <Button variant="primary">Request Session</Button>
+                            <Button variant="ghost" iconOnly aria-label="Message">💬</Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="content-grid">
+            <Card>
+                <h2>Bio</h2>
+                <p class="editable-area" data-field="bio">{bio}</p>
+            </Card>
+
+            <Card>
+                <h2>Student Feedback</h2>
+                <!--div class="reviews-list">
+                    {reviews.map(review => (
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">{review.user}</span>
+                                <span class="review-date">{review.date}</span>
+                            </div>
+                            <div class="star-rating">
+                                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                            </div>
+                            <p class="review-text">{review.comment}</p>
+                        </div>
+                    ))}
+                </div-->
+            </Card>
+
+            <Card>
+                <h2>Skills</h2>
+                <p class="hint-text">Drag to reorder skills (Enable Edit Mode)</p>
+                <!--div class="skills-container" id="skills-list">
+                    {skills.map((skill) => (
+                        <div class="skill-tag" draggable="true">
+                            {skill}
+                            <span class="remove-skill">&times;</span>
+                        </div>
+                    ))}
+                    <button class="add-skill-btn">+ Add Skill</button>
+                </div-->
+            </Card>
+
+            <Card>
+                <h2>Badges</h2>
+                <!--div class="badges-grid">
+                    {badges.map((badge) => (
+                        <div class="badge-item">
+                            <span class="badge-icon">🏅</span>
+                            <span>{badge}</span>
+                        </div>
+                    ))}
+                </div-->
+            </Card>
+        </div>
+    </div>
+</Layout>
+
+<style lang="scss">
+    .profile-container {
+        max-width: 1000px;
+        margin: 2rem auto 0;
+        padding: 0 1rem 4rem;
+    }
+
+    /* Header */
+    .profile-header {
+        background: var(--background);
+        border: 1px solid var(--accent-3);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+
+    .profile-cover {
+        height: 120px;
+        width: 100%;
+        background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        opacity: 0.8;
+    }
+
+    .profile-info-wrapper {
+        padding: 0 2rem 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 2rem;
+        margin-top: -80px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: -60px;
+        }
+    }
+
+    .profile-avatar {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: var(--background);
+        border: 4px solid var(--background);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--accent-1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        background-color: #eee; /* Fallback */
+        flex-shrink: 0;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .profile-details {
+        flex: 1;
+        padding-bottom: 0.5rem;
+        margin-top: 100px; /* 80px to clear cover + 20px padding */
+
+        @media (max-width: 768px) {
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .name-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.25rem;
+            max-width: 100%;
+            
+            @media (max-width: 768px) {
+                justify-content: center;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            
+            /* Text Overflow Handling */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            
+            &[contenteditable="true"] {
+                border-bottom: 2px dashed var(--accent-1);
+                outline: none;
+                overflow: visible; /* Allow overflowing when editing to see full text */
+                white-space: normal;
+            }
+        }
+
+        .badge-role {
+            border: 1px solid var(--accent-1);
+            color: var(--accent-1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0; /* Prevent badge from squishing */
+        }
+
+        .handle {
+            color: var(--foreground);
+            opacity: 0.7;
+            margin: 0 0 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 2rem;
+            
+            @media (max-width: 768px) {
+                justify-content: center;
+            }
+
+            .stat {
+                display: flex;
+                flex-direction: column;
+                
+                .value { font-weight: bold; font-size: 1.1rem; }
+                .label { font-size: 0.85rem; opacity: 0.7; }
+            }
+        }
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 1rem; 
+
+        @media (max-width: 768px) {
+            margin-top: 1.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Content Grid */
+    .content-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Skills Drag & Drop */
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .skill-tag {
+        background: var(--background);
+        border: 1px solid var(--accent-3);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+
+        /* Only show grab cursor when editing */
+        .editing & {
+            cursor: grab;
+            &:active { cursor: grabbing; }
+        }
+        
+        &.dragging {
+            opacity: 0.5;
+            border-color: var(--accent-1);
+        }
+
+        .remove-skill {
+            display: none;
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    }
+
+    .editing .skill-tag .remove-skill {
+        display: inline-block;
+    }
+
+    .add-skill-btn {
+        display: none;
+        background: none;
+        border: 1px dashed var(--accent-3);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--foreground);
+        opacity: 0.7;
+
+        &:hover { border-color: var(--accent-1); color: var(--accent-1); }
+    }
+
+    .editing .add-skill-btn {
+        display: inline-block;
+    }
+
+    .editable-area[contenteditable="true"] {
+        border: 1px dashed var(--accent-3);
+        padding: 0.5rem;
+        border-radius: 4px;
+        background: rgba(0,0,0,0.02);
+    }
+
+    /* Badges */
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .badge-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(42, 157, 143, 0.1);
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    /* Reviews */
+    .review-item {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--accent-3);
+        &:last-child { border-bottom: none; }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            
+            .reviewer-name { font-weight: 600; }
+            .review-date { font-size: 0.85rem; opacity: 0.6; }
+        }
+
+        .star-rating {
+            color: #f1c40f;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Inline Editing
+    const editBtn = document.getElementById('edit-profile-btn');
+    const profileContainer = document.querySelector('.profile-container');
+    const editableElements = document.querySelectorAll('[data-field]');
+    let isEditing = false;
+
+    editBtn?.addEventListener('click', () => {
+        isEditing = !isEditing;
+        
+        if (isEditing) {
+            editBtn.textContent = 'Save Changes';
+            editBtn.classList.add('primary');
+            editBtn.classList.remove('secondary');
+            profileContainer?.classList.add('editing');
+            
+            editableElements.forEach(el => {
+                el.setAttribute('contenteditable', 'true');
+            });
+        } else {
+            editBtn.textContent = 'Edit Profile';
+            editBtn.classList.add('secondary');
+            editBtn.classList.remove('primary');
+            profileContainer?.classList.remove('editing');
+            
+            editableElements.forEach(el => {
+                el.setAttribute('contenteditable', 'false');
+                // Here you would typically save the data
+                console.log(`Saved ${el.getAttribute('data-field')}: ${el.textContent}`);
+            });
+        }
+    });
+
+    // Drag and Drop for Skills
+    const skillsList = document.getElementById('skills-list');
+    let draggedItem: HTMLElement | null = null;
+
+    if (skillsList) {
+        skillsList.addEventListener('dragstart', (e) => {
+            if (!isEditing) {
+                e.preventDefault(); // Only allow drag when editing
+                return;
+            }
+            const target = e.target as HTMLElement;
+            if (target.classList.contains('skill-tag')) {
+                draggedItem = target;
+                setTimeout(() => target.classList.add('dragging'), 0);
+            }
+        });
+
+        skillsList.addEventListener('dragend', (e) => {
+            const target = e.target as HTMLElement;
+            target.classList.remove('dragging');
+            draggedItem = null;
+        });
+
+        skillsList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(skillsList, e.clientY, e.clientX);
+            if (draggedItem) {
+                if (afterElement == null) {
+                    skillsList.appendChild(draggedItem);
+                } else {
+                    skillsList.insertBefore(draggedItem, afterElement);
+                }
+            }
+        });
+    }
+
+    function getDragAfterElement(container: HTMLElement, y: number, x: number) {
+        const draggableElements = [...container.querySelectorAll('.skill-tag:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            // Simple distance check for grid/flex layout
+            const offset = x - box.left - box.width / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY, element: null } as { offset: number, element: Element | null }).element;
+    }
+</script>

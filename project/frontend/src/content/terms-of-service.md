@@ -1,6 +1,6 @@
 ---
 title: "Terms of Service"
-date: 2024-12-11
+date: 2025-01-11
 slug: "terms"
 ---
 
@@ -20,4 +20,17 @@ To access certain features of the Service, you may be required to create an acco
 current, and complete information during the registration process and to update such information to keep it accurate.
 You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur
 under your account.
+
+## 3. User Conduct
+
+You agree to use the Service in compliance with all applicable laws and regulations. You will not use the Service to:
+- Engage in any unlawful, fraudulent, or harmful activities.
+- Harass, abuse, or harm another person or group.
+- Post or transmit any content that is defamatory, obscene, or otherwise objectionable.
+- Impersonate any person or entity or misrepresent your affiliation with any person or entity.
+- Interfere with or disrupt the Service or servers or networks connected to the Service.
+- Violate the intellectual property rights of others.
+- Use the Service for any commercial purposes without our prior written consent.
+- Collect or store personal data about other users without their consent.
+- Attempt to gain unauthorized access to the Service or related systems or networks.
 

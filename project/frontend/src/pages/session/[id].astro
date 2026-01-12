@@ -1,0 +1,294 @@
+---
+import Layout from "@layouts/global.astro";
+import Button from "@components/base/Button.astro";
+import Card from "@components/base/Card.astro";
+import { Profile, ProfileFilter, Session, SessionFilter, User, UserFilter } from "shared/models";
+
+const { id } = Astro.params;
+const session = id && await Session.read(id, SessionFilter.Id);
+const user = session ? await User.read(session.userId, UserFilter.Id) : null;
+const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
+
+if (!session) {
+    return Astro.redirect("/404");
+}
+
+const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    }).format(date);
+};
+
+const difficultyColors = {
+    beginner: "var(--accent-2)", // Greenish/Teal usually in this theme
+    intermediate: "var(--accent-1)", // Blue
+    advanced: "#BC2035" // Red
+};
+
+const difficultyColor = difficultyColors[session.difficulty as keyof typeof difficultyColors] || "var(--accent-1)";
+---
+
+<Layout title={session.name} desc={`Join ${profile.displayName} for ${session.name}`}>
+    <div class="session-container">
+        
+        <div class="breadcrumb">
+            <a href="/dashboard">Sessions</a> &gt; <span>{session.name}</span>
+        </div>
+
+        <div class="session-header">
+            <div class="header-content">
+                <div class="badges">
+                    <span class="badge difficulty" style={`background-color: ${difficultyColor}`}>
+                        {session.difficulty}
+                    </span>
+                    <span class="badge type">Live Session</span>
+                </div>
+                <h1>{session.name}</h1>
+                <div class="meta-row">
+                    <div class="meta-item">
+                        <span class="icon">📅</span>
+                        <span>{formatDate(session.eventDate)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div class="main-content">
+                <Card class="detail-card">
+                    <h2>About this Session</h2>
+                    <p class="description">
+                        Join this session to learn about {session.name}. 
+                        {session.prereqs !== "None" && `Make sure you have the following prerequisites covered: ${session.prereqs}.`}
+                    </p>
+                    
+                    <div class="prereqs-box">
+                        <h3>Prerequisites</h3>
+                        <p>{session.prereqs}</p>
+                    </div>
+
+                    <div class="actions">
+                        <Button variant="primary" size="lg">Register for Session</Button>
+                        <Button variant="outline" size="lg">Contact Host</Button>
+                    </div>
+                </Card>
+            </div>
+
+            <div class="sidebar">
+                <Card class="host-card">
+                    <h3>Host</h3>
+                    <div class="host-profile">
+                        <img src={profile.avatarUrl} alt={profile.displayName} class="avatar" />
+                        <div class="host-info">
+                            <span class="name">{profile.displayName}</span>
+                            <span class="handle">@{user.handle}</span>
+                        </div>
+                    </div>
+                    <Button variant="secondary" size="sm" href={`/profile/${user.handle}`} block>View Profile</Button>
+                </Card>
+
+                <Card class="safety-card">
+                    <h3>Safety First</h3>
+                    <p>Remember to follow our community guidelines during the session.</p>
+                </Card>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style lang="scss">
+    .session-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 2rem 4rem;
+
+        @media (max-width: 768px) {
+            padding: 1.5rem;
+        }
+    }
+
+    .breadcrumb {
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        opacity: 0.7;
+
+        a {
+            color: var(--foreground);
+            text-decoration: none;
+            &:hover { text-decoration: underline; }
+        }
+    }
+
+    .session-header {
+        margin-bottom: 3rem;
+
+        h1 {
+            font-size: 3rem;
+            margin: 1rem 0;
+            line-height: 1.2;
+            
+            @media (max-width: 768px) {
+                font-size: 2rem;
+            }
+        }
+
+        .badges {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            color: white;
+
+            &.type {
+                background-color: var(--accent-3);
+                color: var(--foreground);
+            }
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            opacity: 0.9;
+            font-size: 1.1rem;
+
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+        }
+    }
+
+    .grid-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+
+        @media (max-width: 900px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .detail-card {
+        padding: 2.5rem;
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+    }
+
+    .prereqs-box {
+        background-color: rgba(0,0,0,0.03);
+        border-left: 4px solid var(--accent-1);
+        padding: 1.5rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 2.5rem;
+
+        h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            color: var(--accent-1);
+        }
+
+        p {
+            margin: 0;
+            opacity: 0.8;
+        }
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        
+        @media (max-width: 600px) {
+            flex-direction: column;
+        }
+    }
+
+    .host-card {
+        padding: 2rem;
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+    }
+
+    .host-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--accent-3);
+        }
+
+        .host-info {
+            display: flex;
+            flex-direction: column;
+            
+            .name {
+                font-weight: 700;
+                font-size: 1.1rem;
+            }
+
+            .handle {
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
+        }
+    }
+
+    .safety-card {
+        padding: 1.5rem;
+        background-color: rgba(42, 157, 143, 0.1); /* Slight tint */
+        border: none;
+        
+        h3 {
+            margin-top: 0;
+            color: var(--accent-2);
+            font-size: 1.1rem;
+        }
+        
+        p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+</style>

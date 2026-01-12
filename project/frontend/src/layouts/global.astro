@@ -1,13 +1,15 @@
 ---
-import { SITE_TITLE } from "@consts";
+import { SITE_TITLE } from "shared/config";
 
-import Metadata from "@components/metadata.astro";
-import Topbar from "@components/topbar.astro";
-import Footer from "@components/footer.astro";
+import Metadata from "@components/global/Metadata.astro";
+import Topbar from "@components/global/TopBar.astro";
+import Footer from "@components/global/Footer.astro";
+import ChatWidget from "@components/global/ChatOverlay.astro";
 
 interface Props {
     title: string;
     desc?: string;
+    user?: IUser;
 }
 
 const { title, desc } = Astro.props;
@@ -17,27 +19,31 @@ const rootAttributes = {
 };
 
 import "@styles/global.scss";
+
+import { Authentication, User, UserFilter } from "shared/models";
+import { IUser } from "shared/schema";
+
+const token = Authentication.validateToken(Astro.request);
+const user = token ? await User.read(token.sub, UserFilter.Id) : null;
 ---
 
 <!doctype html>
 <html { ...rootAttributes } lang="en">
     <head>
-        <Metadata 
-            title={title}
-            desc={desc || `"${title}" on ${SITE_TITLE}`}
-        />
+        <Metadata title={`${title} | ${SITE_TITLE}`} desc={desc || `"${title}" on ${SITE_TITLE}`} />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     </head>
     <body>
         <header>
-            <Topbar />
+            <Topbar user={user}/>
         </header>
         <span data-overlay />
         <main>
             <slot />
         </main>
         <Footer />
+        {user ? <ChatWidget user={user} /> : null}
     </body>
 </html>

@@ -1,0 +1,212 @@
+---
+import Button from "@components/base/Button.astro";
+import SearchBar from "@components/base/SearchBar.astro";
+
+import { IUser } from "shared/schema";
+
+interface Props {
+    user?: IUser;
+}
+
+const { user = null } = Astro.props;
+const isLoggedIn = user !== null;
+---
+
+<div class="topbar">
+    <div class="logo">
+        <a href="/">
+            <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" />
+        </a>
+    </div>
+    
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/#features">Features</a>
+        <a href="/about#contact">Contact</a>
+        
+        <SearchBar class="search" placeholder="Find skills, mentors, or groups..." />
+
+        <div class="auth-buttons">
+            {
+                isLoggedIn ? (
+                    <Button href="/settings" variant="secondary" size="sm">Settings</Button>
+                    <Button href="/profile" variant="primary" size="sm">Profile</Button>
+                ) : (
+                    <Button href="/auth/login"    variant="secondary" size="sm">Log In</Button>
+                    <Button href="/auth/register" variant="primary"   size="sm">Register</Button>
+                )
+            }
+        </div>
+    </nav>
+
+    <button data-hamburger>&#9776;</button>
+</div>
+
+<div data-flyout>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/#features">Features</a>
+    <a href="/about#contact">Contact</a>
+    {
+        isLoggedIn ? (
+            <a href="/settings">Settings</a>
+            <a href="/profile">Profile</a>
+        ) : (
+            <a href="/auth/login">Login</a>
+            <a href="/auth/register">Register</a>
+        )
+    }
+</div>
+
+<script>
+    const hamburger = document.querySelector("[data-hamburger]") as HTMLButtonElement;
+    const flyout    = document.querySelector("[data-flyout]")    as HTMLDivElement;
+    const overlay   = document.querySelector("[data-overlay]")   as HTMLDivElement;
+
+    let enabled: boolean = false;
+    
+    function toggle(absolute: boolean | null = null): void {
+        enabled = absolute ?? !enabled;
+        if (enabled) {
+            flyout.classList.add("active");
+            overlay.classList.add("active");
+        }
+        else {
+            flyout.classList.remove("active");
+            overlay.classList.remove("active");
+        }
+    }
+
+    if (hamburger) {
+        hamburger.addEventListener("click", () => toggle());
+    }
+    if (overlay) {
+        overlay.addEventListener("click", () => toggle(false));
+    }
+</script>
+
+<style lang="scss">
+    @use "@styles/mixins.scss";
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+
+        height: 4rem;
+        padding: 0 2rem;
+        box-sizing: border-box;
+
+        /* font-family inherited from body */
+        background-color: var(--background);
+        border-bottom: 1px solid var(--accent-3);
+        
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .logo a {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-decoration: none;
+        color: var(--accent-1);
+        display: flex;
+        align-items: center;
+    }
+
+    .logo img {
+        height: 3rem;
+        width: auto;
+    }
+
+    .search {
+        flex: 1;
+    }
+
+    nav {
+        display: none;
+        align-items: center;
+        gap: 2rem;
+        flex: 1;
+
+        > a {
+            text-decoration: none;
+            color: var(--foreground);
+            font-weight: 500;
+            transition: color 0.2s;
+
+            &:hover {
+                color: var(--accent-1);
+            }
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+    }
+
+    [data-hamburger] {
+        @include mixins.hover-grow;
+
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: var(--foreground);
+        cursor: pointer;
+        display: block;
+        margin-left: auto;
+    }
+
+    [data-flyout] {
+        $transition: 0.3s ease-in-out;
+
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1.5rem;
+
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 101;
+
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+
+        background-color: var(--background);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+
+        &.active {
+            left: 0;
+            transition: left $transition;
+        }
+
+        transition: left $transition;
+
+        a {
+            text-decoration: none;
+            color: var(--foreground);
+            font-size: 1.2rem;
+            
+            &:hover {
+                color: var(--accent-1);
+            }
+        }
+    }
+
+    @media (min-width: 768px) {
+        nav {
+            display: flex;
+        }
+
+        [data-hamburger] {
+            display: none;
+        }
+    }
+</style>

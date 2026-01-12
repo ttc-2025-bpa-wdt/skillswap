@@ -1,0 +1,9 @@
+{
+    "plugins": ["prettier-plugin-astro"],
+    "overrides": [
+        { "files": "*.astro", "options": { "parser": "astro" } }
+    ],
+    "tabWidth": 4,
+    "printWidth": 120,
+    "useTabs": false
+}

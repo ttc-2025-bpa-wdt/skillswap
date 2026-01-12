@@ -1,336 +1,136 @@
 ---
-import Layout from '../../layouts/global.astro';
-import Button from '@components/Button.astro';
-import Card from '@components/Card.astro';
+import { AUTH_COOKIE_NAME, AUTH_COOKIE_EXPIRY } from "shared/config";
+import { z } from "zod/v4";
+
+import Layout from "@layouts/auth.astro";
+import Button from "@components/base/Button.astro";
+
+import { User } from "shared/models";
+
+const loginRequest = z.object({
+    emailOrHandle: z.string().min(1, "Email or handle is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    remember: z.boolean().optional()
+});
+
+let errorMessage: string | null = null;
+
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+
+    const { success, data, error } = loginRequest.safeParse({
+        emailOrHandle: formData.get("emailOrHandle"),
+        password:      formData.get("password"),
+        remember:      formData.get("remember") === "on"
+    });
+
+    if (success) {
+        const { emailOrHandle, password, remember } = data;
+        const token = await User.authenticate(emailOrHandle, password, remember);
+
+        if (token) {
+            Astro.cookies.set(AUTH_COOKIE_NAME, token, {
+                path: "/",
+                httpOnly: true,
+                secure: import.meta.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: remember ? AUTH_COOKIE_EXPIRY : undefined
+            });
+
+            return Astro.redirect("/dashboard");
+        }
+        else {
+            errorMessage = "Invalid email/handle or password";
+            Astro.response.status = 401;
+        }
+    }
+    else {
+        errorMessage = "Invalid form data.";
+        Astro.response.status = 400;
+    }
+}
 ---
 
-<Layout title="Login | SkillSwap">
-  <div class="auth-container">
-    <Card class="auth-card">
-      <h1>Welcome Back</h1>
-      <p class="subtitle">Login to continue to SkillSwap</p>
-
-      <form id="login-form" novalidate>
+<Layout title="Log In" header="Welcome Back" subheader="Sign in to continue to SkillSwap" error={errorMessage}>
+    <form id="login-form" method="POST" novalidate>
         <div class="form-group">
-          <label for="email">Email or Username</label>
-          <input type="text" id="email" name="email" placeholder="Enter your email or username" required />
-          <span class="error-message" id="email-error"></span>
+            <label for="emailOrHandle">Email or Handle</label>
+            <input
+                type="text"
+                name="emailOrHandle"
+                placeholder="Email or handle"
+                required
+            />
+            <span class="error-message" id="emailOrHandle-error"></span>
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-wrapper">
-            <input type="password" id="password" name="password" placeholder="Enter your password" required minlength="8" />
-            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye">
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye-slash hidden">
-                 <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
-                 <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
-                 <path d="M6.75 12c0-.619.107-1.215.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
-              </svg>
-            </button>
-          </div>
-          <span class="error-message" id="password-error"></span>
+            <label for="password">Password</label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                minlength="8"
+            />
+            <span class="error-message" id="password-error"></span>
         </div>
 
         <div class="form-options">
-          <label class="checkbox-container">
-            <input type="checkbox" name="remember" />
-            <span class="checkmark"></span>
-            Remember me
-          </label>
-          <a href="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
+            <label class="checkbox-container">
+                <input type="checkbox" name="remember" />
+                <span class="checkmark">Remember me</span>
+            </label>
+            <a href="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
         </div>
 
-        <Button type="submit" variant="primary" block>Login</Button>
+        <Button type="submit" variant="primary" block>Log In</Button>
+    </form>
 
-        <div class="divider">
-          <span>OR</span>
-        </div>
-
-        <Button type="button" variant="social" block>
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-           Continue with Google
-        </Button>
-      </form>
-
-      <p class="register-link">
+    <p class="register-link">
         Don't have an account? <a href="/auth/register">Create Account</a>
-      </p>
-    </Card>
-  </div>
+    </p>
 </Layout>
 
 <style lang="scss">
-  .auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 80px); // Adjust based on header height
-    padding: 2rem;
-    background-color: var(--background);
-  }
-
-  .auth-card {
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 450px;
-
-    h1 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 2rem;
-      color: var(--foreground);
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .subtitle {
-      font-family: 'Roboto', sans-serif;
-      color: var(--foreground);
-      opacity: 0.8;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-
-    label {
-      display: block;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--foreground);
-      margin-bottom: 0.5rem;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--accent-3);
-      border-radius: 8px;
-      background: var(--background);
-      color: var(--foreground);
-      font-family: 'Roboto', sans-serif;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--accent-1);
-      }
-
-      &.error {
-        border-color: #e74c3c;
-      }
-    }
-
-    .error-message {
-      display: block;
-      color: #e74c3c;
-      font-size: 0.85rem;
-      margin-top: 0.25rem;
-      min-height: 1.2em;
-    }
-  }
-
-  .password-wrapper {
-    position: relative;
-
-    .toggle-password {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--foreground);
-      opacity: 0.6;
-      padding: 0;
-      display: flex;
-      align-items: center;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      .hidden {
-        display: none;
-      }
-    }
-  }
-
-  .form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      color: var(--foreground);
-      user-select: none;
-
-      input {
-        margin-right: 0.5rem;
-        accent-color: var(--accent-1);
-        width: 16px;
-        height: 16px;
-      }
-    }
-
     .forgot-password {
-      color: var(--accent-1);
-      text-decoration: none;
-      font-weight: 500;
+        color: var(--accent-1);
+        text-decoration: none;
+        font-weight: 500;
 
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 1.5rem 0;
-    color: var(--foreground);
-    opacity: 0.5;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--accent-3);
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
-    span {
-      padding: 0 10px;
-      font-size: 0.9rem;
+    .register-link {
+        margin-top: 1.5rem;
+        margin-bottom: 0;
+        text-align: center;
+
+        a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 500;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
-  }
-
-  .register-link {
-    text-align: center;
-    margin-top: 1.5rem;
-    color: var(--foreground);
-    font-size: 0.95rem;
-
-    a {
-      color: var(--accent-1);
-      text-decoration: none;
-      font-weight: 600;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  @media (max-width: 480px) {
-    .auth-card {
-      padding: 1.5rem;
-    }
-  }
 </style>
 
 <script>
-  const form = document.getElementById('login-form') as HTMLFormElement;
-  const emailInput = document.getElementById('email') as HTMLInputElement;
-  const passwordInput = document.getElementById('password') as HTMLInputElement;
-  const togglePasswordBtn = document.querySelector('.toggle-password');
-  const emailError = document.getElementById('email-error');
-  const passwordError = document.getElementById('password-error');
+    import { Form, FormValidators } from "@lib/Form";
 
-  // Toggle Password Visibility
-  togglePasswordBtn?.addEventListener('click', () => {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-    
-    const eyeIcon = togglePasswordBtn.querySelector('.icon-eye');
-    const eyeSlashIcon = togglePasswordBtn.querySelector('.icon-eye-slash');
-    
-    eyeIcon?.classList.toggle('hidden');
-    eyeSlashIcon?.classList.toggle('hidden');
-  });
-
-  // Validation Logic
-  const validateEmail = (email: string) => {
-    // Simple regex for email or username (min 3 chars)
-    return email.length >= 3; 
-  };
-
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
-  };
-
-  const showError = (input: HTMLInputElement, errorElement: HTMLElement | null, message: string) => {
-    input.classList.add('error');
-    if (errorElement) errorElement.textContent = message;
-  };
-
-  const clearError = (input: HTMLInputElement, errorElement: HTMLElement | null) => {
-    input.classList.remove('error');
-    if (errorElement) errorElement.textContent = '';
-  };
-
-  // Real-time validation
-  emailInput?.addEventListener('input', () => {
-    if (validateEmail(emailInput.value)) {
-      clearError(emailInput, emailError);
-    }
-  });
-
-  passwordInput?.addEventListener('input', () => {
-    if (validatePassword(passwordInput.value)) {
-      clearError(passwordInput, passwordError);
-    }
-  });
-
-  // Form Submission
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    let isValid = true;
-
-    if (!validateEmail(emailInput.value)) {
-      showError(emailInput, emailError, 'Please enter a valid email or username');
-      isValid = false;
-    }
-
-    if (!validatePassword(passwordInput.value)) {
-      showError(passwordInput, passwordError, 'Password must be at least 8 characters');
-      isValid = false;
-    }
-
-    if (isValid) {
-      // Proceed with login logic (e.g., API call)
-      console.log('Login attempt:', { email: emailInput.value, password: passwordInput.value });
-      // Simulate loading state
-      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Logging in...';
-
-      setTimeout(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-        alert('Login logic would happen here!');
-      }, 1500);
-    }
-  });
+    new Form("login-form")
+        .addField("emailOrHandle", {
+            validateOn: "input",
+            validator: FormValidators.email()
+        })
+        .addField("password", {
+            validateOn: "input",
+            validator: FormValidators.password({ minLength: 8 })
+        })
+        .addField("remember");
 </script>
