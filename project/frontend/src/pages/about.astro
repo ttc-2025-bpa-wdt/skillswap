@@ -3,54 +3,68 @@ import { DataCache } from "shared/helpers";
 import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
 
 import Layout from "@layouts/global.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.astro";
 
 const team = [
     {
-        profile: await DataCache.read({ key: "profile:nicholas.h", ttl: 60000 }, () => Profile.read("nicholas.h", ProfileFilter.Handle)),
-        user: await DataCache.read({ key: "user:nicholas.h", ttl: 60000 }, () => User.read("nicholas.h", UserFilter.Handle)),
+        profile: await DataCache.read({ key: "profile:nicholas.h", ttl: 60000 }, () =>
+            Profile.read("nicholas.h", ProfileFilter.Handle),
+        ),
+        user: await DataCache.read({ key: "user:nicholas.h", ttl: 60000 }, () =>
+            User.read("nicholas.h", UserFilter.Handle),
+        ),
         role: "Development Lead/DevOps Architect",
         desc: "Leading the development of SkillSwap's platform",
-        email: "nicholas@skillswap.bpariverside.org"
+        email: "nicholas@skillswap.bpariverside.org",
     },
     {
-        profile: await DataCache.read({ key: "profile:zachary.v", ttl: 60000 }, () => Profile.read("zachary.v", ProfileFilter.Handle)),
-        user: await DataCache.read({ key: "user:zachary.v", ttl: 60000 }, () => User.read("zachary.v", UserFilter.Handle)),
+        profile: await DataCache.read({ key: "profile:zachary.v", ttl: 60000 }, () =>
+            Profile.read("zachary.v", ProfileFilter.Handle),
+        ),
+        user: await DataCache.read({ key: "user:zachary.v", ttl: 60000 }, () =>
+            User.read("zachary.v", UserFilter.Handle),
+        ),
         role: "Project Manager and UI/UX Designer",
         desc: "Crafting the experience and interface of SkillSwap",
-        email: "zvp@skillswap.bpariverside.org"
+        email: "zvp@skillswap.bpariverside.org",
     },
     {
-        profile: await DataCache.read({ key: "profile:nicholas.g", ttl: 60000 }, () => Profile.read("nicholas.g", ProfileFilter.Handle)),
-        user: await DataCache.read({ key: "user:nicholas.g", ttl: 60000 }, () => User.read("nicholas.g", UserFilter.Handle)),
+        profile: await DataCache.read({ key: "profile:nicholas.g", ttl: 60000 }, () =>
+            Profile.read("nicholas.g", ProfileFilter.Handle),
+        ),
+        user: await DataCache.read({ key: "user:nicholas.g", ttl: 60000 }, () =>
+            User.read("nicholas.g", UserFilter.Handle),
+        ),
         role: "Community Engagement Expert",
         desc: "Making sure SkillSwap stays fun and engaging",
-        email: "nickg@skillswap.bpariverside.org"
+        email: "nickg@skillswap.bpariverside.org",
     },
     {
-        profile: await DataCache.read({ key: "profile:kyle.j", ttl: 60000 }, () => Profile.read("kyle.j", ProfileFilter.Handle)),
+        profile: await DataCache.read({ key: "profile:kyle.j", ttl: 60000 }, () =>
+            Profile.read("kyle.j", ProfileFilter.Handle),
+        ),
         user: await DataCache.read({ key: "user:kyle.j", ttl: 60000 }, () => User.read("kyle.j", UserFilter.Handle)),
         role: "Marketing/Social Coordinator",
         desc: "Promoting SkillSwap and connecting community",
-        email: "kyle@skillswap.bpariverside.org"
-    }
+        email: "kyle@skillswap.bpariverside.org",
+    },
 ];
 
 const competitionMetadata = {
     title: "(V04) Web Application Team",
     chapter: "Tulsa Technology Center - Riverside Campus",
-    members: team.map(member => {
+    members: team.map((member) => {
         const name = member.profile.displayName;
         return member.user.handle == "nicholas.h" ? `${name} (Captain)` : name;
     }),
-    theme:   "Personalized Learning and Skill Development",
-    school:  "Tulsa Technology Center - IT System Administration, Cyber Security/Forensics",
-    city:    "Tulsa",
-    state:   "Oklahoma",
-    year:    new Date().getFullYear(),
-    repo:    "https://github.com/ttc-2025-bpa-wdt/skillswap",
-    project: "https://trello.com/b/skill-swap" // todo: impl
+    theme: "Personalized Learning and Skill Development",
+    school: "Tulsa Technology Center - IT System Administration, Cyber Security/Forensics",
+    city: "Tulsa",
+    state: "Oklahoma",
+    year: new Date().getFullYear(),
+    repo: "https://github.com/ttc-2025-bpa-wdt/skillswap",
+    project: "https://trello.com/b/skill-swap", // todo: impl
 };
 ---
 
@@ -59,10 +73,10 @@ const competitionMetadata = {
         <div class="content">
             <h1 class="gradient-text">Our Vision</h1>
             <p class="vision-text">
-                At SkillSwap, we believe that everyone has something to teach and something to learn. 
-                Our mission is to democratize education by connecting students and mentors directly, 
-                fostering a community where knowledge flows freely and skills are exchanged with passion.
-                We envision a world where learning is accessible, collaborative, and fun.
+                At SkillSwap, we believe that everyone has something to teach and something to learn. Our mission is to
+                democratize education by connecting students and mentors directly, fostering a community where knowledge
+                flows freely and skills are exchanged with passion. We envision a world where learning is accessible,
+                collaborative, and fun.
             </p>
         </div>
     </section>
@@ -70,15 +84,28 @@ const competitionMetadata = {
     <section class="section-container team-section">
         <h2 class="section-title">Meet the Team</h2>
         <div class="team-grid">
-            {team.map(member => (
-                <Card class="team-card">
-                    <img src={member.profile.avatarUrl} alt={member.profile.displayName} class="avatar" />
-                    <h3>{member.profile.displayName.split(" ")[0] /* todo: lol this is hacky */}<br/>{member.profile.displayName.split(" ")[1]}</h3>
-                    <span class="role">{member.role}</span>
-                    <p>{member.desc}</p>
-                    <Button variant="outline" class="btn-contact" data-email={member.email} href={`mailto:${member.email}`}>Email</Button>
-                </Card>
-            ))}
+            {
+                team.map((member) => (
+                    <Card class="team-card">
+                        <img src={member.profile.avatarUrl} alt={member.profile.displayName} class="avatar" />
+                        <h3>
+                            {member.profile.displayName.split(" ")[0] /* todo: lol this is hacky */}
+                            <br />
+                            {member.profile.displayName.split(" ")[1]}
+                        </h3>
+                        <span class="role">{member.role}</span>
+                        <p>{member.desc}</p>
+                        <Button
+                            variant="outline"
+                            class="btn-contact"
+                            data-email={member.email}
+                            href={`mailto:${member.email}`}
+                        >
+                            Email
+                        </Button>
+                    </Card>
+                ))
+            }
         </div>
     </section>
 
@@ -88,7 +115,7 @@ const competitionMetadata = {
             <div class="card-header">
                 <h3>{competitionMetadata.title}</h3>
             </div>
-            
+
             <div class="divider"></div>
 
             <div class="card-body">
@@ -102,7 +129,7 @@ const competitionMetadata = {
                     <span class="label">Theme</span>
                     <span class="value highlight">{competitionMetadata.theme}</span>
                 </div>
-                
+
                 <div class="info-row">
                     <div class="info-group">
                         <span class="label">Location</span>
@@ -117,14 +144,12 @@ const competitionMetadata = {
                 <div class="info-group">
                     <span class="label">Team Members</span>
                     <div class="member-chips">
-                        {competitionMetadata.members.map(member => (
-                            <span class="chip">{member}</span>
-                        ))}
+                        {competitionMetadata.members.map((member) => <span class="chip">{member}</span>)}
                     </div>
                 </div>
 
                 <div class="info-row">
-                    <Button variant="primary" href={competitionMetadata.repo}    target="_blank">GitHub Repo</Button>
+                    <Button variant="primary" href={competitionMetadata.repo} target="_blank">GitHub Repo</Button>
                     <Button variant="outline" href={competitionMetadata.project} target="_blank">Project Board</Button>
                 </div>
             </div>
@@ -137,7 +162,7 @@ const competitionMetadata = {
             <div class="contact-info">
                 <h3>Contact Us</h3>
                 <p>Have questions or feedback? We'd love to hear from you.</p>
-                
+
                 <div class="info-item">
                     <span class="icon">📧</span>
                     <a href="mailto:support@skillswap.bpariverside.org">support@skillswap.bpariverside.org</a>
@@ -147,19 +172,23 @@ const competitionMetadata = {
                     <span>801 East 91st Street, Tulsa, OK 74132-4008</span>
                     <div class="tooltip" tabindex="0" aria-label="Address information">
                         <span class="tooltip-icon">ℹ️</span>
-                        <span class="tooltip-text">This is the address of our campus. This is not an office for SkillSwap and should not be used for mailing or in-person visits. This is purely for informational purposes laid out in the competition guidelines.</span>
+                        <span class="tooltip-text"
+                            >This is the address of our campus. This is not an office for SkillSwap and should not be
+                            used for mailing or in-person visits. This is purely for informational purposes laid out in
+                            the competition guidelines.</span
+                        >
                     </div>
                 </div>
             </div>
-            
+
             <form class="contact-form" onsubmit="event.preventDefault(); alert('Message sent!');">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" id="name" placeholder="Your Name" required>
+                    <input type="text" id="name" placeholder="Your Name" required />
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Your Email" required>
+                    <input type="email" id="email" placeholder="Your Email" required />
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
@@ -176,7 +205,7 @@ const competitionMetadata = {
         padding: 6rem 2rem;
         text-align: center;
         background: linear-gradient(135deg, rgba(44, 116, 196, 0.1) 0%, rgba(42, 157, 143, 0.1) 100%);
-        
+
         @media (max-width: 768px) {
             padding: 4rem 1.5rem;
         }
@@ -187,10 +216,10 @@ const competitionMetadata = {
         }
 
         h1 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 3rem;
             margin-bottom: 1.5rem;
-            
+
             @media (max-width: 768px) {
                 font-size: 2.25rem;
             }
@@ -201,7 +230,7 @@ const competitionMetadata = {
             line-height: 1.8;
             color: var(--foreground);
             opacity: 0.9;
-            
+
             @media (max-width: 768px) {
                 font-size: 1.1rem;
             }
@@ -218,11 +247,11 @@ const competitionMetadata = {
 
     .section-title {
         text-align: center;
-        font-family: 'Montserrat', sans-serif;
+        font-family: "Montserrat", sans-serif;
         font-size: 2.5rem;
         margin-bottom: 3rem;
         color: var(--foreground);
-        
+
         @media (max-width: 768px) {
             font-size: 2rem;
             margin-bottom: 2rem;
@@ -243,9 +272,9 @@ const competitionMetadata = {
     .card-header {
         padding: 2rem 2rem 1.5rem;
         text-align: center;
-        
+
         h3 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.4rem;
             margin: 0 0 0.5rem 0;
             color: var(--foreground);
@@ -276,14 +305,14 @@ const competitionMetadata = {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        
+
         .chapter {
             font-size: 1.25rem;
-            color: #BC2035;
+            color: #bc2035;
         }
 
         .school {
-            color: color-mix(in srgb, #BC2035, var(--text-muted) 80%);
+            color: color-mix(in srgb, #bc2035, var(--text-muted) 80%);
             font-size: 1rem;
             font-weight: 500;
         }
@@ -295,11 +324,11 @@ const competitionMetadata = {
             letter-spacing: 1px;
             color: var(--accent-1);
         }
-        
+
         .value {
             font-size: 1.1rem;
             color: var(--foreground);
-            
+
             &.highlight {
                 font-size: 1.25rem;
                 font-weight: 500;
@@ -312,7 +341,7 @@ const competitionMetadata = {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
-        
+
         @media (max-width: 600px) {
             grid-template-columns: 1fr;
             gap: 1.5rem;
@@ -323,7 +352,7 @@ const competitionMetadata = {
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
-        
+
         .chip {
             background-color: var(--background);
             border: 1px solid var(--accent-3);
@@ -332,7 +361,7 @@ const competitionMetadata = {
             font-size: 0.9rem;
             cursor: default;
             transition: all 0.2s;
-            
+
             &:hover {
                 border-color: var(--accent-1);
                 color: var(--accent-1);
@@ -348,7 +377,7 @@ const competitionMetadata = {
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 2rem;
         padding: 0 1rem;
-        
+
         @media (max-width: 600px) {
             grid-template-columns: 1fr;
             padding: 0;
@@ -358,14 +387,16 @@ const competitionMetadata = {
 
     .team-card {
         text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
         display: flex;
         flex-direction: column;
         height: 100%;
 
         &:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             border-color: var(--accent-1);
         }
 
@@ -376,7 +407,7 @@ const competitionMetadata = {
             object-fit: cover;
             background-color: var(--accent-3);
             margin: 0 auto 1.5rem;
-            
+
             /* &.placeholder {
                 background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
                 opacity: 0.8;
@@ -384,7 +415,7 @@ const competitionMetadata = {
         }
 
         h3 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.25rem;
             margin-bottom: 0.5rem;
             color: var(--foreground);
@@ -426,7 +457,7 @@ const competitionMetadata = {
 
     .contact-info {
         h3 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
@@ -454,11 +485,11 @@ const competitionMetadata = {
                 display: inline-flex;
                 margin-left: 0.5rem;
                 cursor: help;
-                
+
                 &:focus {
                     outline: none;
                 }
-                
+
                 .tooltip-icon {
                     font-size: 1rem;
                     opacity: 0.7;
@@ -483,12 +514,14 @@ const competitionMetadata = {
                     left: 50%;
                     transform: translateX(-50%);
                     opacity: 0;
-                    transition: opacity 0.2s, visibility 0.2s;
+                    transition:
+                        opacity 0.2s,
+                        visibility 0.2s;
                     font-size: 0.8rem;
                     white-space: normal;
                     line-height: 1.4;
                     pointer-events: none;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                     width: max-content;
                     max-width: 300px;
 
@@ -509,7 +542,7 @@ const competitionMetadata = {
                         left: auto;
                         right: -10px;
                         transform: none;
-                        
+
                         &::after {
                             left: auto;
                             right: 14px;
@@ -528,7 +561,9 @@ const competitionMetadata = {
             a {
                 color: var(--accent-1);
                 text-decoration: none;
-                &:hover { text-decoration: underline; }
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }
@@ -544,14 +579,15 @@ const competitionMetadata = {
                 font-size: 0.9rem;
             }
 
-            input, textarea {
+            input,
+            textarea {
                 width: 100%;
                 padding: 0.75rem;
                 border: 1px solid var(--accent-3);
                 border-radius: 8px;
                 background: var(--background);
                 color: var(--foreground);
-                font-family: 'Roboto', sans-serif;
+                font-family: "Roboto", sans-serif;
                 box-sizing: border-box; // Ensure padding doesn't break layout
 
                 &:focus {

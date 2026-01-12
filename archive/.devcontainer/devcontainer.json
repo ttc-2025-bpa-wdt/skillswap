@@ -15,13 +15,13 @@
         "vscode": {
             "settings": {},
             "extensions": [
-                "astro-build.astro-vscode",         // Astro framework support
+                "astro-build.astro-vscode", // Astro framework support
                 "ms-vscode.vscode-typescript-next", // Advanced TypeScript support
-                "ms-azuretools.vscode-docker",      // Docker support for containerized development
-                "GitHub.copilot-chat",              // GitHub Copilot extension, helpful for coding assistance
-                "william-voyek.vscode-nginx",       // Syntax highlighting for NGINX config files
-                "ms-vscode.remote-server",          // Remote development and dev tunnels
-                "IvanArjona.cloudflaretunnel"       // Cloudflare Tunnel integration for quick exposure of local servers
+                "ms-azuretools.vscode-docker", // Docker support for containerized development
+                "GitHub.copilot-chat", // GitHub Copilot extension, helpful for coding assistance
+                "william-voyek.vscode-nginx", // Syntax highlighting for NGINX config files
+                "ms-vscode.remote-server", // Remote development and dev tunnels
+                "IvanArjona.cloudflaretunnel" // Cloudflare Tunnel integration for quick exposure of local servers
             ]
         }
     },

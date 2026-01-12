@@ -5,14 +5,14 @@ import type { IUser, IUserCredential } from "shared/schema";
 import { Authentication } from "./auth";
 
 export enum UserFilter {
-    Id     = 0b001,
-    Email  = 0b010,
+    Id = 0b001,
+    Email = 0b010,
     Handle = 0b100,
 }
 
 export class User {
     static async read(value: string, filter: UserFilter): Promise<IUser | null> {
-        const user = Object.values(users).find(user => {
+        const user = Object.values(users).find((user) => {
             if (filter & UserFilter.Id && user.id === value) return true;
             if (filter & UserFilter.Email && user.email === value) return true;
             if (filter & UserFilter.Handle && user.handle === value) return true;
@@ -39,6 +39,6 @@ export class User {
     }
 
     static async create(email: string, handle: string, password: string): Promise<void> {
-        const [ salt, hash ] = await Security.hashPasswd(password);
+        const [salt, hash] = await Security.hashPasswd(password);
     }
 }

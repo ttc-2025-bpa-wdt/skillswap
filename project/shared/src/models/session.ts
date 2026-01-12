@@ -3,7 +3,7 @@ import { type ISession } from "shared/schema";
 import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
 
 export enum SessionFilter {
-    Id   = 0b01,
+    Id = 0b01,
     Name = 0b10,
 }
 
@@ -28,7 +28,7 @@ export class Session {
                 profile?.displayName.toLowerCase().includes(lowerQuery) ||
                 user?.handle.toLowerCase().includes(lowerQuery) ||
                 session.name.toLowerCase().includes(lowerQuery) ||
-                session.categories.some(category => category.toLowerCase().includes(lowerQuery))
+                session.categories.some((category) => category.toLowerCase().includes(lowerQuery))
             ) {
                 results.push(session);
             }
@@ -54,7 +54,7 @@ export class Session {
     }
 
     static async delete(id: string): Promise<boolean> {
-        const index = sessions.findIndex(session => session.id === id);
+        const index = sessions.findIndex((session) => session.id === id);
         if (index === -1) return false;
 
         sessions.splice(index, 1);

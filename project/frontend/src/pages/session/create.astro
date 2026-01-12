@@ -1,11 +1,9 @@
 ---
 import Layout from "@layouts/global.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.astro";
 
-const categories = [
-  "Programming", "Music", "Language", "Art", "Cooking", "Gardening", "Marketing", "Other"
-];
+const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Gardening", "Marketing", "Other"];
 ---
 
 <Layout title="Create Session" desc="Create a new skill swap session">
@@ -17,25 +15,43 @@ const categories = [
 
         <Card class="create-card">
             <form id="create-session-form">
-                
                 <!-- Basic Info -->
                 <div class="form-section">
                     <h2>Session Details</h2>
-                    
+
                     <div class="form-group">
                         <label for="title">Session Title</label>
-                        <input type="text" id="title" name="title" placeholder="e.g., Intro to Python Programming" required />
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            placeholder="e.g., Intro to Python Programming"
+                            required
+                        />
                     </div>
 
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="4" placeholder="What will be covered in this session?" required></textarea>
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="4"
+                            placeholder="What will be covered in this session?"
+                            required></textarea>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="category">Category</label>
-                            <input type="text" id="category" name="category" placeholder="i.e. Programming" required pattern="[A-Z][a-z0-9]*" title="Please enter a single word starting with an uppercase letter (e.g. Programming)" />
+                            <input
+                                type="text"
+                                id="category"
+                                name="category"
+                                placeholder="i.e. Programming"
+                                required
+                                pattern="[A-Z][a-z0-9]*"
+                                title="Please enter a single word starting with an uppercase letter (e.g. Programming)"
+                            />
                         </div>
 
                         <div class="form-group">
@@ -51,7 +67,12 @@ const categories = [
 
                     <div class="form-group">
                         <label for="prerequisites">Prerequisites (Optional)</label>
-                        <input type="text" id="prerequisites" name="prerequisites" placeholder="e.g., Basic knowledge of HTML, Guitar ownership" />
+                        <input
+                            type="text"
+                            id="prerequisites"
+                            name="prerequisites"
+                            placeholder="e.g., Basic knowledge of HTML, Guitar ownership"
+                        />
                     </div>
                 </div>
 
@@ -81,7 +102,13 @@ const categories = [
 
                     <div class="form-group">
                         <label for="zoom-link">Zoom Link / Meeting URL</label>
-                        <input type="url" id="zoom-link" name="zoom-link" placeholder="https://zoom.us/j/..." required />
+                        <input
+                            type="url"
+                            id="zoom-link"
+                            name="zoom-link"
+                            placeholder="https://zoom.us/j/..."
+                            required
+                        />
                         <p class="helper-text">Please provide a valid meeting link for attendees.</p>
                     </div>
                 </div>
@@ -90,7 +117,6 @@ const categories = [
                     <Button variant="outline" href="/dashboard">Cancel</Button>
                     <Button type="submit">Create Session</Button>
                 </div>
-
             </form>
         </Card>
     </div>
@@ -105,7 +131,7 @@ const categories = [
 
     .page-header {
         margin-bottom: 2rem;
-        
+
         h1 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
@@ -120,7 +146,7 @@ const categories = [
     .create-card {
         padding: 2.5rem;
         background: var(--card-bg); /* Explicit fallback if Card doesn't handle it, though it should */
-        
+
         @media (max-width: 600px) {
             padding: 1.5rem;
         }
@@ -151,23 +177,25 @@ const categories = [
             font-size: 0.95rem;
         }
 
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 0.75rem 1rem;
             border-radius: 8px;
             /* Note: global theme usually handles border/bg, but ensuring consistency here */
         }
-        
+
         .helper-text {
             font-size: 0.85rem;
             margin-top: 0.5rem;
             opacity: 0.7;
         }
-        
+
         select {
-             /* Fix for select text color not picking up foreground in some browsers/OS */
-             color: var(--foreground);
-             background-color: var(--background);
+            /* Fix for select text color not picking up foreground in some browsers/OS */
+            color: var(--foreground);
+            background-color: var(--background);
         }
     }
 
@@ -191,26 +219,26 @@ const categories = [
 </style>
 
 <script>
-    const form = document.getElementById('create-session-form');
+    const form = document.getElementById("create-session-form");
 
-    form?.addEventListener('submit', (e) => {
+    form?.addEventListener("submit", (e) => {
         e.preventDefault();
-        
+
         // Simple validation feedback
         const btn = form.querySelector('button[type="submit"]');
         if (btn) {
             const originalText = btn.textContent;
-            btn.textContent = 'Creating...';
+            btn.textContent = "Creating...";
             // Simulate API request
             setTimeout(() => {
-                alert('Session created successfully!');
-                window.location.href = '/dashboard';
+                alert("Session created successfully!");
+                window.location.href = "/dashboard";
             }, 1000);
         }
     });
 
     // Set default datetime to tomorrow at this time
-    const dateInput = document.getElementById('date-time') as HTMLInputElement;
+    const dateInput = document.getElementById("date-time") as HTMLInputElement;
     if (dateInput) {
         const now = new Date();
         now.setDate(now.getDate() + 1);

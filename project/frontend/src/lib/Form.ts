@@ -77,13 +77,11 @@ export class Form {
     }
 
     public disable(): void {
-        if (this.submitElement)
-            this.submitElement.disabled = true;
+        if (this.submitElement) this.submitElement.disabled = true;
     }
 
     public enable(): void {
-        if (this.submitElement)
-            this.submitElement.disabled = false;
+        if (this.submitElement) this.submitElement.disabled = false;
     }
 
     public addField(name: string, init?: Partial<IFieldInit>): this {
@@ -97,12 +95,11 @@ export class Form {
             fieldElement,
             errorElement: this.element.querySelector(`#${name}-error`),
             validateOn: init?.validateOn ?? "submit",
-            validator: init?.validator
+            validator: init?.validator,
         };
 
-        if (init?.validateOn === "input")
-            fieldElement.addEventListener("input", this.getInputHandler(field));
-        
+        if (init?.validateOn === "input") fieldElement.addEventListener("input", this.getInputHandler(field));
+
         this.fields.push(field);
         return this;
     }
@@ -114,8 +111,7 @@ export class Form {
                 const [isValid, errorMessage] = field.validator(value);
                 if (!isValid) {
                     FormTools.showError(field.fieldElement, field.errorElement, errorMessage || "Invalid input");
-                }
-                else {
+                } else {
                     FormTools.clearError(field.fieldElement, field.errorElement);
                 }
             }
@@ -131,8 +127,7 @@ export class Form {
                     FormTools.showError(field.fieldElement, field.errorElement, errorMessage || "Invalid input");
                     e.preventDefault();
                 }
-            }
-            else {
+            } else {
                 FormTools.clearError(field.fieldElement, field.errorElement);
             }
         }

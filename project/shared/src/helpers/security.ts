@@ -12,22 +12,20 @@ export class Security {
 
     public static hmacPasswd(password: string, salt: string | Buffer): string {
         const pepper = Buffer.from(import.meta.env.PASSWORD_PEPPER!, "base64");
-        return crypto.createHmac("sha256", new Uint8Array(pepper))
+        return crypto
+            .createHmac("sha256", new Uint8Array(pepper))
             .update(salt + password)
-            .digest().toString("base64");
+            .digest()
+            .toString("base64");
     }
 
     public static async hashPasswd(password: string): Promise<[string, string]> {
         const hmacSalt = crypto.randomBytes(24);
         const hash = await bcrypt.hash(this.hmacPasswd(password, hmacSalt), 10);
-        return [ hmacSalt.toString("base64"), hash ];
+        return [hmacSalt.toString("base64"), hash];
     }
 
-    public static async verifyPasswd(
-        password: string,
-        hash: string,
-        encodedSalt: string
-    ): Promise<boolean> {
+    public static async verifyPasswd(password: string, hash: string, encodedSalt: string): Promise<boolean> {
         const hmacSalt = Buffer.from(encodedSalt, "base64");
         return await bcrypt.compare(this.hmacPasswd(password, hmacSalt), hash);
     }
@@ -52,18 +50,16 @@ export class Security {
         try {
             const secret = Buffer.from(import.meta.env.JWT_SECRET!, "base64");
             return jwt.sign(payload as object, secret);
-        }
-        catch (e) {
+        } catch (e) {
             return null;
         }
     }
 
-    public static decodeToken<T>(token: string): T & IAuthToken | null {
+    public static decodeToken<T>(token: string): (T & IAuthToken) | null {
         try {
             const secret = Buffer.from(import.meta.env.JWT_SECRET!, "base64");
             return jwt.verify(token, secret) as T & IAuthToken;
-        }
-        catch (e) {
+        } catch (e) {
             return null;
         }
     }

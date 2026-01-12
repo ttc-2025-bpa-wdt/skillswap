@@ -1,6 +1,6 @@
 ---
 import Layout from "@layouts/global.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.astro";
 import { profileTags, type IProfile } from "shared/schema";
 import { User, UserFilter } from "shared/models";
@@ -9,16 +9,9 @@ interface Props {
     payload: IProfile;
 }
 
-const { 
-    displayName,
-    userId,
-    avatarUrl,
-    bio,
-    tags,
-    stats
-} = Astro.props.payload;
+const { displayName, userId, avatarUrl, bio, tags, stats } = Astro.props.payload;
 
-const tagStyle = tags && tags.map(tag => profileTags[tag]).filter(Boolean);
+const tagStyle = tags && tags.map((tag) => profileTags[tag]).filter(Boolean);
 const user = await User.read(userId, UserFilter.Id);
 ---
 
@@ -29,16 +22,19 @@ const user = await User.read(userId, UserFilter.Id);
             <div class="profile-cover"></div>
             <div class="profile-info-wrapper">
                 <div class="profile-avatar">
-                    {avatarUrl ? (
-                        <img src={avatarUrl} alt={displayName} />
-                    ) : (
-                        <span>{displayName.charAt(0)}</span>
-                    )}
+                    {avatarUrl ? <img src={avatarUrl} alt={displayName} /> : <span>{displayName.charAt(0)}</span>}
                 </div>
                 <div class="profile-details">
                     <div class="name-row">
                         <h1 class="editable" data-field="name">{displayName}</h1>
-                        {tags && tagStyle.map(x => <span class="badge-role" style={`border-color: ${x.color}; color: ${x.color}`}>{x.name}</span>)}
+                        {
+                            tags &&
+                                tagStyle.map((x) => (
+                                    <span class="badge-role" style={`border-color: ${x.color}; color: ${x.color}`}>
+                                        {x.name}
+                                    </span>
+                                ))
+                        }
                     </div>
                     <p class="handle">@{user.handle}</p>
                     <div class="info-row">
@@ -134,7 +130,7 @@ const user = await User.read(userId, UserFilter.Id);
         overflow: hidden;
         position: relative;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
 
     .profile-cover {
@@ -174,7 +170,7 @@ const user = await User.read(userId, UserFilter.Id);
         font-size: 3rem;
         font-weight: bold;
         color: var(--accent-1);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         background-color: #eee; /* Fallback */
         flex-shrink: 0;
         overflow: hidden;
@@ -202,7 +198,7 @@ const user = await User.read(userId, UserFilter.Id);
             gap: 1rem;
             margin-bottom: 0.25rem;
             max-width: 100%;
-            
+
             @media (max-width: 768px) {
                 justify-content: center;
                 flex-direction: column;
@@ -212,15 +208,15 @@ const user = await User.read(userId, UserFilter.Id);
 
         h1 {
             margin: 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 2rem;
-            
+
             /* Text Overflow Handling */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
-            
+
             &[contenteditable="true"] {
                 border-bottom: 2px dashed var(--accent-1);
                 outline: none;
@@ -255,7 +251,7 @@ const user = await User.read(userId, UserFilter.Id);
         .stats-row {
             display: flex;
             gap: 2rem;
-            
+
             @media (max-width: 768px) {
                 justify-content: center;
             }
@@ -263,16 +259,22 @@ const user = await User.read(userId, UserFilter.Id);
             .stat {
                 display: flex;
                 flex-direction: column;
-                
-                .value { font-weight: bold; font-size: 1.1rem; }
-                .label { font-size: 0.85rem; opacity: 0.7; }
+
+                .value {
+                    font-weight: bold;
+                    font-size: 1.1rem;
+                }
+                .label {
+                    font-size: 0.85rem;
+                    opacity: 0.7;
+                }
             }
         }
     }
 
     .profile-actions {
         display: flex;
-        gap: 1rem; 
+        gap: 1rem;
 
         @media (max-width: 768px) {
             margin-top: 1.5rem;
@@ -308,9 +310,11 @@ const user = await User.read(userId, UserFilter.Id);
         /* Only show grab cursor when editing */
         .editing & {
             cursor: grab;
-            &:active { cursor: grabbing; }
+            &:active {
+                cursor: grabbing;
+            }
         }
-        
+
         &.dragging {
             opacity: 0.5;
             border-color: var(--accent-1);
@@ -338,7 +342,10 @@ const user = await User.read(userId, UserFilter.Id);
         color: var(--foreground);
         opacity: 0.7;
 
-        &:hover { border-color: var(--accent-1); color: var(--accent-1); }
+        &:hover {
+            border-color: var(--accent-1);
+            color: var(--accent-1);
+        }
     }
 
     .editing .add-skill-btn {
@@ -349,7 +356,7 @@ const user = await User.read(userId, UserFilter.Id);
         border: 1px dashed var(--accent-3);
         padding: 0.5rem;
         border-radius: 4px;
-        background: rgba(0,0,0,0.02);
+        background: rgba(0, 0, 0, 0.02);
     }
 
     /* Badges */
@@ -373,15 +380,22 @@ const user = await User.read(userId, UserFilter.Id);
     .review-item {
         padding: 1.5rem 0;
         border-bottom: 1px solid var(--accent-3);
-        &:last-child { border-bottom: none; }
+        &:last-child {
+            border-bottom: none;
+        }
 
         .review-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.5rem;
-            
-            .reviewer-name { font-weight: 600; }
-            .review-date { font-size: 0.85rem; opacity: 0.6; }
+
+            .reviewer-name {
+                font-weight: 600;
+            }
+            .review-date {
+                font-size: 0.85rem;
+                opacity: 0.6;
+            }
         }
 
         .star-rating {
@@ -393,61 +407,61 @@ const user = await User.read(userId, UserFilter.Id);
 
 <script>
     // Inline Editing
-    const editBtn = document.getElementById('edit-profile-btn');
-    const profileContainer = document.querySelector('.profile-container');
-    const editableElements = document.querySelectorAll('[data-field]');
+    const editBtn = document.getElementById("edit-profile-btn");
+    const profileContainer = document.querySelector(".profile-container");
+    const editableElements = document.querySelectorAll("[data-field]");
     let isEditing = false;
 
-    editBtn?.addEventListener('click', () => {
+    editBtn?.addEventListener("click", () => {
         isEditing = !isEditing;
-        
+
         if (isEditing) {
-            editBtn.textContent = 'Save Changes';
-            editBtn.classList.add('primary');
-            editBtn.classList.remove('secondary');
-            profileContainer?.classList.add('editing');
-            
-            editableElements.forEach(el => {
-                el.setAttribute('contenteditable', 'true');
+            editBtn.textContent = "Save Changes";
+            editBtn.classList.add("primary");
+            editBtn.classList.remove("secondary");
+            profileContainer?.classList.add("editing");
+
+            editableElements.forEach((el) => {
+                el.setAttribute("contenteditable", "true");
             });
         } else {
-            editBtn.textContent = 'Edit Profile';
-            editBtn.classList.add('secondary');
-            editBtn.classList.remove('primary');
-            profileContainer?.classList.remove('editing');
-            
-            editableElements.forEach(el => {
-                el.setAttribute('contenteditable', 'false');
+            editBtn.textContent = "Edit Profile";
+            editBtn.classList.add("secondary");
+            editBtn.classList.remove("primary");
+            profileContainer?.classList.remove("editing");
+
+            editableElements.forEach((el) => {
+                el.setAttribute("contenteditable", "false");
                 // Here you would typically save the data
-                console.log(`Saved ${el.getAttribute('data-field')}: ${el.textContent}`);
+                console.log(`Saved ${el.getAttribute("data-field")}: ${el.textContent}`);
             });
         }
     });
 
     // Drag and Drop for Skills
-    const skillsList = document.getElementById('skills-list');
+    const skillsList = document.getElementById("skills-list");
     let draggedItem: HTMLElement | null = null;
 
     if (skillsList) {
-        skillsList.addEventListener('dragstart', (e) => {
+        skillsList.addEventListener("dragstart", (e) => {
             if (!isEditing) {
                 e.preventDefault(); // Only allow drag when editing
                 return;
             }
             const target = e.target as HTMLElement;
-            if (target.classList.contains('skill-tag')) {
+            if (target.classList.contains("skill-tag")) {
                 draggedItem = target;
-                setTimeout(() => target.classList.add('dragging'), 0);
+                setTimeout(() => target.classList.add("dragging"), 0);
             }
         });
 
-        skillsList.addEventListener('dragend', (e) => {
+        skillsList.addEventListener("dragend", (e) => {
             const target = e.target as HTMLElement;
-            target.classList.remove('dragging');
+            target.classList.remove("dragging");
             draggedItem = null;
         });
 
-        skillsList.addEventListener('dragover', (e) => {
+        skillsList.addEventListener("dragover", (e) => {
             e.preventDefault();
             const afterElement = getDragAfterElement(skillsList, e.clientY, e.clientX);
             if (draggedItem) {
@@ -461,18 +475,21 @@ const user = await User.read(userId, UserFilter.Id);
     }
 
     function getDragAfterElement(container: HTMLElement, y: number, x: number) {
-        const draggableElements = [...container.querySelectorAll('.skill-tag:not(.dragging)')];
+        const draggableElements = [...container.querySelectorAll(".skill-tag:not(.dragging)")];
 
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            // Simple distance check for grid/flex layout
-            const offset = x - box.left - box.width / 2;
-            
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY, element: null } as { offset: number, element: Element | null }).element;
+        return draggableElements.reduce(
+            (closest, child) => {
+                const box = child.getBoundingClientRect();
+                // Simple distance check for grid/flex layout
+                const offset = x - box.left - box.width / 2;
+
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            },
+            { offset: Number.NEGATIVE_INFINITY, element: null } as { offset: number; element: Element | null },
+        ).element;
     }
 </script>

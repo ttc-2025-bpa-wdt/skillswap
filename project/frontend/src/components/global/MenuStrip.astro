@@ -1,0 +1,66 @@
+---
+import { Icon } from "astro-icon/components";
+
+const currentPath = Astro.url.pathname;
+const segment = currentPath.split("/")[1] || "dashboard";
+const activePage = `/${segment}`;
+
+const menuItems = [
+    { href: "/dashboard", icon: "mdi:view-dashboard", label: "Dashboard" },
+    { href: "/search", icon: "mdi:search", label: "Search" },
+    { href: "/sessions", icon: "mdi:account-box", label: "My Sessions" },
+    { href: "/settings", icon: "mdi:settings", label: "Settings" },
+];
+---
+
+<nav class="menu-strip">
+    {
+        menuItems.map((item) => (
+            <a href={item.href} class:list={{ active: activePage === item.href }}>
+                <Icon class="icon" name={item.icon} />
+                <span>{item.label}</span>
+            </a>
+        ))
+    }
+</nav>
+
+<style lang="scss">
+    .menu-strip {
+        display: none;
+    }
+
+    @media (max-width: 600px) {
+        .menu-strip {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: var(--background);
+            border-top: 1px solid var(--accent-3);
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: color-mix(in srgb, var(--foreground) 70%, var(--background) 20%);
+            text-decoration: none;
+
+            .icon {
+                font-size: 1.5rem;
+            }
+
+            &.active {
+                color: var(--accent-1);
+            }
+        }
+    }
+</style>

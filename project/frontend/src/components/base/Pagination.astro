@@ -1,5 +1,5 @@
 ---
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 
 interface Props {
     currentPage?: number;
@@ -11,16 +11,19 @@ const { currentPage = 1, showSelector = true } = Astro.props;
 ---
 
 <div class="pagination">
-    {showSelector && (
-    <div class="page-info">
-        <label for="per-page">Show</label>
-        <select id="per-page">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-        </select>
-    </div>)}
-    
+    {
+        showSelector && (
+            <div class="page-info">
+                <label for="per-page">Show</label>
+                <select id="per-page">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                </select>
+            </div>
+        )
+    }
+
     <div class="nav-controls">
         <Button variant="outline" class="page-btn">&lt;</Button>
         <div class="page-info">
@@ -33,17 +36,17 @@ const { currentPage = 1, showSelector = true } = Astro.props;
 
 <style lang="scss">
     $gap: 0.5rem;
-    
+
     .pagination {
         display: inline-flex;
         align-items: center;
         gap: $gap;
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
         max-width: 100%;
-        
+
         @media (max-width: 600px) {
-             justify-content: flex-start; /* Default to left align on mobile */
-             gap: 0.5rem;
+            justify-content: flex-start; /* Default to left align on mobile */
+            gap: 0.5rem;
         }
     }
 
@@ -63,7 +66,8 @@ const { currentPage = 1, showSelector = true } = Astro.props;
         height: 100%;
     }
 
-    select, input {
+    select,
+    input {
         height: 2.25rem;
         padding: 0 0.5rem;
         border: 1px solid var(--accent-3);
@@ -72,17 +76,17 @@ const { currentPage = 1, showSelector = true } = Astro.props;
         color: var(--foreground);
         font-family: inherit;
         box-sizing: border-box;
-
     }
 
     input {
         width: 50px;
         text-align: center;
         height: 2.25rem;
-         
-        &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         -moz-appearance: textfield;
     }

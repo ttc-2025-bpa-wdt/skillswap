@@ -1,18 +1,12 @@
 ---
 interface Props {
-	title: string;
-	desc: string;
-	image?: string;
+    title: string;
+    desc: string;
+    image?: string;
     color?: string;
 }
 
-const {
-    title,
-    desc,
-    image = "/images/logos/logo-lg.png",
-    color = "#FFFFFF"
-} = Astro.props;
-
+const { title, desc, image = "/images/logos/logo-lg.png", color = "#FFFFFF" } = Astro.props;
 
 const canonicalURL = new URL(Astro.request.url, Astro.site);
 ---

@@ -15,35 +15,53 @@ interface Props {
 const { title, desc } = Astro.props;
 
 const rootAttributes = {
-    'data-theme': 'light'
+    "data-theme": "light",
 };
 
 import "@styles/global.scss";
 
 import { Authentication, User, UserFilter } from "shared/models";
 import { IUser } from "shared/schema";
+import MenuStrip from "@components/global/MenuStrip.astro";
 
 const token = Authentication.validateToken(Astro.request);
 const user = token ? await User.read(token.sub, UserFilter.Id) : null;
 ---
 
 <!doctype html>
-<html { ...rootAttributes } lang="en">
+<html {...rootAttributes} lang="en">
     <head>
         <Metadata title={`${title} | ${SITE_TITLE}`} desc={desc || `"${title}" on ${SITE_TITLE}`} />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
         <header>
-            <Topbar user={user}/>
+            <Topbar user={user} />
         </header>
-        <span data-overlay />
         <main>
             <slot />
         </main>
-        <Footer />
+        <footer>
+            <Footer />
+            <MenuStrip />
+        </footer>
+        <span data-overlay></span>
         {user ? <ChatWidget user={user} /> : null}
     </body>
 </html>
+
+<style lang="scss" is:global>
+    footer {
+        width: 100%;
+        background-color: var(--background);
+        border-top: 1px solid var(--accent-3); /* Fallback/Simpler color */
+        padding: 4rem 2rem 2rem;
+        margin-top: auto; /* Push to bottom if flex column parent */
+        box-sizing: border-box;
+    }
+</style>

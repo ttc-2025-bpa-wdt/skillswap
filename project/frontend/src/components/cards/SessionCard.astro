@@ -14,28 +14,29 @@ const { id, name, userId, difficulty, categories, prereqs, createdAt, eventDate 
 
 function formatDateShort(dateStr: string) {
     const d = new Date(dateStr);
-    return d.toISOString().split('T')[0];
+    return d.toISOString().split("T")[0];
 }
 
 const sessionOwner = await User.read(userId, UserFilter.Id);
 const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id);
-
 ---
 
 <Card class="skill-card-horizontal" href={redirects ? `/session/${id}` : undefined}>
     <div class="instructor-pane">
         <img src={ownerProfile?.avatarUrl} alt={ownerProfile?.displayName} class="avatar" />
     </div>
-    
+
     <div class="separator"></div>
-    
+
     <div class="skill-content">
         <div class="skill-header">
             <div class="skill-row">
                 <h3 class="skill-title">{name}</h3>
                 {
                     /* truncate to two entries */
-                    categories.slice(0, 2).map(name => <Tag class="skill-tag" payload={{ name, color: "var(--background)" }} />)
+                    categories
+                        .slice(0, 2)
+                        .map((name) => <Tag class="skill-tag" payload={{ name, color: "var(--background)" }} />)
                 }
             </div>
             <div class="instructor-row">
@@ -43,44 +44,46 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                 <span class="rating-tag"><span class="star">★</span>{ownerProfile.stats.rating.toFixed(1)}</span>
             </div>
         </div>
-        
+
         <div class="skill-meta">
             <div class="meta-item meta-difficulty">
-                    <span class="label">
-                        <span class="text-long">Difficulty</span>
-                        <span class="text-short">Diff</span>
-                    </span>
-                    <span class={`badge ${difficulty.toLowerCase()}`}>{difficulty}</span>
+                <span class="label">
+                    <span class="text-long">Difficulty</span>
+                    <span class="text-short">Diff</span>
+                </span>
+                <span class={`badge ${difficulty.toLowerCase()}`}>{difficulty}</span>
             </div>
             <div class="meta-item meta-prereqs">
-                    <span class="label">
-                        <span class="text-long">Prereqs</span>
-                        <span class="text-short">Pre</span>
-                    </span>
-                    <span class="value text-truncate">{prereqs}</span>
+                <span class="label">
+                    <span class="text-long">Prereqs</span>
+                    <span class="text-short">Pre</span>
+                </span>
+                <span class="value text-truncate">{prereqs}</span>
             </div>
             <div class="meta-item meta-created">
-                    <span class="label">
-                        <span class="text-long">Created</span>
-                        <span class="text-short">Made</span>
-                    </span>
-                    <span class="value">
-                        <span class="text-long">{createdAt.toISOString().split('T')[0]}</span>
-                        <span class="text-short">{formatDateShort(createdAt.toISOString())}</span>
-                    </span>
-            </div>
-            {eventDate && (
-            <div class="meta-item meta-event">
                 <span class="label">
-                    <span class="text-long">Event</span>
-                    <span class="text-short">At</span>
+                    <span class="text-long">Created</span>
+                    <span class="text-short">Made</span>
                 </span>
                 <span class="value">
-                    <span class="text-long">{eventDate.toISOString().split('T')[0]}</span>
-                    <span class="text-short">{formatDateShort(eventDate.toISOString())}</span>
+                    <span class="text-long">{createdAt.toISOString().split("T")[0]}</span>
+                    <span class="text-short">{formatDateShort(createdAt.toISOString())}</span>
                 </span>
             </div>
-            )}
+            {
+                eventDate && (
+                    <div class="meta-item meta-event">
+                        <span class="label">
+                            <span class="text-long">Event</span>
+                            <span class="text-short">At</span>
+                        </span>
+                        <span class="value">
+                            <span class="text-long">{eventDate.toISOString().split("T")[0]}</span>
+                            <span class="text-short">{formatDateShort(eventDate.toISOString())}</span>
+                        </span>
+                    </div>
+                )
+            }
         </div>
     </div>
 </Card>
@@ -93,23 +96,27 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         padding: 1rem;
         gap: 1rem;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
 
         &:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         @media (max-width: 600px) {
             display: grid;
-            grid-template-areas: 
+            grid-template-areas:
                 "avatar header"
                 "meta meta";
             grid-template-columns: auto 1fr;
             align-items: center;
             gap: 0.75rem;
-            
-            .separator { display: none; }
+
+            .separator {
+                display: none;
+            }
         }
     }
 
@@ -129,7 +136,7 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        
+
         @media (max-width: 600px) {
             grid-area: avatar;
             width: auto;
@@ -163,22 +170,22 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
 
     .skill-content {
         flex: 1;
-        
+
         @media (max-width: 600px) {
             display: contents; /* grid participation */
         }
 
         .skill-header {
-             @media (max-width: 600px) {
+            @media (max-width: 600px) {
                 grid-area: header;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-             }
+            }
         }
 
         .skill-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.1rem;
@@ -210,7 +217,7 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                 font-size: 0.75rem;
                 font-weight: 600;
                 line-height: 1;
-                
+
                 .star {
                     color: #f1c40f;
                     font-size: 0.8rem;
@@ -225,7 +232,7 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
             font-size: 0.85rem;
             width: 100%;
             margin-top: 1rem;
-            
+
             @media (max-width: 600px) {
                 grid-area: meta;
                 flex-direction: row;
@@ -241,15 +248,21 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                 gap: 0.35rem;
 
                 @media (max-width: 600px) {
-                    &.meta-difficulty { order: 1; }
-                    &.meta-created { order: 2; }
-                    &.meta-event { order: 3; }
-                    &.meta-prereqs { 
-                        order: 4; 
+                    &.meta-difficulty {
+                        order: 1;
+                    }
+                    &.meta-created {
+                        order: 2;
+                    }
+                    &.meta-event {
+                        order: 3;
+                    }
+                    &.meta-prereqs {
+                        order: 4;
                         width: 100%;
                     }
                 }
-                
+
                 .label {
                     font-size: 0.75rem;
                     text-transform: uppercase;
@@ -275,15 +288,25 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         letter-spacing: 0.5px;
         white-space: nowrap;
 
-        &.beginner { background-color: rgba(46, 204, 113, 0.15); color: #2ecc71; }
-        &.intermediate { background-color: rgba(241, 196, 15, 0.15); color: #d4ac0d; }
-        &.advanced { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+        &.beginner {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+        }
+        &.intermediate {
+            background-color: rgba(241, 196, 15, 0.15);
+            color: #d4ac0d;
+        }
+        &.advanced {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+        }
     }
 
-
     /* Flyout/Compact Logic */
-    .text-short { display: none; }
-    
+    .text-short {
+        display: none;
+    }
+
     .text-truncate {
         white-space: nowrap;
         overflow: hidden;
@@ -293,19 +316,18 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
     }
 
     :global(.discover-layout.details-open) {
-        
         .skill-meta {
             /* Compress grid when open */
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
-        
+
         .meta-item {
             flex-direction: row;
             align-items: center;
             gap: 0.5rem;
             font-size: 0.8rem;
-            
+
             /* Separator logic */
             .label::after {
                 content: "|";
@@ -315,8 +337,12 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         }
 
         /* Toggle visibility classes */
-        .text-long { display: none; }
-        .text-short { display: inline; }
+        .text-long {
+            display: none;
+        }
+        .text-short {
+            display: inline;
+        }
 
         .badge {
             transform: scale(0.9);

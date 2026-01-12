@@ -11,7 +11,6 @@ const { userId, displayName, avatarUrl, tags, stats, skills } = Astro.props.payl
 const user = await User.read(userId, UserFilter.Id);
 
 const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever happen but whatever)
-
 ---
 
 <Card class="user-card-horizontal" href={`/profile/${handle}`}>
@@ -21,14 +20,14 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
             {stats.rating.toFixed(1)}
         </div>
     </div>
-    
+
     <div class="separator"></div>
 
     <div class="user-content">
         <h3 class="user-name">{displayName}</h3>
-        <p class="user-role">{tags.map(tag => profileTags[tag]?.name).join(", ")}</p>
+        <p class="user-role">{tags.map((tag) => profileTags[tag]?.name).join(", ")}</p>
         <div class="skills-tags">
-            {skills.map(skill => <span class="tag">{skill}</span>)}
+            {skills.map((skill) => <span class="tag">{skill}</span>)}
         </div>
     </div>
 </Card>
@@ -41,19 +40,23 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
         padding: 1rem;
         gap: 1rem;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
 
         &:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         @media (max-width: 600px) {
             flex-direction: column;
             align-items: flex-start;
             gap: 1rem;
-            
-            .separator { display: none; }
+
+            .separator {
+                display: none;
+            }
         }
     }
 
@@ -63,7 +66,7 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        
+
         @media (max-width: 600px) {
             width: 100%;
             margin-bottom: 0.5rem;
@@ -84,7 +87,7 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
             gap: 2px;
             font-size: 0.85rem;
             font-weight: 600;
-            
+
             &::before {
                 content: "★";
                 color: #f1c40f;
@@ -103,13 +106,13 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
 
     .user-content {
         flex: 1;
-        
+
         @media (max-width: 600px) {
             width: 100%;
         }
 
         .user-name {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.1rem;
@@ -128,7 +131,7 @@ const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever h
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            
+
             .tag {
                 background: var(--background);
                 border: 1px solid var(--accent-3);

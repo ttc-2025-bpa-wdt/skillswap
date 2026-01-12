@@ -1,37 +1,37 @@
 name: Publish Frontend
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - "frontend/**"
-      - ".github/workflows/publish-frontend.yml"
+    push:
+        branches:
+            - master
+        paths:
+            - "frontend/**"
+            - ".github/workflows/publish-frontend.yml"
 
 jobs:
-  publish-frontend:
-    runs-on: [self-hosted, linux]
+    publish-frontend:
+        runs-on: [self-hosted, linux]
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Install Bun
-        run: |
-          wget -qO- https://github.com/substrant/gists/raw/master/scripts/debian/install-bun.sh | bash
+            - name: Install Bun
+              run: |
+                  wget -qO- https://github.com/substrant/gists/raw/master/scripts/debian/install-bun.sh | bash
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          bun install
+            - name: Install dependencies
+              run: |
+                  cd frontend
+                  bun install
 
-      - name: Build frontend
-        run: |
-          cd frontend
-          bun run build
+            - name: Build frontend
+              run: |
+                  cd frontend
+                  bun run build
 
-      - name: Save artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: frontend
-          path: frontend/dist
+            - name: Save artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: frontend
+                  path: frontend/dist

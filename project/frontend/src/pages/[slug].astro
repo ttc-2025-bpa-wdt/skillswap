@@ -16,25 +16,25 @@ let frontmatter = { title: "", date: "" };
 
 for (const path in files) {
     const raw = files[path] as string;
-    
+
     // Parse frontmatter
     const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-    
+
     if (match) {
         const fmString = match[1];
         const body = match[2];
         const fm: any = {};
-        
-        fmString.split('\n').forEach(line => {
-             const parts = line.split(':');
-             if (parts.length >= 2) {
-                 const key = parts[0].trim();
-                 let value = parts.slice(1).join(':').trim();
-                 if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-                     value = value.slice(1, -1);
-                 }
-                 fm[key] = value;
-             }
+
+        fmString.split("\n").forEach((line) => {
+            const parts = line.split(":");
+            if (parts.length >= 2) {
+                const key = parts[0].trim();
+                let value = parts.slice(1).join(":").trim();
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.slice(1, -1);
+                }
+                fm[key] = value;
+            }
         });
 
         // Check if this file matches the requested slug
@@ -57,9 +57,13 @@ if (!content) {
         <Card class="content-card">
             <header>
                 <h1>{frontmatter.title}</h1>
-                {frontmatter.date && <p class="date">Last updated: {new Date(frontmatter.date).toLocaleDateString()}</p>}
+                {
+                    frontmatter.date && (
+                        <p class="date">Last updated: {new Date(frontmatter.date).toLocaleDateString()}</p>
+                    )
+                }
             </header>
-            <div class="markdown-body" set:html={content}></div>
+            <div class="markdown-body" set:html={content} />
         </Card>
     </div>
 </Layout>
@@ -70,7 +74,12 @@ if (!content) {
         line-height: 1.6;
         color: var(--foreground);
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             color: var(--accent-1);
             margin-top: 1.5em;
             margin-bottom: 0.75em;
@@ -85,7 +94,8 @@ if (!content) {
             margin-bottom: 1.25em;
         }
 
-        ul, ol {
+        ul,
+        ol {
             padding-left: 2em;
             margin-bottom: 1.25em;
         }
@@ -97,7 +107,9 @@ if (!content) {
         a {
             color: var(--accent-1);
             text-decoration: none;
-            &:hover { text-decoration: underline; }
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 </style>
@@ -115,7 +127,7 @@ if (!content) {
 
     .content-card {
         padding: 3rem;
-        
+
         @media (max-width: 768px) {
             padding: 1.5rem;
         }

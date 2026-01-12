@@ -1,9 +1,9 @@
 import { type ITag } from "shared/schema";
 
 export const difficultyTags: Record<string, ITag> = {
-    "beginner": { name: "Beginner", color: "#4CAF50" }, // Green
-    "intermediate": { name: "Intermediate", color: "#FF9800" }, // Orange
-    "advanced": { name: "Advanced", color: "#F44336" }, // Red
+    beginner: { name: "Beginner", color: "#4CAF50" },
+    intermediate: { name: "Intermediate", color: "#FF9800" },
+    advanced: { name: "Advanced", color: "#F44336" },
 };
 
 export interface ISession {

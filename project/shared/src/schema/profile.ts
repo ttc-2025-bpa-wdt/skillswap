@@ -1,7 +1,7 @@
 export const profileTags: Record<string, ITag> = {
-    "founder": { name: "Founder", color: "#2C74C4" },
-    "mentor": { name: "Mentor", color: "#4CAF50" },
-    "student": { name: "Student", color: "#FF9800" },
+    founder: { name: "Founder", color: "#2C74C4" },
+    mentor: { name: "Mentor", color: "#4CAF50" },
+    student: { name: "Student", color: "#FF9800" },
 };
 
 export interface IUserStats {

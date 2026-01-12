@@ -9,14 +9,13 @@ host.
     <i>Full Development Environment Setup Graph</i>
 </p>
 
-
 ## Recommended: Set up a Virtual Machine for Linux
 
-| Advantages                                           | Disadvantages                          |
-|------------------------------------------------------|----------------------------------------|
-| Full Linux development environment                   | Requires more system resources         |
-| No Docker filesystem conflicts                       | Slightly more complex setup process    |
-| Better compatibility with development containers     |                                        |
+| Advantages                                       | Disadvantages                       |
+| ------------------------------------------------ | ----------------------------------- |
+| Full Linux development environment               | Requires more system resources      |
+| No Docker filesystem conflicts                   | Slightly more complex setup process |
+| Better compatibility with development containers |                                     |
 
 The recommended approach is to use a virtual machine on your Windows host. You can use software like VMWare Workstation
 Pro or Hyper-V to create a virtual machine. From there, you can follow [Quick Start](../quick-start.md) to set up the
@@ -28,10 +27,10 @@ your Windows host.
 
 ## Alternative: Use Windows Subsystem for Linux
 
-| Advantages                                           | Disadvantages                               |
-|------------------------------------------------------|---------------------------------------------|
-| Lightweight alternative to a full virtual machine    | Terrible support for development containers |
-| Easier to set up compared to a virtual machine       | Filesystem must be carefully managed        |
+| Advantages                                        | Disadvantages                               |
+| ------------------------------------------------- | ------------------------------------------- |
+| Lightweight alternative to a full virtual machine | Terrible support for development containers |
+| Easier to set up compared to a virtual machine    | Filesystem must be carefully managed        |
 
 Windows Subsystem for Linux 2 (WSL2) is another option for running a Linux environment on Windows. Visual Studio Code
 has terrible support for development containers under WSL2, so this approach may or may nor work well for you. Continue

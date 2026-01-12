@@ -1,6 +1,8 @@
 @use "@styles/themes.scss";
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -28,11 +30,12 @@
     transition: opacity 0.3s ease-in-out;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
 
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-size: 16px;
     line-height: 1.6;
 
@@ -41,7 +44,8 @@ html, body {
     scroll-behavior: smooth;
 }
 
-section, article {
+section,
+article {
     display: flex;
     flex-direction: column;
 }
@@ -52,10 +56,15 @@ aside {
     font-size: 0.9rem !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     margin: 0;
 
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-weight: 500;
 
     color: var(--foreground);
@@ -65,7 +74,9 @@ p {
     margin: 0 0 1rem 0;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     font-family: inherit;
     box-sizing: border-box;
 
@@ -74,10 +85,12 @@ input, textarea, select {
 
     border: 1px solid var(--accent-3);
     border-radius: 4px;
-    
+
     transition: border-color 0.2s ease;
 
-    &[type='text'], &[type='email'], &[type='password'] {
+    &[type="text"],
+    &[type="email"],
+    &[type="password"] {
         padding: 0.5rem;
 
         &:focus {

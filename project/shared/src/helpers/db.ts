@@ -17,8 +17,7 @@ export class DataCache {
         if (cached && cached.expiresAt > now) return cached.value as T;
 
         const value = await read();
-        if (value !== null)
-            this.cache[key] = { value, expiresAt: now + ttl };
+        if (value !== null) this.cache[key] = { value, expiresAt: now + ttl };
 
         return value;
     }

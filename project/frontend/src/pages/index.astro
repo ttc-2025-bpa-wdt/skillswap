@@ -1,23 +1,23 @@
 ---
 import Layout from "@layouts/global.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.astro";
 ---
 
 <Layout title="Home" desc="SkillSwap - Learn. Teach. Connect.">
-	<section class="hero">
-		<div class="hero-content">
-			<h1 class="gradient-text">Learn. Teach. Connect.</h1>
-			<p class="tagline">Join the community where students exchange skills and grow together.</p>
-			<div class="cta-buttons">
-				<Button href="/auth/register" variant="primary" class="hero-btn">Sign Up</Button>
-				<Button href="#skills" variant="outline" class="hero-btn">Explore Skills</Button>
-			</div>
-		</div>
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="gradient-text">Learn. Teach. Connect.</h1>
+            <p class="tagline">Join the community where students exchange skills and grow together.</p>
+            <div class="cta-buttons">
+                <Button href="/auth/register" variant="primary" class="hero-btn">Sign Up</Button>
+                <Button href="#skills" variant="outline" class="hero-btn">Explore Skills</Button>
+            </div>
+        </div>
         <div class="hero-visual">
             <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" class="preview-image" />
         </div>
-	</section>
+    </section>
 
     <section id="features" class="section-container">
         <h2 class="section-title">Why Join SkillSwap?</h2>
@@ -81,31 +81,31 @@ import Card from "@components/base/Card.astro";
         </div>
     </section>
 
-	<section id="skills" class="section-container">
+    <section id="skills" class="section-container">
         <h2 class="section-title">Featured Skills</h2>
-		<div class="skills-grid">
-			<Card class="skill-card" href="/search?q=Math">
-				<div class="skill-icon">📐</div>
-				<h3>Math</h3>
+        <div class="skills-grid">
+            <Card class="skill-card" href="/search?q=Math">
+                <div class="skill-icon">📐</div>
+                <h3>Math</h3>
                 <p>Calculus, Algebra, Statistics</p>
-			</Card>
-			<Card class="skill-card" href="/search?q=Guitar">
-				<div class="skill-icon">🎸</div>
-				<h3>Guitar</h3>
+            </Card>
+            <Card class="skill-card" href="/search?q=Guitar">
+                <div class="skill-icon">🎸</div>
+                <h3>Guitar</h3>
                 <p>Acoustic, Electric, Theory</p>
-			</Card>
-			<Card class="skill-card" href="/search?q=Coding">
-				<div class="skill-icon">💻</div>
-				<h3>Coding</h3>
+            </Card>
+            <Card class="skill-card" href="/search?q=Coding">
+                <div class="skill-icon">💻</div>
+                <h3>Coding</h3>
                 <p>Python, JavaScript, React</p>
-			</Card>
+            </Card>
             <Card class="skill-card" href="/search?q=Photography">
-				<div class="skill-icon">📷</div>
-				<h3>Photography</h3>
+                <div class="skill-icon">📷</div>
+                <h3>Photography</h3>
                 <p>Portrait, Landscape, Editing</p>
-			</Card>
-		</div>
-	</section>
+            </Card>
+        </div>
+    </section>
 
     <section class="final-cta">
         <div class="cta-content">
@@ -155,15 +155,19 @@ import Card from "@components/base/Card.astro";
         background-color: color-mix(in srgb, var(--background), var(--accent-3) 10%);
     }
 
-	.hero {
+    .hero {
         flex-direction: row;
-		align-items: center;
-		min-height: 50vh;
-		padding: 2rem 5%;
+        align-items: center;
+        min-height: 50vh;
+        padding: 2rem 5%;
         gap: 2rem;
-        background: linear-gradient(135deg, var(--background) 0%, color-mix(in srgb, var(--background), var(--accent-3) 20%) 100%);
+        background: linear-gradient(
+            135deg,
+            var(--background) 0%,
+            color-mix(in srgb, var(--background), var(--accent-3) 20%) 100%
+        );
         border-bottom: 1px solid var(--accent-3);
-	}
+    }
 
     .hero-content {
         flex: 1;
@@ -182,31 +186,31 @@ import Card from "@components/base/Card.astro";
         width: 100%;
         max-width: 500px;
         height: auto;
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
     }
 
-	.gradient-text {
-		font-size: 4rem;
-		font-weight: 800;
-		margin: 0;
-		line-height: 1.1;
-		background-image: linear-gradient(45deg, var(--accent-1), var(--accent-2));
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
+    .gradient-text {
+        font-size: 4rem;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1.1;
+        background-image: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
-	.tagline {
-		font-size: 1.5rem;
-		color: var(--foreground);
-		opacity: 0.8;
-		margin-top: 1.5rem;
+    .tagline {
+        font-size: 1.5rem;
+        color: var(--foreground);
+        opacity: 0.8;
+        margin-top: 1.5rem;
         margin-bottom: 2.5rem;
-	}
+    }
 
-	.cta-buttons {
-		display: flex;
-		gap: 1rem;
-	}
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+    }
 
     .steps-container {
         display: flex;
@@ -258,7 +262,9 @@ import Card from "@components/base/Card.astro";
         border-color: var(--accent-2);
         color: var(--foreground);
         transform: scale(1.2);
-        box-shadow: 0 10px 25px rgba(80, 227, 194, 0.4), 0 0 0 10px var(--background);
+        box-shadow:
+            0 10px 25px rgba(80, 227, 194, 0.4),
+            0 0 0 10px var(--background);
     }
 
     .step-content h3 {
@@ -280,7 +286,7 @@ import Card from "@components/base/Card.astro";
             gap: 0;
             padding-left: 1rem;
         }
-        
+
         .step-line {
             top: 2rem;
             left: calc(1rem + 30px - 1.5px); /* Center of 60px marker (30px) + padding (1rem) - half line width */
@@ -301,40 +307,40 @@ import Card from "@components/base/Card.astro";
             margin: 0;
             flex-shrink: 0;
         }
-        
+
         .step-content {
             padding-top: 0.5rem;
         }
     }
 
     /* Featured Skills */
-	.skills-grid {
-		display: flex;
+    .skills-grid {
+        display: flex;
         flex-wrap: wrap;
         justify-content: center;
-		gap: 2rem;
+        gap: 2rem;
         max-width: 1400px;
         margin: 0 auto;
-	}
+    }
 
-	.skill-card {
+    .skill-card {
         flex: 1 1 240px;
         max-width: 280px;
-		text-align: center;
-		transition: all 0.3s ease;
+        text-align: center;
+        transition: all 0.3s ease;
         cursor: pointer;
-	}
+    }
 
-	.skill-card:hover {
-		box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-		transform: translateY(-10px);
+    .skill-card:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        transform: translateY(-10px);
         border-color: var(--accent-1);
-	}
+    }
 
-	.skill-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-	}
+    .skill-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
 
     /* Features List */
     .features-list {
@@ -362,7 +368,7 @@ import Card from "@components/base/Card.astro";
 
     .feature-item:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         border-color: var(--accent-1);
     }
 
@@ -381,7 +387,7 @@ import Card from "@components/base/Card.astro";
         opacity: 0.8;
     }
 
-	@media (max-width: 768px) {
+    @media (max-width: 768px) {
         .hero {
             flex-direction: column;
             text-align: center;
@@ -408,8 +414,8 @@ import Card from "@components/base/Card.astro";
             width: 100%;
         }
 
-		.gradient-text {
-			font-size: 2.5rem;
-		}
-	}
+        .gradient-text {
+            font-size: 2.5rem;
+        }
+    }
 </style>

@@ -12,7 +12,8 @@ export class Authentication {
             iat: Math.floor(Date.now() / 1000),
         };
 
-        if (!remember) // Set expiry if "remember me" is not checked
+        if (!remember)
+            // Set expiry if "remember me" is not checked
             payload.exp = Math.floor(Date.now() / 1000) + AUTH_COOKIE_EXPIRY;
 
         return Security.encodeToken<IAuthToken>(payload);

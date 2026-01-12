@@ -6,7 +6,7 @@ import Pagination from "@components/base/Pagination.astro";
 
 import { Profile, Session } from "shared/models";
 
-export const prerender = false
+export const prerender = false;
 
 const query = Astro.url.searchParams.get("q")?.trim();
 
@@ -15,17 +15,13 @@ const sessions = query ? await Session.search(query) : [];
 
 let foundLabel = "Found ";
 
-if (sessions.length)
-    foundLabel += `${sessions.length} sessions`;
+if (sessions.length) foundLabel += `${sessions.length} sessions`;
 
-if (sessions.length && profiles.length)
-    foundLabel += " and ";
+if (sessions.length && profiles.length) foundLabel += " and ";
 
-if (profiles.length)
-    foundLabel += `${profiles.length} users`;
+if (profiles.length) foundLabel += `${profiles.length} users`;
 
-if (!sessions.length && !profiles.length)
-    foundLabel = "No results found";
+if (!sessions.length && !profiles.length) foundLabel = "No results found";
 
 const title = query ? `Search Results for "${query}"` : "Search Results";
 ---
@@ -40,25 +36,37 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
         </header>
 
         <div class="results-grid">
-            {sessions?.length ? <section class="results-section">
-                <div class="results-header">
-                    <h2>Skills</h2>
-                    <Pagination />
-                </div>
-                <div class="results-list">
-                    {sessions.map(session => <SessionCard payload={session} />)}
-                </div>
-            </section> : null}
+            {
+                sessions?.length ? (
+                    <section class="results-section">
+                        <div class="results-header">
+                            <h2>Skills</h2>
+                            <Pagination />
+                        </div>
+                        <div class="results-list">
+                            {sessions.map((session) => (
+                                <SessionCard payload={session} />
+                            ))}
+                        </div>
+                    </section>
+                ) : null
+            }
 
-            {profiles?.length ? <section class="results-section">
-                <div class="results-header">
-                    <h2>Users</h2>
-                    <Pagination />
-                </div>
-                <div class="results-list">
-                    {profiles.map(user => <UserCard payload={user} />)}
-                </div>
-            </section> : null}
+            {
+                profiles?.length ? (
+                    <section class="results-section">
+                        <div class="results-header">
+                            <h2>Users</h2>
+                            <Pagination />
+                        </div>
+                        <div class="results-list">
+                            {profiles.map((user) => (
+                                <UserCard payload={user} />
+                            ))}
+                        </div>
+                    </section>
+                ) : null
+            }
         </div>
     </div>
 </Layout>
@@ -68,7 +76,7 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
         max-width: 1000px;
         margin: 0 auto;
         padding: 2rem;
-        
+
         @media (max-width: 600px) {
             padding: 1rem;
         }
@@ -81,17 +89,17 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
         align-items: flex-end;
         gap: 2rem;
         flex-wrap: wrap;
-        
+
         @media (max-width: 600px) {
             margin-bottom: 1.5rem;
         }
 
         h1 {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 2rem;
             color: var(--foreground);
             margin-bottom: 0.5rem;
-            
+
             @media (max-width: 600px) {
                 font-size: 1.75rem;
             }
@@ -116,10 +124,10 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
         align-items: center;
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        flex-wrap: wrap; 
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        flex-wrap: wrap;
         gap: 1rem;
-        
+
         @media (max-width: 600px) {
             flex-direction: column;
             align-items: stretch;
@@ -132,7 +140,7 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
 
         h2 {
             flex: 1;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 1.5rem;
             color: var(--foreground);
         }
@@ -148,5 +156,4 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
         font-style: italic;
         opacity: 0.6;
     }
-
 </style>

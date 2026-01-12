@@ -6,15 +6,18 @@ import Card from "@components/base/Card.astro";
 import { Profile, ProfileFilter } from "shared/models";
 
 const { handle = null } = Astro.params;
-const profile = handle && await Profile.read(handle, ProfileFilter.Handle);
+const profile = handle && (await Profile.read(handle, ProfileFilter.Handle));
 ---
 
-{profile
-    ? <ProfileLayout payload={profile} />
-    : <Layout title="Not Found">
-        <Card class="margin-20">
-            <h1>User Not Found</h1>
-            <p>We couldn't find a profile matching your ID. Please check the URL and try again.</p>
-        </Card>
-    </Layout>
-} 
+{
+    profile ? (
+        <ProfileLayout payload={profile} />
+    ) : (
+        <Layout title="Not Found">
+            <Card class="margin-20">
+                <h1>User Not Found</h1>
+                <p>We couldn't find a profile matching your ID. Please check the URL and try again.</p>
+            </Card>
+        </Layout>
+    )
+}

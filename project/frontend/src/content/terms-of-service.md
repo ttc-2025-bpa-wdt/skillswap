@@ -24,6 +24,7 @@ under your account.
 ## 3. User Conduct
 
 You agree to use the Service in compliance with all applicable laws and regulations. You will not use the Service to:
+
 - Engage in any unlawful, fraudulent, or harmful activities.
 - Harass, abuse, or harm another person or group.
 - Post or transmit any content that is defamatory, obscene, or otherwise objectionable.
@@ -33,4 +34,3 @@ You agree to use the Service in compliance with all applicable laws and regulati
 - Use the Service for any commercial purposes without our prior written consent.
 - Collect or store personal data about other users without their consent.
 - Attempt to gain unauthorized access to the Service or related systems or networks.
-

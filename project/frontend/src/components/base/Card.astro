@@ -16,7 +16,7 @@ const Element = href ? "a" : "div";
     <slot />
 </Element>
 
-<style lang="scss">
+<style lang="scss" is:global>
     .card {
         display: flex;
         flex-direction: column;
@@ -25,7 +25,9 @@ const Element = href ? "a" : "div";
         border-radius: 12px;
         padding: 2rem;
         box-shadow: var(--shadow-sm);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
     }
 
     a.card {

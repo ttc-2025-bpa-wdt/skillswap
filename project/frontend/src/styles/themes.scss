@@ -1,22 +1,22 @@
 :root {
-    --ttc-red: #BC2035;
-    --base-green:  rgb(0, 180, 140);
-    --base-red:    rgb(220, 50, 50);
+    --ttc-red: #bc2035;
+    --base-green: rgb(0, 180, 140);
+    --base-red: rgb(220, 50, 50);
     --base-yellow: rgb(245, 180, 40);
-    --base-blue:   rgb(40, 130, 220);
+    --base-blue: rgb(40, 130, 220);
     --base-orange: rgb(243, 130, 40);
 }
 
 :root[data-theme="light"] {
-    --background: #F4F4F4;
+    --background: #f4f4f4;
     --foreground: #111111;
     --text-muted: #555555;
 
-    --accent-1: #2C74C4;
-    --accent-2: #2A9D8F;
-    --accent-3: #CCCCCC;
+    --accent-1: #2c74c4;
+    --accent-2: #2a9d8f;
+    --accent-3: #cccccc;
 
-    --card-bg:  #FFFFFF;
+    --card-bg: #ffffff;
 
     --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.03);
     --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -24,15 +24,15 @@
 
 :root[data-theme="dark"] {
     --background: #121212;
-    --foreground: #E0E0E0;
-    --text-muted: #AAAAAA;
+    --foreground: #e0e0e0;
+    --text-muted: #aaaaaa;
 
-    --accent-1: #4A90E2;
-    --accent-2: #50E3C2;
+    --accent-1: #4a90e2;
+    --accent-2: #50e3c2;
     --accent-3: #333333;
 
-    --card-bg:  #1E1E1E;
+    --card-bg: #1e1e1e;
 
-    --shadow-sm: 0 2px 10px rgba(0,0,0,0.2);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
 }

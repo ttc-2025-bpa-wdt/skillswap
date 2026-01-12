@@ -1,5 +1,5 @@
 ---
-import type { ITag } from 'shared/schema';
+import type { ITag } from "shared/schema";
 
 interface Props {
     payload: Partial<ITag>;
@@ -13,7 +13,7 @@ const { class: className, foreground = "var(--foreground)" } = Astro.props;
 const classes = ["tag", className].filter(Boolean);
 ---
 
-<span class={classes.join(' ')} style={`background-color: ${color}; color: ${foreground}`}>
+<span class={classes.join(" ")} style={`background-color: ${color}; color: ${foreground}`}>
     {name ?? <slot />}
 </span>
 

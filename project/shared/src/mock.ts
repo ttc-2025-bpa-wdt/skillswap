@@ -269,5 +269,5 @@ export const sessions: ISession[] = [
         difficulty: "intermediate",
         createdAt: new Date("2025-12-15T11:15:00Z"),
         eventDate: new Date("2025-12-30T19:00:00Z"),
-    }
+    },
 ];

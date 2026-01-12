@@ -1,7 +1,8 @@
 {
-  "dependencies": {},
-  "devDependencies": {
-    "prettier": "^3.7.4",
-    "prettier-plugin-astro": "^0.14.1"
-  }
+    "dependencies": {},
+    "devDependencies": {
+        "prettier": "^3.7.4",
+        "prettier-plugin-astro": "^0.14.1",
+        "prettier-plugin-svelte": "^3.4.1"
+    }
 }

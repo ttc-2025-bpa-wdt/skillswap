@@ -3,14 +3,14 @@ import { AUTH_COOKIE_NAME, AUTH_COOKIE_EXPIRY } from "shared/config";
 import { z } from "zod/v4";
 
 import Layout from "@layouts/auth.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 
 import { User } from "shared/models";
 
 const loginRequest = z.object({
     emailOrHandle: z.string().min(1, "Email or handle is required"),
     password: z.string().min(8, "Password must be at least 8 characters"),
-    remember: z.boolean().optional()
+    remember: z.boolean().optional(),
 });
 
 let errorMessage: string | null = null;
@@ -20,8 +20,8 @@ if (Astro.request.method === "POST") {
 
     const { success, data, error } = loginRequest.safeParse({
         emailOrHandle: formData.get("emailOrHandle"),
-        password:      formData.get("password"),
-        remember:      formData.get("remember") === "on"
+        password: formData.get("password"),
+        remember: formData.get("remember") === "on",
     });
 
     if (success) {
@@ -34,17 +34,15 @@ if (Astro.request.method === "POST") {
                 httpOnly: true,
                 secure: import.meta.env.NODE_ENV === "production",
                 sameSite: "lax",
-                maxAge: remember ? AUTH_COOKIE_EXPIRY : undefined
+                maxAge: remember ? AUTH_COOKIE_EXPIRY : undefined,
             });
 
             return Astro.redirect("/dashboard");
-        }
-        else {
+        } else {
             errorMessage = "Invalid email/handle or password";
             Astro.response.status = 401;
         }
-    }
-    else {
+    } else {
         errorMessage = "Invalid form data.";
         Astro.response.status = 400;
     }
@@ -55,24 +53,13 @@ if (Astro.request.method === "POST") {
     <form id="login-form" method="POST" novalidate>
         <div class="form-group">
             <label for="emailOrHandle">Email or Handle</label>
-            <input
-                type="text"
-                name="emailOrHandle"
-                placeholder="Email or handle"
-                required
-            />
+            <input type="text" name="emailOrHandle" placeholder="Email or handle" required />
             <span class="error-message" id="emailOrHandle-error"></span>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                required
-                minlength="8"
-            />
+            <input type="password" name="password" placeholder="Password" required minlength="8" />
             <span class="error-message" id="password-error"></span>
         </div>
 
@@ -126,11 +113,11 @@ if (Astro.request.method === "POST") {
     new Form("login-form")
         .addField("emailOrHandle", {
             validateOn: "input",
-            validator: FormValidators.email()
+            validator: FormValidators.email(),
         })
         .addField("password", {
             validateOn: "input",
-            validator: FormValidators.password({ minLength: 8 })
+            validator: FormValidators.password({ minLength: 8 }),
         })
         .addField("remember");
 </script>

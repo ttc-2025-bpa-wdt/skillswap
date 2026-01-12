@@ -1,17 +1,17 @@
 ---
 import Layout from "@layouts/global.astro";
-import Button from "@components/base/Button.astro";
+import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.astro";
 import { Profile, ProfileFilter, Session, SessionFilter, User, UserFilter } from "shared/models";
 import Tag from "@components/base/Tag.astro";
 
 interface Props {
-    login: {}
+    login: {};
 }
 
 const { id } = Astro.params;
 
-const session = id && await Session.read(id, SessionFilter.Id);
+const session = id && (await Session.read(id, SessionFilter.Id));
 const user = session ? await User.read(session.userId, UserFilter.Id) : null;
 const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
 
@@ -20,20 +20,20 @@ if (!session) {
 }
 
 const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
+    return new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
     }).format(date);
 };
 
 const difficultyColors = {
     beginner: "var(--accent-2)", // Greenish/Teal usually in this theme
     intermediate: "var(--accent-1)", // Blue
-    advanced: "#BC2035" // Red
+    advanced: "#BC2035", // Red
 };
 
 const difficultyColor = difficultyColors[session.difficulty as keyof typeof difficultyColors] || "var(--accent-1)";
@@ -41,7 +41,6 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
 
 <Layout title={session.name} desc={`Join ${profile.displayName} for ${session.name}`}>
     <div class="session-container">
-        
         <div class="breadcrumb">
             <a href="/dashboard">Sessions</a> &gt; <span>{session.name}</span>
         </div>
@@ -49,8 +48,11 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
         <div class="session-header">
             <div class="header-content">
                 <div class="tags">
-                    <Tag payload={{ name: session.difficulty, color: difficultyColor }} foreground="var(--background)" />
-                    {session.categories.map(name => <Tag payload={{ name, color: "var(--accent-3)" }} />)}
+                    <Tag
+                        payload={{ name: session.difficulty, color: difficultyColor }}
+                        foreground="var(--background)"
+                    />
+                    {session.categories.map((name) => <Tag payload={{ name, color: "var(--accent-3)" }} />)}
                 </div>
                 <h1>{session.name}</h1>
                 <div class="meta-row">
@@ -67,10 +69,13 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
                 <Card class="detail-card">
                     <h2>About this Session</h2>
                     <p class="description">
-                        Join this session to learn about {session.name}. 
-                        {session.prereqs !== "None" && `Make sure you have the following prerequisites covered: ${session.prereqs}.`}
+                        Join this session to learn about {session.name}.
+                        {
+                            session.prereqs !== "None" &&
+                                `Make sure you have the following prerequisites covered: ${session.prereqs}.`
+                        }
                     </p>
-                    
+
                     <div class="prereqs-box">
                         <h3>Prerequisites</h3>
                         <p>{session.prereqs}</p>
@@ -124,7 +129,9 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
         a {
             color: var(--foreground);
             text-decoration: none;
-            &:hover { text-decoration: underline; }
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 
@@ -135,7 +142,7 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
             font-size: 3rem;
             margin: 1rem 0;
             line-height: 1.2;
-            
+
             @media (max-width: 768px) {
                 font-size: 2rem;
             }
@@ -203,7 +210,7 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
     }
 
     .prereqs-box {
-        background-color: rgba(0,0,0,0.03);
+        background-color: rgba(0, 0, 0, 0.03);
         border-left: 4px solid var(--accent-1);
         padding: 1.5rem;
         border-radius: 0 8px 8px 0;
@@ -224,7 +231,7 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
     .actions {
         display: flex;
         gap: 1rem;
-        
+
         @media (max-width: 600px) {
             flex-direction: column;
         }
@@ -260,7 +267,7 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
         .host-info {
             display: flex;
             flex-direction: column;
-            
+
             .name {
                 font-weight: 700;
                 font-size: 1.1rem;
@@ -277,13 +284,13 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
         padding: 1.5rem;
         background-color: rgba(42, 157, 143, 0.1); /* Slight tint */
         border: none;
-        
+
         h3 {
             margin-top: 0;
             color: var(--accent-2);
             font-size: 1.1rem;
         }
-        
+
         p {
             margin: 0;
             font-size: 0.9rem;

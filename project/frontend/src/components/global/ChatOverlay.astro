@@ -1,20 +1,27 @@
 ---
-import Card from '@components/base/Card.astro';
-import Button from '@components/base/Button.astro';
+import Card from "@components/base/Card.astro";
+import Button from "@components/base/Button.svelte";
 
 // Mock Data
 const contacts = [
-    { id: 1, name: "Jordan Lee", avatar: "/images/jordan-lee.png", status: "online", lastMsg: "See you at 2pm!", time: "2m" },
+    {
+        id: 1,
+        name: "Jordan Lee",
+        avatar: "/images/jordan-lee.png",
+        status: "online",
+        lastMsg: "See you at 2pm!",
+        time: "2m",
+    },
     { id: 2, name: "Alex K.", avatar: null, status: "offline", lastMsg: "Thanks for the help.", time: "1d" },
     { id: 3, name: "Sam R.", avatar: null, status: "online", lastMsg: "Can we reschedule?", time: "3h" },
-    { id: 4, name: "Maria Garcia", avatar: null, status: "online", lastMsg: "Great session!", time: "4h" }
+    { id: 4, name: "Maria Garcia", avatar: null, status: "online", lastMsg: "Great session!", time: "4h" },
 ];
 
 const messages = [
     { id: 1, sender: "them", text: "Hey! Are we still on for the React session?" },
     { id: 2, sender: "me", text: "Hi Jordan. Yes, definitely." },
     { id: 3, sender: "me", text: "I've prepared some notes." },
-    { id: 4, sender: "them", text: "Awesome! Looking forward to it." }
+    { id: 4, sender: "them", text: "Awesome! Looking forward to it." },
 ];
 ---
 
@@ -22,11 +29,35 @@ const messages = [
     <!-- Chat Button -->
     <button id="chat-toggle-btn" class="chat-fab" aria-label="Open Chat">
         <div class="icon-container">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" class="icon-chat">
-                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                class="icon-chat"
+            >
+                <path
+                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
             </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" class="icon-close">
-                <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                class="icon-close"
+            >
+                <path
+                    d="M18 6 6 18M6 6l12 12"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
             </svg>
         </div>
         <span class="unread-badge">2</span>
@@ -37,7 +68,17 @@ const messages = [
         <header class="chat-header">
             <div class="header-left">
                 <button id="chat-back-btn" class="icon-btn hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg
+                    >
                 </button>
                 <div class="header-title">
                     <h3 id="chat-title">Messages</h3>
@@ -51,45 +92,78 @@ const messages = [
             <div class="view-contacts active" id="view-contacts">
                 <div class="search-bar">
                     <input type="text" placeholder="Search messages..." />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="search-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg
+                    >
                 </div>
                 <div class="contact-list">
-                    {contacts.map(contact => (
-                        <div class="contact-item" data-id={contact.id} data-name={contact.name} data-status={contact.status}>
-                            <div class="avatar-wrapper">
-                                <div class="avatar">
-                                    {contact.avatar ? <img src={contact.avatar} alt={contact.name} /> : <span>{contact.name[0]}</span>}
+                    {
+                        contacts.map((contact) => (
+                            <div
+                                class="contact-item"
+                                data-id={contact.id}
+                                data-name={contact.name}
+                                data-status={contact.status}
+                            >
+                                <div class="avatar-wrapper">
+                                    <div class="avatar">
+                                        {contact.avatar ? (
+                                            <img src={contact.avatar} alt={contact.name} />
+                                        ) : (
+                                            <span>{contact.name[0]}</span>
+                                        )}
+                                    </div>
+                                    <span class={`status-dot ${contact.status}`} />
                                 </div>
-                                <span class={`status-dot ${contact.status}`}></span>
-                            </div>
-                            <div class="contact-details">
-                                <div class="contact-top">
-                                    <h4>{contact.name}</h4>
-                                    <span class="time">{contact.time}</span>
+                                <div class="contact-details">
+                                    <div class="contact-top">
+                                        <h4>{contact.name}</h4>
+                                        <span class="time">{contact.time}</span>
+                                    </div>
+                                    <p class="last-msg">{contact.lastMsg}</p>
                                 </div>
-                                <p class="last-msg">{contact.lastMsg}</p>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    }
                 </div>
             </div>
 
             <!-- Conversation View -->
             <div class="view-conversation" id="view-conversation">
                 <div class="messages-area">
-                    {messages.map(msg => (
-                        <div class={`message ${msg.sender}`}>
-                            {msg.sender === 'them' && (
-                                <div class="msg-avatar">JL</div>
-                            )}
-                            <div class="bubble">{msg.text}</div>
-                        </div>
-                    ))}
+                    {
+                        messages.map((msg) => (
+                            <div class={`message ${msg.sender}`}>
+                                {msg.sender === "them" && <div class="msg-avatar">JL</div>}
+                                <div class="bubble">{msg.text}</div>
+                            </div>
+                        ))
+                    }
                 </div>
                 <div class="input-area">
                     <input type="text" placeholder="Type a message..." />
                     <Button size="sm" class="send-btn" variant="ghost">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg
+                        >
                     </Button>
                 </div>
             </div>
@@ -103,7 +177,7 @@ const messages = [
         bottom: 2rem;
         right: 2rem;
         z-index: 1000;
-        font-family: 'Roboto', sans-serif;
+        font-family: "Roboto", sans-serif;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -124,12 +198,14 @@ const messages = [
         background: var(--accent-1);
         color: white;
         border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.2s, background-color 0.2s;
+        transition:
+            transform 0.2s,
+            background-color 0.2s;
         position: relative;
         z-index: 1002;
 
@@ -145,10 +221,12 @@ const messages = [
         }
 
         svg {
-             position: absolute;
-             top: 0;
-             left: 0;
-             transition: opacity 0.3s, transform 0.3s;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition:
+                opacity 0.3s,
+                transform 0.3s;
         }
 
         .icon-close {
@@ -194,12 +272,12 @@ const messages = [
         height: 500px;
         background: var(--card-bg);
         border-radius: 12px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
         display: flex;
         flex-direction: column;
         overflow: hidden;
         padding: 0 !important; /* Override Card padding */
-        
+
         opacity: 0;
         transform: translateY(20px) scale(0.95);
         transform-origin: bottom right;
@@ -208,7 +286,7 @@ const messages = [
         z-index: 1001;
 
         :global(.sc) {
-           padding: 0; /* Fallback */
+            padding: 0; /* Fallback */
         }
 
         &.open {
@@ -251,7 +329,7 @@ const messages = [
             margin: 0;
             font-size: 1.1rem;
             color: white;
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         .status-text {
@@ -269,8 +347,10 @@ const messages = [
             padding: 0;
             display: flex;
             align-items: center;
-            
-            &.hidden { display: none; }
+
+            &.hidden {
+                display: none;
+            }
         }
     }
 
@@ -282,7 +362,8 @@ const messages = [
         background: var(--card-bg);
     }
 
-    .view-contacts, .view-conversation {
+    .view-contacts,
+    .view-conversation {
         position: absolute;
         top: 0;
         left: 0;
@@ -316,7 +397,7 @@ const messages = [
             font-size: 0.9rem;
             background: var(--background);
             border: 1px solid transparent;
-            
+
             &:focus {
                 background: var(--card-bg);
                 border-color: var(--accent-1);
@@ -346,10 +427,10 @@ const messages = [
         gap: 1rem;
         cursor: pointer;
         transition: background-color 0.2s;
-        border-bottom: 1px solid rgba(0,0,0,0.03);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 
         &:hover {
-            background-color: rgba(0,0,0,0.03);
+            background-color: rgba(0, 0, 0, 0.03);
         }
 
         .avatar-wrapper {
@@ -369,7 +450,11 @@ const messages = [
             font-size: 1.2rem;
             overflow: hidden;
 
-            img { width: 100%; height: 100%; object-fit: cover; }
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
 
         .status-dot {
@@ -382,7 +467,9 @@ const messages = [
             border-radius: 50%;
             background: #95a5a6;
 
-            &.online { background: #2ecc71; }
+            &.online {
+                background: #2ecc71;
+            }
         }
 
         .contact-details {
@@ -395,8 +482,15 @@ const messages = [
                 align-items: baseline;
                 margin-bottom: 0.25rem;
 
-                h4 { margin: 0; font-size: 1rem; font-weight: 600; }
-                .time { font-size: 0.75rem; opacity: 0.6; }
+                h4 {
+                    margin: 0;
+                    font-size: 1rem;
+                    font-weight: 600;
+                }
+                .time {
+                    font-size: 0.75rem;
+                    opacity: 0.6;
+                }
             }
 
             .last-msg {
@@ -428,7 +522,7 @@ const messages = [
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
-        background-color: rgba(0,0,0,0.02);
+        background-color: rgba(0, 0, 0, 0.02);
     }
 
     .message {
@@ -439,7 +533,7 @@ const messages = [
         &.me {
             align-self: flex-end;
             flex-direction: row-reverse;
-            
+
             .bubble {
                 background: var(--accent-1);
                 color: white;
@@ -449,11 +543,11 @@ const messages = [
 
         &.them {
             align-self: flex-start;
-            
+
             .bubble {
                 background: white;
                 color: #333;
-                border: 1px solid rgba(0,0,0,0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 12px 12px 12px 0;
             }
         }
@@ -474,7 +568,7 @@ const messages = [
             padding: 0.6rem 0.8rem;
             font-size: 0.95rem;
             line-height: 1.4;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
     }
 
@@ -491,7 +585,7 @@ const messages = [
             padding: 0.6rem 1rem;
             font-size: 0.95rem;
             border: 1px solid var(--accent-3);
-            
+
             &:focus {
                 outline: none;
                 border-color: var(--accent-1);
@@ -517,62 +611,62 @@ const messages = [
 
 <script>
     // Simple UI State Logic
-    const toggleBtn = document.getElementById('chat-toggle-btn');
-    const chatWindow = document.querySelector('.chat-window');
-    
+    const toggleBtn = document.getElementById("chat-toggle-btn");
+    const chatWindow = document.querySelector(".chat-window");
+
     // Views
-    const contactsView = document.getElementById('view-contacts');
-    const convoView = document.getElementById('view-conversation');
-    const backBtn = document.getElementById('chat-back-btn');
-    const chatTitle = document.getElementById('chat-title');
-    const chatSubtitle = document.getElementById('chat-subtitle');
-    const contactItems = document.querySelectorAll('.contact-item');
+    const contactsView = document.getElementById("view-contacts");
+    const convoView = document.getElementById("view-conversation");
+    const backBtn = document.getElementById("chat-back-btn");
+    const chatTitle = document.getElementById("chat-title");
+    const chatSubtitle = document.getElementById("chat-subtitle");
+    const contactItems = document.querySelectorAll(".contact-item");
 
     // Toggle Chat visibility
-    toggleBtn?.addEventListener('click', () => {
-        const isOpen = chatWindow?.classList.contains('open');
-        
+    toggleBtn?.addEventListener("click", () => {
+        const isOpen = chatWindow?.classList.contains("open");
+
         if (isOpen) {
-            chatWindow?.classList.remove('open');
-            toggleBtn.classList.remove('active');
+            chatWindow?.classList.remove("open");
+            toggleBtn.classList.remove("active");
         } else {
-            chatWindow?.classList.add('open');
-            toggleBtn.classList.add('active');
-            
+            chatWindow?.classList.add("open");
+            toggleBtn.classList.add("active");
+
             // Remove unread badge on open
-            const badge = toggleBtn.querySelector('.unread-badge');
+            const badge = toggleBtn.querySelector(".unread-badge");
             if (badge) badge.remove();
         }
     });
 
     // Navigation Logic
-    contactItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const name = item.getAttribute('data-name');
-            const status = item.getAttribute('data-status');
+    contactItems.forEach((item) => {
+        item.addEventListener("click", () => {
+            const name = item.getAttribute("data-name");
+            const status = item.getAttribute("data-status");
 
             // Slide views
-            contactsView?.classList.add('slide-out');
-            convoView?.classList.add('active');
+            contactsView?.classList.add("slide-out");
+            convoView?.classList.add("active");
 
             // Update Header
-            if (chatTitle) chatTitle.textContent = name || 'Chat';
-            backBtn?.classList.remove('hidden');
+            if (chatTitle) chatTitle.textContent = name || "Chat";
+            backBtn?.classList.remove("hidden");
             if (chatSubtitle) {
-                chatSubtitle.textContent = status === 'online' ? 'Active now' : 'Offline';
-                chatSubtitle.classList.remove('hidden');
+                chatSubtitle.textContent = status === "online" ? "Active now" : "Offline";
+                chatSubtitle.classList.remove("hidden");
             }
         });
     });
 
-    backBtn?.addEventListener('click', () => {
+    backBtn?.addEventListener("click", () => {
         // Slide views back
-        contactsView?.classList.remove('slide-out');
-        convoView?.classList.remove('active');
+        contactsView?.classList.remove("slide-out");
+        convoView?.classList.remove("active");
 
         // Reset Header
-        if (chatTitle) chatTitle.textContent = 'Messages';
-        backBtn.classList.add('hidden');
-        chatSubtitle?.classList.add('hidden');
+        if (chatTitle) chatTitle.textContent = "Messages";
+        backBtn.classList.add("hidden");
+        chatSubtitle?.classList.add("hidden");
     });
 </script>

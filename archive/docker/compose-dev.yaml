@@ -1,62 +1,62 @@
 name: "skillswap-dev"
-services:  
-  workspace:
-    build:
-      context: ../.devcontainer
-      dockerfile: ./Dockerfile
-    hostname: workspace.dev.skillswap.internal
-    volumes:
-      - ../:/workspace:rw
-    restart: unless-stopped
+services:
+    workspace:
+        build:
+            context: ../.devcontainer
+            dockerfile: ./Dockerfile
+        hostname: workspace.dev.skillswap.internal
+        volumes:
+            - ../:/workspace:rw
+        restart: unless-stopped
 
-  frontend:
-    build:
-      context: ../project/frontend
-      dockerfile: ./docker/Dockerfile.dev
-    hostname: frontend.dev.skillswap.internal
-    environment:
-      - ASTRO_TELEMETRY_DISABLED=1
-    volumes:
-      - ../project/frontend:/app:rw
-      - frontend-node_modules:/app/node_modules:rw
-      - frontend-astro-cache:/app/.astro:rw
-    restart: unless-stopped
+    frontend:
+        build:
+            context: ../project/frontend
+            dockerfile: ./docker/Dockerfile.dev
+        hostname: frontend.dev.skillswap.internal
+        environment:
+            - ASTRO_TELEMETRY_DISABLED=1
+        volumes:
+            - ../project/frontend:/app:rw
+            - frontend-node_modules:/app/node_modules:rw
+            - frontend-astro-cache:/app/.astro:rw
+        restart: unless-stopped
 
-  backend:
-    build:
-      context: ../project/backend
-      dockerfile: ./docker/Dockerfile.dev
-    hostname: backend.dev.skillswap.internal
-    volumes:
-      - ../project/backend:/app:rw
-      - backend-node_modules:/app/node_modules:rw
-    restart: unless-stopped
+    backend:
+        build:
+            context: ../project/backend
+            dockerfile: ./docker/Dockerfile.dev
+        hostname: backend.dev.skillswap.internal
+        volumes:
+            - ../project/backend:/app:rw
+            - backend-node_modules:/app/node_modules:rw
+        restart: unless-stopped
 
-  postgres:
-    image: postgres:18.1-alpine
-    hostname: postgres.dev.skillswap.internal
-    environment:
-      - POSTGRES_USER=skillswap_dev
-      - POSTGRES_PASSWORD=skillswap_dev_password
-      - POSTGRES_DB=skillswap_dev_db
-    volumes:
-      - postgres-data:/var/lib/postgresql/data:rw
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
+    postgres:
+        image: postgres:18.1-alpine
+        hostname: postgres.dev.skillswap.internal
+        environment:
+            - POSTGRES_USER=skillswap_dev
+            - POSTGRES_PASSWORD=skillswap_dev_password
+            - POSTGRES_DB=skillswap_dev_db
+        volumes:
+            - postgres-data:/var/lib/postgresql/data:rw
+        ports:
+            - "5432:5432"
+        restart: unless-stopped
 
-  nginx:
-    image: nginx:alpine
-    hostname: dev.skillswap.internal
-    ports:
-      - "${HOST_PORT:-3000}:80"
-    volumes:
-      - ../project/nginx/hosts/dev.conf:/etc/nginx/conf.d/hosts/dev.conf:ro
-      - ../project/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    restart: unless-stopped
+    nginx:
+        image: nginx:alpine
+        hostname: dev.skillswap.internal
+        ports:
+            - "${HOST_PORT:-3000}:80"
+        volumes:
+            - ../project/nginx/hosts/dev.conf:/etc/nginx/conf.d/hosts/dev.conf:ro
+            - ../project/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+        restart: unless-stopped
 
 volumes:
-  frontend-node_modules:
-  frontend-astro-cache:
-  backend-node_modules:
-  postgres-data:
+    frontend-node_modules:
+    frontend-astro-cache:
+    backend-node_modules:
+    postgres-data:

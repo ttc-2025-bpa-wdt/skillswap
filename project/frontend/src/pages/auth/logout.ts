@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ request, redirect }): Promise<Response> =>
         status: 302,
         headers: {
             "Set-Cookie": expiredCookie,
-            "Location": "/",
+            Location: "/",
         },
     }); // Yeah, this is a little messy. It works for now
 };

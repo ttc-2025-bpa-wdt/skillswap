@@ -17,6 +17,7 @@ You will need to authenticate with GitHub to clone the repository. A common way 
 do not have an SSH key set up, reference [GitHub's official guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 
 Clone the repository using the following command:
+
 ```bash
 git clone git@github.com:ttc-2025-bpa-wdt/skillswap.git
 ```
@@ -28,8 +29,8 @@ structure with its respective source code and configuration files.
 
 There is no development environment in this project. To get started with development you will need to have
 [Docker](https://www.docker.com/) installed. This is commonly done through installing
-[Docker Desktop](https://www.docker.com/products/docker-desktop/) (*recommended*), or following the
-[Install Docker Engine](https://docs.docker.com/engine/install/) guide for your operating system (*for advanced users*).
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) (_recommended_), or following the
+[Install Docker Engine](https://docs.docker.com/engine/install/) guide for your operating system (_for advanced users_).
 
 We recommend using [Visual Studio Code](https://code.visualstudio.com/) as your editor, although it is not required.
 For a better development experience, we populated [.vscode/extensions.json](./.vscode/extensions.json) with extensions
@@ -47,6 +48,7 @@ If you do not have access to run your server with port `80`, you will need to se
 in one of the methods described in the [Port Configuration](#port-configuration) section.
 
 To start the development stack, run the following command in the root directory of the repository:
+
 ```bash
 docker compose --profile dev up --build
 ```
@@ -82,6 +84,7 @@ file responsible for orchestrating the entire project is located in the root dir
 development from production configurations.
 
 Currently, there are two Docker Compose profiles available:
+
 - `dev` - Runs a live [Vite](https://vite.dev/) server through [Astro](https://astro.build/) for the frontend and serves the host `dev.skillswap.internal`.
 - `live` - Runs a built version of the frontend and serves the host `skillswap.internal`.
 
@@ -92,21 +95,21 @@ Currently, there are two Docker Compose profiles available:
 ### Port Configuration
 
 Both Docker configurations will expose the reverse proxy to either the port `HOST_PORT` (environment variable). If this
-variable does not exist, it will default to port `80`. If you wish to change this (*and you may need to if you are
-running without administrative privileges*), you can set the `HOST_PORT` environment variable to your desired port
+variable does not exist, it will default to port `80`. If you wish to change this (_and you may need to if you are
+running without administrative privileges_), you can set the `HOST_PORT` environment variable to your desired port
 number before running the Docker Compose commands.
 
 You can set the `HOST_PORT` environment variable using three different methods:
 
-1. **Using a `.env` file** (*recommended, persistent*) in the root directory of the repository:
+1. **Using a `.env` file** (_recommended, persistent_) in the root directory of the repository:
     ```env
     HOST_PORT=8080
     ```
-2. **Using shell environment variables** (*Linux/WSL, temporary*):
+2. **Using shell environment variables** (_Linux/WSL, temporary_):
     ```bash
     export HOST_PORT=8080
     ```
-3. **Exporting shell environment variables** (*Windows, temporary*):
+3. **Exporting shell environment variables** (_Windows, temporary_):
     ```powershell
     $env:HOST_PORT="8080"
     ```
@@ -118,18 +121,18 @@ unless you rebuild them. To prevent confusion, the following section outlines th
 dependencies without having to rebuild everything from scratch.
 
 1. **Add the dependency** to the respective `package.json` file in either the
-    [frontend](./project/frontend/package.json) or [backend](./project/backend/package.json) directory. This should
-    be done by running the following command in the respective directory:
+   [frontend](./project/frontend/package.json) or [backend](./project/backend/package.json) directory. This should
+   be done by running the following command in the respective directory:
     ```bash
     bun add <dependency-name>
     ```
 2. **Run `bun install`** in the container that requires the new dependency. You can do this by executing the following
-    command:
+   command:
     ```bash
     docker compose exec <container-name> bun install
     ```
-3. (*Optional*) **Rebuild the container** if you want to ensure that the dependency is included in the Docker image. You
-    can do this by running:
+3. (_Optional_) **Rebuild the container** if you want to ensure that the dependency is included in the Docker image. You
+   can do this by running:
     ```bash
     docker compose build <container-name>
     ```
@@ -139,4 +142,3 @@ dependencies without having to rebuild everything from scratch.
 > the `frontend` or `backend` service. It will look like `<repo>-<profile>-<service>-X` (e.g., `skillswap-dev-frontend-1`).
 > If you have Docker Desktop installed or use Docker extensions in your editor, you can also find the container names
 > there.
-

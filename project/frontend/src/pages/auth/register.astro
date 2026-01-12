@@ -1,603 +1,699 @@
 ---
-import Layout from '@layouts/global.astro';
-import Button from '@components/base/Button.astro';
-import Card from '@components/base/Card.astro';
+import Layout from "@layouts/global.astro";
+import Button from "@components/base/Button.svelte";
+import Card from "@components/base/Card.astro";
 ---
 
 <Layout title="Register">
-  <div class="auth-container">
-    <Card class="auth-card">
-      <h1>Create Account</h1>
-      <p class="subtitle">Join the SkillSwap community today and start learning!</p>
+    <div class="auth-container">
+        <Card class="auth-card">
+            <h1>Create Account</h1>
+            <p class="subtitle">Join the SkillSwap community today and start learning!</p>
 
-      <form id="register-form" novalidate>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email address" required />
-            <span class="error-message" id="email-error"></span>
-          </div>
+            <form id="register-form" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" required />
+                        <span class="error-message" id="email-error"></span>
+                    </div>
 
-          <div class="form-group">
-            <label for="dob">Date of Birth</label>
-            <input type="date" id="dob" name="dob" required />
-            <span class="error-message" id="dob-error"></span>
-          </div>
-        </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" required />
+                        <span class="error-message" id="dob-error"></span>
+                    </div>
+                </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstname">First Name</label>
-            <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required />
-            <span class="error-message" id="firstname-error"></span>
-          </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstname">First Name</label>
+                        <input
+                            type="text"
+                            id="firstname"
+                            name="firstname"
+                            placeholder="Enter your first name"
+                            required
+                        />
+                        <span class="error-message" id="firstname-error"></span>
+                    </div>
 
-          <div class="form-group">
-            <label for="lastname">Last Name</label>
-            <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required />
-            <span class="error-message" id="lastname-error"></span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="handle">Handle</label>
-          <input type="text" id="handle" name="handle" placeholder="Choose a unique handle (e.g. john.d)" required />
-          <span class="error-message" id="handle-error"></span>
-        </div>
+                    <div class="form-group">
+                        <label for="lastname">Last Name</label>
+                        <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required />
+                        <span class="error-message" id="lastname-error"></span>
+                    </div>
+                </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="password">Password</label>
-          <div class="password-wrapper">
-            <input type="password" id="password" name="password" placeholder="Create a password" required minlength="8" />
-            <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
-               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye">
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye-slash hidden">
-                 <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
-                 <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
-                 <path d="M6.75 12c0-.619.107-1.215.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
-              </svg>
-            </button>
-          </div>
-          <span class="error-message" id="password-error"></span>
-        </div>
+                <div class="form-group">
+                    <label for="handle">Handle</label>
+                    <input
+                        type="text"
+                        id="handle"
+                        name="handle"
+                        placeholder="Choose a unique handle (e.g. john.d)"
+                        required
+                    />
+                    <span class="error-message" id="handle-error"></span>
+                </div>
 
-        <div class="form-group">
-          <label for="confirm-password">Confirm Password</label>
-          <div class="password-wrapper">
-            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required />
-             <button type="button" class="toggle-password" data-target="confirm-password" aria-label="Toggle password visibility">
-               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye">
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-eye-slash hidden">
-                 <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
-                 <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
-                 <path d="M6.75 12c0-.619.107-1.215.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
-              </svg>
-            </button>
-          </div>
-          <span class="error-message" id="confirm-password-error"></span>
-        </div>
-        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a password"
+                                required
+                                minlength="8"
+                            />
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                data-target="password"
+                                aria-label="Toggle password visibility"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    class="icon-eye"
+                                >
+                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    class="icon-eye-slash hidden"
+                                >
+                                    <path
+                                        d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z"
+                                    ></path>
+                                    <path
+                                        d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z"
+                                    ></path>
+                                    <path
+                                        d="M6.75 12c0-.619.107-1.215.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z"
+                                    ></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-message" id="password-error"></span>
+                    </div>
 
-        <div class="form-group" style="margin-bottom: 1.25rem;">
-          <label for="register-key">Registration Key</label>
-          <input type="text" id="register-key" name="register-key" placeholder="Enter your registration key" />
-          <span class="error-message" id="register-key-error"></span>
-        </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                id="confirm-password"
+                                name="confirm-password"
+                                placeholder="Confirm your password"
+                                required
+                            />
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                data-target="confirm-password"
+                                aria-label="Toggle password visibility"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    class="icon-eye"
+                                >
+                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    class="icon-eye-slash hidden"
+                                >
+                                    <path
+                                        d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z"
+                                    ></path>
+                                    <path
+                                        d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z"
+                                    ></path>
+                                    <path
+                                        d="M6.75 12c0-.619.107-1.215.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z"
+                                    ></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-message" id="confirm-password-error"></span>
+                    </div>
+                </div>
 
-        <div class="form-options">
-          <div class="checkbox-wrapper">
-             <label class="checkbox-container">
-              <input type="checkbox" name="terms" required />
-              <span>
-                I am at least 13 years of age and agree to the <a href="/terms">Terms of Service</a> or I have permission from my parent or guardian to use SkillSwap
-              </span>
-            </label>
-            <span class="error-message" id="term-agreement-error"></span>
-          </div>
-        </div>
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="register-key">Registration Key</label>
+                    <input
+                        type="text"
+                        id="register-key"
+                        name="register-key"
+                        placeholder="Enter your registration key"
+                    />
+                    <span class="error-message" id="register-key-error"></span>
+                </div>
 
-        <Button type="submit" variant="primary" block>Create Account</Button>
-      </form>
+                <div class="form-options">
+                    <div class="checkbox-wrapper">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="terms" required />
+                            <span>
+                                I am at least 13 years of age and agree to the <a href="/terms">Terms of Service</a> or I
+                                have permission from my parent or guardian to use SkillSwap
+                            </span>
+                        </label>
+                        <span class="error-message" id="term-agreement-error"></span>
+                    </div>
+                </div>
 
-      <p class="register-link">
-        Already have an account? <a href="/auth/login">Login</a>
-      </p>
-    </Card>
+                <Button type="submit" variant="primary" block>Create Account</Button>
+            </form>
 
-    <div id="success-overlay" class="success-overlay"></div>
-    
-    <Card id="success-card" class="success-card">
-      <div class="success-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-        </svg>
-      </div>
-      <h2>Check Your Email</h2>
-      <p class="subtitle">We've sent a confirmation link to your inbox. Please confirm it to complete your registration.</p>
-      <Button type="button" variant="primary" block id="back-to-login" href="/auth/login">Back to Login</Button>
-    </Card>
-  </div>
+            <p class="register-link">
+                Already have an account? <a href="/auth/login">Login</a>
+            </p>
+        </Card>
+
+        <div id="success-overlay" class="success-overlay"></div>
+
+        <Card id="success-card" class="success-card">
+            <div class="success-icon">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                    ></path>
+                </svg>
+            </div>
+            <h2>Check Your Email</h2>
+            <p class="subtitle">
+                We've sent a confirmation link to your inbox. Please confirm it to complete your registration.
+            </p>
+            <Button type="button" variant="primary" block id="back-to-login" href="/auth/login">Back to Login</Button>
+        </Card>
+    </div>
 </Layout>
 
 <style lang="scss">
-  .auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 80px);
-    padding: 2rem;
-    background-color: var(--background);
-  }
-
-  .auth-card {
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 800px;
-
-    h1 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 2rem;
-      color: var(--foreground);
-      margin-bottom: 0.5rem;
-      text-align: center;
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 80px);
+        padding: 2rem;
+        background-color: var(--background);
     }
 
-    .subtitle {
-      font-family: 'Roboto', sans-serif;
-      color: var(--foreground);
-      opacity: 0.8;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    
-    @media (max-width: 600px) {
-        grid-template-columns: 1fr;
-        gap: 0;
-        margin-bottom: 0;
-    }
-  }
-
-  .form-group {
-    label {
-      display: block;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--foreground);
-      margin-bottom: 0.5rem;
-
-      &.optional {
-        font-weight: normal;
-        opacity: 0.8;
-      }
-
-      &.optional::after {
-        content: " (Optional)";
-        font-size: 0.85em;
-        opacity: 0.7;
-      }
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--accent-3);
-      border-radius: 8px;
-      background: var(--background);
-      color: var(--foreground);
-      font-family: 'Roboto', sans-serif;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--accent-1);
-      }
-
-      &.error {
-        border-color: #e74c3c;
-      }
-    }
-
-  }
-
-  .error-message {
-    display: block;
-    color: #e74c3c;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-    min-height: 1.2em;
-  }
-
-  .password-wrapper {
-    position: relative;
-
-    .toggle-password {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--foreground);
-      opacity: 0.6;
-      padding: 0;
-      display: flex;
-      align-items: center;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      .hidden {
-        display: none;
-      }
-    }
-  }
-
-  .form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-
-    .checkbox-container {
-      display: flex;
-      align-items: flex-start;
-      cursor: pointer;
-      color: var(--foreground);
-      user-select: none;
-
-      input {
-        margin-right: 0.75rem;
-        margin-top: 0.25rem;
-        accent-color: var(--accent-1);
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-      }
-      
-      span {
-        line-height: 1.4;
-      }
-
-      a {
-        color: var(--accent-1);
-        text-decoration: none;
-        &:hover { text-decoration: underline; }
-      }
-    }
-  }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 1.5rem 0;
-    color: var(--foreground);
-    opacity: 0.5;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--accent-3);
-    }
-
-    span {
-      padding: 0 10px;
-      font-size: 0.9rem;
-    }
-  }
-
-  .register-link {
-    text-align: center;
-    margin-top: 1.5rem;
-    color: var(--foreground);
-    font-size: 0.95rem;
-
-    a {
-      color: var(--accent-1);
-      text-decoration: none;
-      font-weight: 600;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  @media (max-width: 480px) {
     .auth-card {
-      padding: 1.5rem;
-    }
-  }
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 800px;
 
-  .success-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 50;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-    backdrop-filter: blur(4px);
+        h1 {
+            font-family: "Montserrat", sans-serif;
+            font-size: 2rem;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
 
-    &.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  }
-
-  .success-card {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9) translateY(20px);
-    z-index: 60;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    
-    width: 90%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 3rem 2rem; 
-
-    &.visible {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translate(-50%, -50%) scale(1) translateY(0);
+        .subtitle {
+            font-family: "Roboto", sans-serif;
+            color: var(--foreground);
+            opacity: 0.8;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
     }
 
-    .success-icon {
-      width: 70px;
-      height: 70px;
-      background: color-mix(in srgb, var(--accent-1), transparent 85%);
-      color: var(--accent-1);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
 
-      svg {
-        width: 35px;
-        height: 35px;
-      }
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            gap: 0;
+            margin-bottom: 0;
+        }
     }
 
-    h2 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.75rem;
-      color: var(--foreground);
-      margin-bottom: 0.75rem;
+    .form-group {
+        label {
+            display: block;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+
+            &.optional {
+                font-weight: normal;
+                opacity: 0.8;
+            }
+
+            &.optional::after {
+                content: " (Optional)";
+                font-size: 0.85em;
+                opacity: 0.7;
+            }
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--accent-3);
+            border-radius: 8px;
+            background: var(--background);
+            color: var(--foreground);
+            font-family: "Roboto", sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+                outline: none;
+                border-color: var(--accent-1);
+            }
+
+            &.error {
+                border-color: #e74c3c;
+            }
+        }
     }
-  }
+
+    .error-message {
+        display: block;
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        min-height: 1.2em;
+    }
+
+    .password-wrapper {
+        position: relative;
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--foreground);
+            opacity: 0.6;
+            padding: 0;
+            display: flex;
+            align-items: center;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .hidden {
+                display: none;
+            }
+        }
+    }
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            color: var(--foreground);
+            user-select: none;
+
+            input {
+                margin-right: 0.75rem;
+                margin-top: 0.25rem;
+                accent-color: var(--accent-1);
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+            span {
+                line-height: 1.4;
+            }
+
+            a {
+                color: var(--accent-1);
+                text-decoration: none;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.5rem 0;
+        color: var(--foreground);
+        opacity: 0.5;
+
+        &::before,
+        &::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--accent-3);
+        }
+
+        span {
+            padding: 0 10px;
+            font-size: 0.9rem;
+        }
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--foreground);
+        font-size: 0.95rem;
+
+        a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 1.5rem;
+        }
+    }
+
+    .success-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 50;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        backdrop-filter: blur(4px);
+
+        &.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    .success-card {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9) translateY(20px);
+        z-index: 60;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+        width: 90%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 3rem 2rem;
+
+        &.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1) translateY(0);
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: color-mix(in srgb, var(--accent-1), transparent 85%);
+            color: var(--accent-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+
+            svg {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        h2 {
+            font-family: "Montserrat", sans-serif;
+            font-size: 1.75rem;
+            color: var(--foreground);
+            margin-bottom: 0.75rem;
+        }
+    }
 </style>
 
 <script>
-  const form = document.getElementById('register-form') as HTMLFormElement;
-  const firstnameInput = document.getElementById('firstname') as HTMLInputElement;
-  const lastnameInput = document.getElementById('lastname') as HTMLInputElement;
-  const handleInput = document.getElementById('handle') as HTMLInputElement;
-  const dobInput = document.getElementById('dob') as HTMLInputElement;
-  const emailInput = document.getElementById('email') as HTMLInputElement;
-  const passwordInput = document.getElementById('password') as HTMLInputElement;
-  const confirmPasswordInput = document.getElementById('confirm-password') as HTMLInputElement;
-  const togglePasswordBtns = document.querySelectorAll('.toggle-password');
-  const termAgreement = form.querySelector('input[name="terms"]') as HTMLInputElement;
-  const registerKeyInput = document.getElementById('register-key') as HTMLInputElement;
-  
-  const handleError = document.getElementById('handle-error');
-  const dobError = document.getElementById('dob-error');
-  const firstnameError = document.getElementById('firstname-error');
-  const lastnameError = document.getElementById('lastname-error');
-  const emailError = document.getElementById('email-error');
-  const passwordError = document.getElementById('password-error');
-  const confirmPasswordError = document.getElementById('confirm-password-error');
-  const termAgreementError = document.getElementById('term-agreement-error');
-  const registerKeyError = document.getElementById('register-key-error');
+    const form = document.getElementById("register-form") as HTMLFormElement;
+    const firstnameInput = document.getElementById("firstname") as HTMLInputElement;
+    const lastnameInput = document.getElementById("lastname") as HTMLInputElement;
+    const handleInput = document.getElementById("handle") as HTMLInputElement;
+    const dobInput = document.getElementById("dob") as HTMLInputElement;
+    const emailInput = document.getElementById("email") as HTMLInputElement;
+    const passwordInput = document.getElementById("password") as HTMLInputElement;
+    const confirmPasswordInput = document.getElementById("confirm-password") as HTMLInputElement;
+    const togglePasswordBtns = document.querySelectorAll(".toggle-password");
+    const termAgreement = form.querySelector('input[name="terms"]') as HTMLInputElement;
+    const registerKeyInput = document.getElementById("register-key") as HTMLInputElement;
 
-  if (dobInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dobInput.max = today;
-  }
+    const handleError = document.getElementById("handle-error");
+    const dobError = document.getElementById("dob-error");
+    const firstnameError = document.getElementById("firstname-error");
+    const lastnameError = document.getElementById("lastname-error");
+    const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
+    const confirmPasswordError = document.getElementById("confirm-password-error");
+    const termAgreementError = document.getElementById("term-agreement-error");
+    const registerKeyError = document.getElementById("register-key-error");
 
-  // Toggle Password Visibility
-  togglePasswordBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-target');
-      const input = document.getElementById(targetId!) as HTMLInputElement;
-      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-      input.setAttribute('type', type);
-      
-      const eyeIcon = btn.querySelector('.icon-eye');
-      const eyeSlashIcon = btn.querySelector('.icon-eye-slash');
-      
-      eyeIcon?.classList.toggle('hidden');
-      eyeSlashIcon?.classList.toggle('hidden');
+    if (dobInput) {
+        const today = new Date().toISOString().split("T")[0];
+        dobInput.max = today;
+    }
+
+    // Toggle Password Visibility
+    togglePasswordBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.getAttribute("data-target");
+            const input = document.getElementById(targetId!) as HTMLInputElement;
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+
+            const eyeIcon = btn.querySelector(".icon-eye");
+            const eyeSlashIcon = btn.querySelector(".icon-eye-slash");
+
+            eyeIcon?.classList.toggle("hidden");
+            eyeSlashIcon?.classList.toggle("hidden");
+        });
     });
-  });
 
-  // Validation Logic
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+    // Validation Logic
+    const validateEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
 
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
-  };
+    const validatePassword = (password: string) => {
+        return password.length >= 8;
+    };
 
-  const isAtLeast13 = (dobValue: string) => {
-    if (!dobValue) return false;
-    const dob = new Date(dobValue);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age >= 13;
-  };
-
-  const showError = (input: HTMLInputElement, errorElement: HTMLElement | null, message: string) => {
-    input.classList.add('error');
-    if (errorElement) errorElement.textContent = message;
-  };
-
-  const clearError = (input: HTMLInputElement, errorElement: HTMLElement | null) => {
-    input.classList.remove('error');
-    if (errorElement) errorElement.textContent = '';
-  };
-  // Real-time validation
-  handleInput?.addEventListener('input', () => {
-    if (handleInput.value.trim().length >= 3) clearError(handleInput, handleError);
-  });
-
-  dobInput?.addEventListener('input', () => {
-    if (dobInput.value) {
-       if (!isAtLeast13(dobInput.value)) {
-         lastnameInput.disabled = true;
-         lastnameInput.value = '';
-         clearError(lastnameInput, lastnameError);
-         // clearError(dobInput, dobError); // Should I clear the error if they fix it? or was it erroring?
-         // The original code was erroring on under 13. I am removing that error.
-       } else {
-         lastnameInput.disabled = false;
-         lastnameInput.placeholder = "Enter your last name";
-       }
-    }
-  });
-
-  emailInput?.addEventListener('input', () => {
-    if (validateEmail(emailInput.value)) clearError(emailInput, emailError);
-  });
-
-  passwordInput?.addEventListener('input', () => {
-    if (validatePassword(passwordInput.value)) clearError(passwordInput, passwordError);
-  });
-
-  confirmPasswordInput?.addEventListener('input', () => {
-    if (confirmPasswordInput.value === passwordInput.value) clearError(confirmPasswordInput, confirmPasswordError);
-  });
-
-  termAgreement?.addEventListener('change', () => {
-    if (termAgreement.checked) clearError(termAgreement, termAgreementError);
-  });
-
-  registerKeyInput?.addEventListener('input', () => {
-    if (registerKeyInput.value.trim() !== '') clearError(registerKeyInput, registerKeyError);
-  });
-
-  // Form Submission
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    let isValid = true;
-
-    if (firstnameInput.value.trim().length < 1) {
-      showError(firstnameInput, firstnameError, 'Please enter your first name');
-      isValid = false;
-    }
-
-    const adult = dobInput.value ? isAtLeast13(dobInput.value) : true; // Default to true if empty for now, handled by required check below
-
-    if (adult && lastnameInput.value.trim().length < 1) {
-      showError(lastnameInput, lastnameError, 'Please enter your last name');
-      isValid = false;
-    }
-
-    if (!dobInput.value) {
-      showError(dobInput, dobError, 'Please enter your date of birth');
-      isValid = false;
-    }
-    // Age restriction: Under 13 is allowed but without last name, so no error here.
-
-
-    if (handleInput.value.trim().length < 3) {
-      showError(handleInput, handleError, 'Handle must be at least 3 characters');
-      isValid = false;
-    }
-
-    if (!validateEmail(emailInput.value)) {
-      showError(emailInput, emailError, 'Please enter a valid email address');
-      isValid = false;
-    }
-
-    if (!validatePassword(passwordInput.value)) {
-      showError(passwordInput, passwordError, 'Password must be at least 8 characters');
-      isValid = false;
-    }
-
-    if (passwordInput.value !== confirmPasswordInput.value) {
-      showError(confirmPasswordInput, confirmPasswordError, 'Passwords do not match');
-      isValid = false;
-    }
-
-    if (!termAgreement.checked) {
-      showError(termAgreement, termAgreementError, 'You must agree to the terms of service to register');
-      isValid = false;
-    }
-
-    if (registerKeyInput.value.trim() === '') {
-      showError(registerKeyInput, registerKeyError, 'Please enter the registration key provided with the competition materials or contact us for access');
-      isValid = false;
-    }
-
-    if (isValid) {
-      const name = isAtLeast13(dobInput.value) ? `${firstnameInput.value} ${lastnameInput.value}` : firstnameInput.value;
-      console.log('Register attempt:', { 
-        name: name,
-        email: emailInput.value,
-        handle: handleInput.value,
-        dob: dobInput.value,
-        registerKey: registerKeyInput.value
-      });
-      
-      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Creating Account...';
-
-      setTimeout(() => {
-        submitBtn.textContent = 'Account Created!';
-        
-        const overlay = document.getElementById('success-overlay');
-        const successCard = document.getElementById('success-card');
-        
-        if (overlay && successCard) {
-          overlay.classList.add('visible');
-          successCard.classList.add('visible');
+    const isAtLeast13 = (dobValue: string) => {
+        if (!dobValue) return false;
+        const dob = new Date(dobValue);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
         }
-      }, 1000);
-    }
-  });
+        return age >= 13;
+    };
+
+    const showError = (input: HTMLInputElement, errorElement: HTMLElement | null, message: string) => {
+        input.classList.add("error");
+        if (errorElement) errorElement.textContent = message;
+    };
+
+    const clearError = (input: HTMLInputElement, errorElement: HTMLElement | null) => {
+        input.classList.remove("error");
+        if (errorElement) errorElement.textContent = "";
+    };
+    // Real-time validation
+    handleInput?.addEventListener("input", () => {
+        if (handleInput.value.trim().length >= 3) clearError(handleInput, handleError);
+    });
+
+    dobInput?.addEventListener("input", () => {
+        if (dobInput.value) {
+            if (!isAtLeast13(dobInput.value)) {
+                lastnameInput.disabled = true;
+                lastnameInput.value = "";
+                clearError(lastnameInput, lastnameError);
+                // clearError(dobInput, dobError); // Should I clear the error if they fix it? or was it erroring?
+                // The original code was erroring on under 13. I am removing that error.
+            } else {
+                lastnameInput.disabled = false;
+                lastnameInput.placeholder = "Enter your last name";
+            }
+        }
+    });
+
+    emailInput?.addEventListener("input", () => {
+        if (validateEmail(emailInput.value)) clearError(emailInput, emailError);
+    });
+
+    passwordInput?.addEventListener("input", () => {
+        if (validatePassword(passwordInput.value)) clearError(passwordInput, passwordError);
+    });
+
+    confirmPasswordInput?.addEventListener("input", () => {
+        if (confirmPasswordInput.value === passwordInput.value) clearError(confirmPasswordInput, confirmPasswordError);
+    });
+
+    termAgreement?.addEventListener("change", () => {
+        if (termAgreement.checked) clearError(termAgreement, termAgreementError);
+    });
+
+    registerKeyInput?.addEventListener("input", () => {
+        if (registerKeyInput.value.trim() !== "") clearError(registerKeyInput, registerKeyError);
+    });
+
+    // Form Submission
+    form?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        if (firstnameInput.value.trim().length < 1) {
+            showError(firstnameInput, firstnameError, "Please enter your first name");
+            isValid = false;
+        }
+
+        const adult = dobInput.value ? isAtLeast13(dobInput.value) : true; // Default to true if empty for now, handled by required check below
+
+        if (adult && lastnameInput.value.trim().length < 1) {
+            showError(lastnameInput, lastnameError, "Please enter your last name");
+            isValid = false;
+        }
+
+        if (!dobInput.value) {
+            showError(dobInput, dobError, "Please enter your date of birth");
+            isValid = false;
+        }
+        // Age restriction: Under 13 is allowed but without last name, so no error here.
+
+        if (handleInput.value.trim().length < 3) {
+            showError(handleInput, handleError, "Handle must be at least 3 characters");
+            isValid = false;
+        }
+
+        if (!validateEmail(emailInput.value)) {
+            showError(emailInput, emailError, "Please enter a valid email address");
+            isValid = false;
+        }
+
+        if (!validatePassword(passwordInput.value)) {
+            showError(passwordInput, passwordError, "Password must be at least 8 characters");
+            isValid = false;
+        }
+
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            showError(confirmPasswordInput, confirmPasswordError, "Passwords do not match");
+            isValid = false;
+        }
+
+        if (!termAgreement.checked) {
+            showError(termAgreement, termAgreementError, "You must agree to the terms of service to register");
+            isValid = false;
+        }
+
+        if (registerKeyInput.value.trim() === "") {
+            showError(
+                registerKeyInput,
+                registerKeyError,
+                "Please enter the registration key provided with the competition materials or contact us for access",
+            );
+            isValid = false;
+        }
+
+        if (isValid) {
+            const name = isAtLeast13(dobInput.value)
+                ? `${firstnameInput.value} ${lastnameInput.value}`
+                : firstnameInput.value;
+            console.log("Register attempt:", {
+                name: name,
+                email: emailInput.value,
+                handle: handleInput.value,
+                dob: dobInput.value,
+                registerKey: registerKeyInput.value,
+            });
+
+            const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Creating Account...";
+
+            setTimeout(() => {
+                submitBtn.textContent = "Account Created!";
+
+                const overlay = document.getElementById("success-overlay");
+                const successCard = document.getElementById("success-card");
+
+                if (overlay && successCard) {
+                    overlay.classList.add("visible");
+                    successCard.classList.add("visible");
+                }
+            }, 1000);
+        }
+    });
 </script>

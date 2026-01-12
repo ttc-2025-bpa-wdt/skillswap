@@ -1,36 +1,24 @@
----
-interface Props {
-    variant?: "primary" | "secondary" | "outline" | "ghost";
-    size?: "sm" | "md" | "lg";
-    href?: string;
-    class?: string;
-    block?: boolean;
-    [key: string]: any;
-}
+<script lang="ts">
+    export let variant: "primary" | "secondary" | "outline" | "ghost" = "primary";
+    export let size: "sm" | "md" | "lg" = "md";
+    export let href: string | null = null;
+    export let className: string = "";
+    export let block: boolean = false;
 
-const {
-    variant = "primary",
-    size = "md",
-    href,
-    class: className,
-    block,
-    ...rest
-} = Astro.props;
+    const classes = ["button", variant, size !== "md" ? size : "", className, block ? "block" : ""]
+        .filter(Boolean)
+        .join(" ");
+</script>
 
-const classes = [
-    "button",
-    variant,
-    size !== "md" ? size : "",
-    className,
-    block ? "block" : "",
-].filter(Boolean);
-
-const Element = href ? "a" : "button";
----
-
-<Element href={href} class={classes.join(" ")} {...rest}>
-    <slot />
-</Element>
+{#if href}
+    <a {href} class={classes} {...$$restProps}>
+        <slot />
+    </a>
+{:else}
+    <button class={classes} {...$$restProps}>
+        <slot />
+    </button>
+{/if}
 
 <style lang="scss">
     .button {
@@ -56,7 +44,6 @@ const Element = href ? "a" : "button";
         &.primary {
             background-color: var(--accent-1);
             color: white;
-
             &:hover:not(:disabled) {
                 filter: brightness(1.1);
             }
@@ -66,7 +53,6 @@ const Element = href ? "a" : "button";
             background-color: transparent;
             box-shadow: inset 0 0 0 2px var(--accent-1);
             color: var(--accent-1);
-
             &:hover:not(:disabled) {
                 background-color: rgba(44, 116, 196, 0.1);
             }
@@ -76,7 +62,6 @@ const Element = href ? "a" : "button";
             background-color: transparent;
             box-shadow: inset 0 0 0 1px var(--accent-3);
             color: var(--foreground);
-
             &:hover:not(:disabled) {
                 border-color: var(--accent-1);
                 color: var(--accent-1);
@@ -87,7 +72,6 @@ const Element = href ? "a" : "button";
             background-color: transparent;
             color: var(--foreground);
             padding: 0.5rem;
-
             &:hover:not(:disabled) {
                 background-color: rgba(0, 0, 0, 0.05);
             }
@@ -97,12 +81,10 @@ const Element = href ? "a" : "button";
             padding: 0.4rem 0.8rem;
             font-size: 0.85rem;
         }
-
         &.lg {
             padding: 1rem 2rem;
             font-size: 1.1rem;
         }
-
         &.block {
             width: 100%;
         }

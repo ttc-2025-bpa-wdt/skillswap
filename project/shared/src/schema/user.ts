@@ -4,7 +4,7 @@ export interface IUserCredential {
 }
 
 export enum UserRole {
-    User  = "USER",
+    User = "USER",
     Admin = "ADMIN",
 }
 
