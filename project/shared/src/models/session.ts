@@ -27,7 +27,8 @@ export class Session {
             if (
                 profile?.displayName.toLowerCase().includes(lowerQuery) ||
                 user?.handle.toLowerCase().includes(lowerQuery) ||
-                session.name.toLowerCase().includes(lowerQuery)
+                session.name.toLowerCase().includes(lowerQuery) ||
+                session.categories.some(category => category.toLowerCase().includes(lowerQuery))
             ) {
                 results.push(session);
             }

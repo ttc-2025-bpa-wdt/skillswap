@@ -3,12 +3,17 @@ import type { ITag } from 'shared/schema';
 
 interface Props {
     payload: Partial<ITag>;
+    foreground?: string;
+    class?: string;
 }
 
-const { name = null, color = "var(--accent-1)" } = Astro.props.payload;
+const { name = null, color = "var(--background)" } = Astro.props.payload;
+const { class: className, foreground = "var(--foreground)" } = Astro.props;
+
+const classes = ["tag", className].filter(Boolean);
 ---
 
-<span class="tag" style={`background-color: ${color};`}>
+<span class={classes.join(' ')} style={`background-color: ${color}; color: ${foreground}`}>
     {name ?? <slot />}
 </span>
 
@@ -18,6 +23,6 @@ const { name = null, color = "var(--accent-1)" } = Astro.props.payload;
         font-size: 0.75rem;
         font-weight: 700;
         padding: 0.25rem 0.75rem;
-        border-radius: 50px;
+        border-radius: 4px;
     }
 </style>

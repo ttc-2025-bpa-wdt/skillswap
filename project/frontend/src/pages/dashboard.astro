@@ -134,7 +134,7 @@ const teachingSessions = [
 
       <div class="discover-layout" id="discover-layout">
         <div class="skills-list">
-            {Object.values(mockSessions).map(session => <SessionCard payload={session} redirects={false} />)}
+            {Object.values(mockSessions).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).map(session => <SessionCard payload={session} redirects={false} />)}
         </div>
 
         <Card class="details-flyout" id="details-flyout">

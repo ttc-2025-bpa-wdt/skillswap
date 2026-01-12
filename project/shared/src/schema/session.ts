@@ -10,6 +10,7 @@ export interface ISession {
     id: string;
     userId: string;
     name: string;
+    categories: string[];
     prereqs: string;
     difficulty: keyof typeof difficultyTags;
     createdAt: Date;

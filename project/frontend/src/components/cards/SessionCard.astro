@@ -2,6 +2,7 @@
 import type { ISession } from "shared/schema";
 import Card from "@components/base/Card.astro";
 import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
+import Tag from "@components/base/Tag.astro";
 
 interface Props {
     payload: ISession;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 const { redirects = true } = Astro.props;
-const { id, name, userId, difficulty, prereqs, createdAt, eventDate } = Astro.props.payload;
+const { id, name, userId, difficulty, categories, prereqs, createdAt, eventDate } = Astro.props.payload;
 
 function formatDateShort(dateStr: string) {
     const d = new Date(dateStr);
@@ -30,7 +31,13 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
     
     <div class="skill-content">
         <div class="skill-header">
-            <h3 class="skill-title">{name}</h3>
+            <div class="skill-row">
+                <h3 class="skill-title">{name}</h3>
+                {
+                    /* truncate to two entries */
+                    categories.slice(0, 2).map(name => <Tag class="skill-tag" payload={{ name, color: "var(--background)" }} />)
+                }
+            </div>
             <div class="instructor-row">
                 <span class="instructor-name">by {ownerProfile.displayName}</span>
                 <span class="rating-tag"><span class="star">★</span>{ownerProfile.stats.rating.toFixed(1)}</span>
@@ -38,21 +45,21 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         </div>
         
         <div class="skill-meta">
-            <div class="meta-item">
+            <div class="meta-item meta-difficulty">
                     <span class="label">
                         <span class="text-long">Difficulty</span>
                         <span class="text-short">Diff</span>
                     </span>
                     <span class={`badge ${difficulty.toLowerCase()}`}>{difficulty}</span>
             </div>
-            <div class="meta-item">
+            <div class="meta-item meta-prereqs">
                     <span class="label">
                         <span class="text-long">Prereqs</span>
                         <span class="text-short">Pre</span>
                     </span>
                     <span class="value text-truncate">{prereqs}</span>
             </div>
-            <div class="meta-item">
+            <div class="meta-item meta-created">
                     <span class="label">
                         <span class="text-long">Created</span>
                         <span class="text-short">Made</span>
@@ -63,15 +70,15 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                     </span>
             </div>
             {eventDate && (
-            <div class="meta-item">
-                    <span class="label">
-                        <span class="text-long">Event</span>
-                        <span class="text-short">At</span>
-                    </span>
-                    <span class="value">
-                        <span class="text-long">{eventDate.toISOString().split('T')[0]}</span>
-                        <span class="text-short">{formatDateShort(eventDate.toISOString())}</span>
-                    </span>
+            <div class="meta-item meta-event">
+                <span class="label">
+                    <span class="text-long">Event</span>
+                    <span class="text-short">At</span>
+                </span>
+                <span class="value">
+                    <span class="text-long">{eventDate.toISOString().split('T')[0]}</span>
+                    <span class="text-short">{formatDateShort(eventDate.toISOString())}</span>
+                </span>
             </div>
             )}
         </div>
@@ -100,9 +107,19 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                 "meta meta";
             grid-template-columns: auto 1fr;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
             
             .separator { display: none; }
+        }
+    }
+
+    @media (max-width: 600px) {
+        :global(.skill-tag) {
+            display: none !important;
+        }
+
+        h3 {
+            font-size: 1rem !important;
         }
     }
 
@@ -136,6 +153,12 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         align-self: stretch;
         background-color: var(--accent-3);
         opacity: 0.5;
+    }
+
+    .skill-row {
+        display: flex;
+        align-items: center;
+        gap: 0.72rem;
     }
 
     .skill-content {
@@ -196,8 +219,8 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         }
 
         .skill-meta {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 1.5rem;
             font-size: 0.85rem;
             width: 100%;
@@ -205,9 +228,10 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
             
             @media (max-width: 600px) {
                 grid-area: meta;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
+                flex-direction: row;
+                gap: 0.5rem;
                 margin-top: 0;
+                justify-content: space-between;
             }
 
             .meta-item {
@@ -215,6 +239,16 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.35rem;
+
+                @media (max-width: 600px) {
+                    &.meta-difficulty { order: 1; }
+                    &.meta-created { order: 2; }
+                    &.meta-event { order: 3; }
+                    &.meta-prereqs { 
+                        order: 4; 
+                        width: 100%;
+                    }
+                }
                 
                 .label {
                     font-size: 0.75rem;
@@ -262,7 +296,6 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
         
         .skill-meta {
             /* Compress grid when open */
-            grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
             margin-top: 0.5rem;
         }

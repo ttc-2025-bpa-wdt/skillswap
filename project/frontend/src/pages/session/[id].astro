@@ -3,8 +3,14 @@ import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.astro";
 import Card from "@components/base/Card.astro";
 import { Profile, ProfileFilter, Session, SessionFilter, User, UserFilter } from "shared/models";
+import Tag from "@components/base/Tag.astro";
+
+interface Props {
+    login: {}
+}
 
 const { id } = Astro.params;
+
 const session = id && await Session.read(id, SessionFilter.Id);
 const user = session ? await User.read(session.userId, UserFilter.Id) : null;
 const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
@@ -42,11 +48,9 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
 
         <div class="session-header">
             <div class="header-content">
-                <div class="badges">
-                    <span class="badge difficulty" style={`background-color: ${difficultyColor}`}>
-                        {session.difficulty}
-                    </span>
-                    <span class="badge type">Live Session</span>
+                <div class="tags">
+                    <Tag payload={{ name: session.difficulty, color: difficultyColor }} foreground="var(--background)" />
+                    {session.categories.map(name => <Tag payload={{ name, color: "var(--accent-3)" }} />)}
                 </div>
                 <h1>{session.name}</h1>
                 <div class="meta-row">
@@ -137,8 +141,9 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
             }
         }
 
-        .badges {
+        .tags {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
         }
 

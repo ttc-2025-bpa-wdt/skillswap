@@ -1,5 +1,6 @@
 ---
-import { Profiles } from "shared/models";
+import { DataCache } from "shared/helpers";
+import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
 
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.astro";
@@ -7,25 +8,29 @@ import Card from "@components/base/Card.astro";
 
 const team = [
     {
-        profile: Profiles.fetchByHandle("nicholas.h")!,
+        profile: await DataCache.read({ key: "profile:nicholas.h", ttl: 60000 }, () => Profile.read("nicholas.h", ProfileFilter.Handle)),
+        user: await DataCache.read({ key: "user:nicholas.h", ttl: 60000 }, () => User.read("nicholas.h", UserFilter.Handle)),
         role: "Development Lead/DevOps Architect",
         desc: "Leading the development of SkillSwap's platform",
         email: "nicholas@skillswap.bpariverside.org"
     },
     {
-        profile: Profiles.fetchByHandle("zachary.v")!,
+        profile: await DataCache.read({ key: "profile:zachary.v", ttl: 60000 }, () => Profile.read("zachary.v", ProfileFilter.Handle)),
+        user: await DataCache.read({ key: "user:zachary.v", ttl: 60000 }, () => User.read("zachary.v", UserFilter.Handle)),
         role: "Project Manager and UI/UX Designer",
         desc: "Crafting the experience and interface of SkillSwap",
         email: "zvp@skillswap.bpariverside.org"
     },
     {
-        profile: Profiles.fetchByHandle("nicholas.g")!,
+        profile: await DataCache.read({ key: "profile:nicholas.g", ttl: 60000 }, () => Profile.read("nicholas.g", ProfileFilter.Handle)),
+        user: await DataCache.read({ key: "user:nicholas.g", ttl: 60000 }, () => User.read("nicholas.g", UserFilter.Handle)),
         role: "Community Engagement Expert",
         desc: "Making sure SkillSwap stays fun and engaging",
         email: "nickg@skillswap.bpariverside.org"
     },
     {
-        profile: Profiles.fetchByHandle("kyle.j")!,
+        profile: await DataCache.read({ key: "profile:kyle.j", ttl: 60000 }, () => Profile.read("kyle.j", ProfileFilter.Handle)),
+        user: await DataCache.read({ key: "user:kyle.j", ttl: 60000 }, () => User.read("kyle.j", UserFilter.Handle)),
         role: "Marketing/Social Coordinator",
         desc: "Promoting SkillSwap and connecting community",
         email: "kyle@skillswap.bpariverside.org"
@@ -37,7 +42,7 @@ const competitionMetadata = {
     chapter: "Tulsa Technology Center - Riverside Campus",
     members: team.map(member => {
         const name = member.profile.displayName;
-        return member.profile.handle == "nicholas.h" ? `${name} (Captain)` : name;
+        return member.user.handle == "nicholas.h" ? `${name} (Captain)` : name;
     }),
     theme:   "Personalized Learning and Skill Development",
     school:  "Tulsa Technology Center - IT System Administration, Cyber Security/Forensics",
