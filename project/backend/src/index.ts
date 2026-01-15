@@ -57,7 +57,7 @@ app.use("/api/v1", ApiV1Router);
 // socket for live chat
 ApiV1Singleton.attachSocket(io);
 
-const port = resolveEnv("PORT", "3001");
+const port = parseInt(resolveEnv("PORT", "3001"));
 
 server.listen(port, () => {
     console.log(`Backend is running on http://localhost:${port}`);

@@ -11,7 +11,7 @@ export default defineConfig({
     output: "server",
     adapter: node({ mode: "standalone" }),
     server: {
-        port: resolveEnv("PORT", "3000"),
+        port: parseInt(resolveEnv("PORT", "3000")),
         allowedHosts: [DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
     },
     devToolbar: {
