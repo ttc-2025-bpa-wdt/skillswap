@@ -3,9 +3,11 @@
 ## Project Structure
 
 The `project` directory contains two primary subdirectories: [frontend](./project/frontend) and
-[backend](./project/backend). Each subdirectory has its own `README.md` file that provides detailed information about
-the respective component. The reverse proxy configuration is also stored under the `project` directory, in the
+[backend](./project/backend). The reverse proxy configuration is also stored under the `project` directory, in the
 [nginx](./project/nginx) folder.
+
+A development environment should be deployed that looks like the following:
+![Dev Stack](./assets/devenv-setup.png)
 
 ## Quick Start
 
@@ -68,9 +70,9 @@ You will need the [Remote - Tunnels](https://marketplace.visualstudio.com/items?
 extension installed in Visual Studio Code to use the `Ports` feature. Once you have the extension installed, simply
 open the `Ports` view in the sidebar, and add your Docker hosts.
 
-![Port Entry](./.github/assets/quick-start-ports-menu.png)
+![Port Entry](./assets/quick-start-ports-menu.png)
 
-![Port Mapped](./.github/assets/quick-start-tunnel-example.png)
+![Port Mapped](./assets/quick-start-tunnel-example.png)
 
 ## Docker Configuration
 

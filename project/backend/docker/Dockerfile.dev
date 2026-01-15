@@ -1,0 +1,8 @@
+FROM oven/bun:alpine
+
+WORKDIR /app
+
+# Expose port 80
+EXPOSE 80
+
+CMD ["/bin/sh", "-c", "bun install --no-save && bun run dev"]
