@@ -1,4 +1,4 @@
-import "shared/config"; // load config
+import { DEVELOPMENT_MODE } from "shared/config"; // load config
 
 // @ts-check
 import { defineConfig } from "astro/config";
@@ -12,7 +12,7 @@ export default defineConfig({
     adapter: node({ mode: "standalone" }),
     server: {
         port: 80 /* 3000 */,
-        allowedHosts: ["frontend.live.skillswap.internal.", "frontend.dev.skillswap.internal."],
+        allowedHosts: [ DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
     },
     vite: {
         server: {
