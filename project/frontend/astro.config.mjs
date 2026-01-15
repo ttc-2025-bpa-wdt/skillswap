@@ -1,4 +1,4 @@
-import { DEVELOPMENT_MODE } from "shared/config"; // load config
+import { DEVELOPMENT_MODE, resolveEnv } from "shared/config"; // load config
 
 // @ts-check
 import { defineConfig } from "astro/config";
@@ -11,7 +11,7 @@ export default defineConfig({
     output: "server",
     adapter: node({ mode: "standalone" }),
     server: {
-        port: 80 /* 3000 */,
+        port: resolveEnv("PORT", "3000"),
         allowedHosts: [DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
     },
     devToolbar: {

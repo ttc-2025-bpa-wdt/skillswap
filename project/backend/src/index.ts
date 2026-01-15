@@ -8,7 +8,7 @@ import express from "express";
 import ApiV1Router, { ApiV1Singleton } from "./V1Router";
 
 import { db } from "shared/helpers";
-import { DEVELOPMENT_MODE } from "shared/config";
+import { DEVELOPMENT_MODE, resolveEnv } from "shared/config";
 
 // verify database connection
 db.$connect()
@@ -57,6 +57,8 @@ app.use("/api/v1", ApiV1Router);
 // socket for live chat
 ApiV1Singleton.attachSocket(io);
 
-server.listen(3000, () => {
-    console.log("Backend is running on http://localhost:3000");
+const port = resolveEnv("PORT", "3001");
+
+server.listen(port, () => {
+    console.log(`Backend is running on http://localhost:${port}`);
 });
