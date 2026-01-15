@@ -169,7 +169,19 @@ import "@styles/auth.scss";
 
 <script>
     import { showAlert } from "@lib/ui";
-    const form = iconify-icon icon="mdi:email-outline" width="24" height="24" aria-label="Success Email"></iconify-icon = document.getElementById("handle-error");
+    
+    const form = document.getElementById("register-form") as HTMLFormElement;
+    const firstnameInput = document.getElementById("firstname") as HTMLInputElement;
+    const lastnameInput = document.getElementById("lastname") as HTMLInputElement;
+    const handleInput = document.getElementById("handle") as HTMLInputElement;
+    const dobInput = document.getElementById("dob") as HTMLInputElement;
+    const emailInput = document.getElementById("email") as HTMLInputElement;
+    const passwordInput = document.getElementById("password") as HTMLInputElement;
+    const confirmPasswordInput = document.getElementById("confirm-password") as HTMLInputElement;
+    const togglePasswordBtns = document.querySelectorAll(".toggle-password");
+    const termAgreement = form.querySelector('input[name="terms"]') as HTMLInputElement;
+    const registerKeyInput = document.getElementById("register-key") as HTMLInputElement;
+
     const dobError = document.getElementById("dob-error");
     const firstnameError = document.getElementById("firstname-error");
     const lastnameError = document.getElementById("lastname-error");
@@ -178,6 +190,8 @@ import "@styles/auth.scss";
     const confirmPasswordError = document.getElementById("confirm-password-error");
     const termAgreementError = document.getElementById("term-agreement-error");
     const registerKeyError = document.getElementById("register-key-error");
+
+    const handleError = document.getElementById("handle-error");
 
     if (dobInput) {
         const today = new Date().toISOString().split("T")[0];
