@@ -12,9 +12,9 @@ export enum ProfileFilter {
 export class Profile {
     static async read(value: string, filter: ProfileFilter): Promise<IProfile | null> {
         let where: any = {};
-        
+
         // Handle Handle filter separately or combined?
-        // OR logic is tricky with join. 
+        // OR logic is tricky with join.
         // If Filter is ID | Handle, we want where id=val OR user.handle=val
 
         const orConditions: any[] = [];
@@ -27,7 +27,7 @@ export class Profile {
 
         const profile = await db.profile.findFirst({
             where: { OR: orConditions },
-            include: { user: true } // Need user? Maybe not for return type, but for internal logic?
+            include: { user: true }, // Need user? Maybe not for return type, but for internal logic?
         });
 
         if (!profile) return null;
@@ -39,36 +39,39 @@ export class Profile {
             stats: {
                 sessionCount: profile.sessionCount,
                 studentCount: profile.studentCount,
-                rating: profile.rating
-            }
+                rating: profile.rating,
+            },
         } as unknown as IProfile;
     }
 
     static async search(query: string): Promise<IProfile[]> {
         const lowerQuery = query.toLowerCase(); // Prisma fuzzy search is limited in sqlite, usually raw queries or simple contains
-        // Using simple contains for now. 
+        // Using simple contains for now.
         // We want to match: displayName, bio, or user.handle
-        
+
         const profiles = await db.profile.findMany({
             where: {
                 OR: [
                     { displayName: { contains: query } },
-                    { bio:         { contains: query } },
-                    { user: { handle: { contains: query } } }
-                ]
-            }
+                    { bio: { contains: query } },
+                    { user: { handle: { contains: query } } },
+                ],
+            },
         });
 
-        return profiles.map(p => ({
-            ...p,
-            tags: JSON.parse(p.tags),
-            skills: JSON.parse(p.skills),
-            stats: {
-                sessionCount: p.sessionCount,
-                studentCount: p.studentCount,
-                rating: p.rating
-            }
-        } as unknown as IProfile));
+        return profiles.map(
+            (p) =>
+                ({
+                    ...p,
+                    tags: JSON.parse(p.tags),
+                    skills: JSON.parse(p.skills),
+                    stats: {
+                        sessionCount: p.sessionCount,
+                        studentCount: p.studentCount,
+                        rating: p.rating,
+                    },
+                }) as unknown as IProfile,
+        );
     }
 }
 

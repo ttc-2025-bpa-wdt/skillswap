@@ -20,13 +20,13 @@
             <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" />
         </a>
     </div>
-    
+
     <nav>
         <a href="/">Home</a>
         <a href="/about">About</a>
         <a href="/#features">Features</a>
         <a href="/about#contact">Contact</a>
-        
+
         <SearchBar class="search" placeholder="Find skills, mentors, or groups..." />
 
         <div class="auth-buttons">
@@ -37,8 +37,8 @@
                 <Button href="/settings" variant="secondary" size="sm">Settings</Button>
                 <Button href="/profile" variant="primary" size="sm">Profile</Button>
             {:else}
-                <Button href="/auth/login"    variant="secondary" size="sm">Login</Button>
-                <Button href="/auth/register" variant="primary"   size="sm">Register</Button>
+                <Button href="/auth/login" variant="secondary" size="sm">Login</Button>
+                <Button href="/auth/register" variant="primary" size="sm">Register</Button>
             {/if}
         </div>
     </nav>
@@ -69,7 +69,6 @@
     <div class="overlay active" on:click={() => toggle(false)} role="presentation" aria-hidden="true"></div>
 {/if}
 
-
 <style lang="scss">
     // @use "@styles/mixins.scss"; // Svelte scss support might need configuration for aliases
 
@@ -80,11 +79,11 @@
         height: 4rem;
         padding: 0 2rem;
         box-sizing: border-box;
-        border-bottom: 1px solid var(--accent-3); 
+        border-bottom: 1px solid var(--accent-3);
         position: relative;
         z-index: 50;
         background: var(--background);
-        
+
         .logo {
             img {
                 height: 40px;
@@ -107,7 +106,7 @@
                     color: var(--accent-1);
                 }
             }
-            
+
             .auth-buttons {
                 display: flex;
                 gap: 1rem;
@@ -149,7 +148,7 @@
         flex-direction: column;
         padding: 2rem;
         gap: 1.5rem;
-        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 
         &.active {
             transform: translateX(0);
@@ -160,7 +159,7 @@
             color: var(--foreground);
             font-size: 1.1rem;
             font-weight: 500;
-            
+
             &:hover {
                 color: var(--accent-1);
             }
@@ -173,7 +172,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 90;
         opacity: 0;
         pointer-events: none;

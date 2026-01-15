@@ -29,79 +29,109 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 
         <div class="settings-grid">
             <!-- Profile Section -->
-            {profile && <section class="settings-section">
-                <h2 class="section-heading">Public Profile</h2>
-                <Card class="settings-card">
-                    <form id="profile-form">
-                        <input type="hidden" name="avatarUrl" id="avatar-url-input" value={profile.avatarUrl} />
-                        <div class="avatar-row">
-                            <div class="avatar-current">
-                                <img src={profile.avatarUrl} alt={profile.displayName} />
-                            </div>
-                            <div class="avatar-info">
-                                <h3>Profile Picture</h3>
-                                <div class="avatar-actions">
-                                    <input type="file" id="avatar-upload" accept="image/png, image/jpeg" style="display:none" />
-                                    <Button size="sm" variant="secondary" id="btn-upload-avatar" type="button">Upload New</Button>
-                                    <Button size="sm" variant="ghost" class="text-danger" id="btn-remove-avatar" type="button">Remove</Button>
+            {
+                profile && (
+                    <section class="settings-section">
+                        <h2 class="section-heading">Public Profile</h2>
+                        <Card class="settings-card">
+                            <form id="profile-form">
+                                <input type="hidden" name="avatarUrl" id="avatar-url-input" value={profile.avatarUrl} />
+                                <div class="avatar-row">
+                                    <div class="avatar-current">
+                                        <img src={profile.avatarUrl} alt={profile.displayName} />
+                                    </div>
+                                    <div class="avatar-info">
+                                        <h3>Profile Picture</h3>
+                                        <div class="avatar-actions">
+                                            <input
+                                                type="file"
+                                                id="avatar-upload"
+                                                accept="image/png, image/jpeg"
+                                                style="display:none"
+                                            />
+                                            <Button size="sm" variant="secondary" id="btn-upload-avatar" type="button">
+                                                Upload New
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                class="text-danger"
+                                                id="btn-remove-avatar"
+                                                type="button"
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="name">Display Name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={profile.displayName}
-                                placeholder="Your name"
-                            />
-                        </div>
+                                <div class="form-group">
+                                    <label for="name">Display Name</label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={profile.displayName}
+                                        placeholder="Your name"
+                                    />
+                                </div>
 
-                        <div class="form-group">
-                            <label for="handle">Handle</label>
-                            <input type="text" id="handle" value={user.handle} disabled class="disabled-input" />
-                            <p class="helper-text">Handles cannot be changed once set.</p>
-                        </div>
+                                <div class="form-group">
+                                    <label for="handle">Handle</label>
+                                    <input
+                                        type="text"
+                                        id="handle"
+                                        value={user.handle}
+                                        disabled
+                                        class="disabled-input"
+                                    />
+                                    <p class="helper-text">Handles cannot be changed once set.</p>
+                                </div>
 
-                        <div class="form-group">
-                            <label for="bio">Bio</label>
-                            <textarea id="bio" name="bio" rows="3" placeholder="Tell us a little about yourself"
-                                >{profile.bio}</textarea
-                            >
-                        </div>
+                                <div class="form-group">
+                                    <label for="bio">Bio</label>
+                                    <textarea
+                                        id="bio"
+                                        name="bio"
+                                        rows="3"
+                                        placeholder="Tell us a little about yourself"
+                                    >
+                                        {profile.bio}
+                                    </textarea>
+                                </div>
 
-                        <div class="form-group">
-                            <label for="tags">Skills Offered</label>
-                            <input
-                                type="text"
-                                id="tags"
-                                name="tags"
-                                value={tagsValue}
-                                placeholder="e.g. Mathematics, Piano, Coding"
-                            />
-                            <p class="helper-text">Comma-separated list of skills you can teach.</p>
-                        </div>
+                                <div class="form-group">
+                                    <label for="tags">Skills Offered</label>
+                                    <input
+                                        type="text"
+                                        id="tags"
+                                        name="tags"
+                                        value={tagsValue}
+                                        placeholder="e.g. Mathematics, Piano, Coding"
+                                    />
+                                    <p class="helper-text">Comma-separated list of skills you can teach.</p>
+                                </div>
 
-                        <div class="form-group">
-                            <label for="skills">Skills Sought</label>
-                            <input
-                                type="text"
-                                id="skills"
-                                name="skills"
-                                value={skillsValue}
-                                placeholder="e.g. Cooking, Spanish, Guitar"
-                            />
-                            <p class="helper-text">Comma-separated list of skills you want to learn.</p>
-                        </div>
+                                <div class="form-group">
+                                    <label for="skills">Skills Sought</label>
+                                    <input
+                                        type="text"
+                                        id="skills"
+                                        name="skills"
+                                        value={skillsValue}
+                                        placeholder="e.g. Cooking, Spanish, Guitar"
+                                    />
+                                    <p class="helper-text">Comma-separated list of skills you want to learn.</p>
+                                </div>
 
-                        <div class="form-footer">
-                            <Button type="submit">Save Changes</Button>
-                        </div>
-                    </form>
-                </Card>
-            </section>}
+                                <div class="form-footer">
+                                    <Button type="submit">Save Changes</Button>
+                                </div>
+                            </form>
+                        </Card>
+                    </section>
+                )
+            }
 
             <!-- Account Section -->
             <section class="settings-section">
@@ -408,7 +438,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
     avatarInput?.addEventListener("change", async () => {
         const file = avatarInput.files?.[0];
         if (!file) return;
-        
+
         if (file.size > 5 * 1024 * 1024) {
             await showAlert("File is too large (max 5MB)", "Error");
             return;
@@ -421,10 +451,10 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             const res = await fetch("/api/v1/user/avatar", {
                 method: "POST",
                 headers: { "Content-Type": file.type },
-                body: file
+                body: file,
             });
             const result = await res.json();
-            
+
             if (result.success) {
                 const url = result.data.url;
                 if (avatarImg) avatarImg.src = `${url}?v=${Date.now()}`;
@@ -437,7 +467,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             await showAlert("Upload failed", "Error");
         } finally {
             if (uploadBtn) uploadBtn.textContent = originalText;
-            avatarInput.value = ""; 
+            avatarInput.value = "";
         }
     });
 
@@ -447,20 +477,26 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
         if (btn) {
             const originalText = btn.textContent;
             btn.textContent = "Saving...";
-            
+
             const formData = new FormData(profileForm);
-            
+
             try {
-                const res = await fetch('/api/v1/user', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch("/api/v1/user", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        displayName: formData.get('name'),
-                        bio: formData.get('bio'),
-                        avatarUrl: formData.get('avatarUrl'),
-                        tags: (formData.get('tags') as string || "").split(",").map(s => s.trim()).filter(Boolean),
-                        skills: (formData.get('skills') as string || "").split(",").map(s => s.trim()).filter(Boolean)
-                    })
+                        displayName: formData.get("name"),
+                        bio: formData.get("bio"),
+                        avatarUrl: formData.get("avatarUrl"),
+                        tags: ((formData.get("tags") as string) || "")
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        skills: ((formData.get("skills") as string) || "")
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                    }),
                 });
 
                 const result = await res.json();
@@ -489,27 +525,32 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
     // Delete Account
     const deleteAccountBtn = document.getElementById("btn-delete-account");
     deleteAccountBtn?.addEventListener("click", async () => {
-        if (await showConfirm("Are you sure you want to permanently delete your account? This action cannot be undone.", "Delete Account")) {
-             const originalText = deleteAccountBtn.textContent;
-             deleteAccountBtn.textContent = "Deleting...";
-             try {
-                 const res = await fetch("/api/v1/user", {
-                     method: "DELETE",
-                     headers: { 'Content-Type': 'application/json' }
-                 });
-                 const result = await res.json();
-                 if (result.success) {
-                     await showAlert("Account deleted.", "Success");
-                     window.location.href = "/";
-                 } else {
-                     await showAlert(result.error || "Failed to delete account", "Error");
-                     deleteAccountBtn.textContent = originalText;
-                 }
-             } catch (err) {
-                 console.error(err);
-                 await showAlert("Request failed", "Error");
-                 deleteAccountBtn.textContent = originalText;
-             }
+        if (
+            await showConfirm(
+                "Are you sure you want to permanently delete your account? This action cannot be undone.",
+                "Delete Account",
+            )
+        ) {
+            const originalText = deleteAccountBtn.textContent;
+            deleteAccountBtn.textContent = "Deleting...";
+            try {
+                const res = await fetch("/api/v1/user", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                });
+                const result = await res.json();
+                if (result.success) {
+                    await showAlert("Account deleted.", "Success");
+                    window.location.href = "/";
+                } else {
+                    await showAlert(result.error || "Failed to delete account", "Error");
+                    deleteAccountBtn.textContent = originalText;
+                }
+            } catch (err) {
+                console.error(err);
+                await showAlert("Request failed", "Error");
+                deleteAccountBtn.textContent = originalText;
+            }
         }
     });
 </script>

@@ -211,7 +211,8 @@ import "@styles/auth.scss";
             </div>
             <h2>Check Your Email</h2>
             <p class="subtitle">
-                We've sent a confirmation link to your inbox. You may log in and start exploring the platform right away. Please verify your email to unlock all features.
+                We've sent a confirmation link to your inbox. You may log in and start exploring the platform right
+                away. Please verify your email to unlock all features.
             </p>
             <Button type="button" variant="primary" block id="back-to-login" href="/auth/login">Back to Login</Button>
         </Card>
@@ -406,9 +407,9 @@ import "@styles/auth.scss";
             submitBtn.textContent = "Creating Account...";
 
             try {
-                const res = await fetch('/api/v1/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch("/api/v1/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         email: emailInput.value,
                         dob: dobInput.value,
@@ -416,8 +417,8 @@ import "@styles/auth.scss";
                         lastName: lastnameInput.value,
                         handle: handleInput.value,
                         password: passwordInput.value,
-                        registrationKey: registerKeyInput.value
-                    })
+                        registrationKey: registerKeyInput.value,
+                    }),
                 });
 
                 const result = await res.json();

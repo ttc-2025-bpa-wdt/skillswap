@@ -21,14 +21,14 @@ export class User {
 
         const user = await db.user.findFirst({
             where: { OR: checks },
-            include: { profile: { select: { id: true } } }
+            include: { profile: { select: { id: true } } },
         });
 
         if (!user) return null;
 
         return {
             ...user,
-            profileId: user.profile?.id || ""
+            profileId: user.profile?.id || "",
         } as unknown as IUser;
     }
 

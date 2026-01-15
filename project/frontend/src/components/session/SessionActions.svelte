@@ -1,6 +1,6 @@
 <script lang="ts">
     import Button from "@components/base/Button.svelte";
-    
+
     export let sessionId: string;
     export let isRegistered: boolean = false;
     export let initialRating: number = 0;
@@ -21,7 +21,7 @@
             const res = await fetch("/api/v1/session/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId })
+                body: JSON.stringify({ sessionId }),
             });
             const data = await res.json();
             if (data.success) {
@@ -48,7 +48,7 @@
             const res = await fetch("/api/v1/contact/host", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId, message })
+                body: JSON.stringify({ sessionId, message }),
             });
             const data = await res.json();
             if (data.success) {
@@ -70,7 +70,7 @@
             const res = await fetch("/api/v1/session/rate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId, rating })
+                body: JSON.stringify({ sessionId, rating }),
             });
 
             const text = await res.text();
@@ -86,8 +86,8 @@
                 error = `Server error: ${res.status} ${res.statusText}`;
             }
         } catch (e) {
-             console.error("Fetch error:", e);
-             error = "Network error: Failed to submit rating";
+            console.error("Fetch error:", e);
+            error = "Network error: Failed to submit rating";
         }
     }
 </script>
@@ -101,8 +101,8 @@
                 {loading ? "Registering..." : "Register for Session"}
             </Button>
         {/if}
-        
-        <Button variant="outline" size="lg" onclick={() => showContactModal = true}>Contact Host</Button>
+
+        <Button variant="outline" size="lg" onclick={() => (showContactModal = true)}>Contact Host</Button>
     </div>
 
     {#if registered}
@@ -111,7 +111,11 @@
             <div class="stars">
                 {#each [1, 2, 3, 4, 5] as star}
                     <button class="star-btn" onclick={() => rateSession(star)}>
-                         <iconify-icon icon={userRating >= star ? "material-symbols:star" : "material-symbols:star-outline"} width="24" height="24"></iconify-icon>
+                        <iconify-icon
+                            icon={userRating >= star ? "material-symbols:star" : "material-symbols:star-outline"}
+                            width="24"
+                            height="24"
+                        ></iconify-icon>
                     </button>
                 {/each}
             </div>
@@ -128,17 +132,29 @@
 {/if}
 
 {#if showContactModal}
-    <div class="modal-backdrop" onclick={() => showContactModal = false} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && (showContactModal = false)}>
-        <div class="modal-content" onclick={(e) => e.stopPropagation()} role="document" tabindex="0" onkeydown={(e) => e.key === 'Escape' && (showContactModal = false)}>
+    <div
+        class="modal-backdrop"
+        onclick={() => (showContactModal = false)}
+        role="button"
+        tabindex="0"
+        onkeydown={(e) => e.key === "Escape" && (showContactModal = false)}
+    >
+        <div
+            class="modal-content"
+            onclick={(e) => e.stopPropagation()}
+            role="document"
+            tabindex="0"
+            onkeydown={(e) => e.key === "Escape" && (showContactModal = false)}
+        >
             <h3>Contact Host</h3>
-            
+
             <div class="form-group">
                 <label>Message</label>
                 <textarea bind:value={message} rows="4"></textarea>
             </div>
-            
+
             <div class="modal-actions">
-                <Button variant="secondary" size="md" onclick={() => showContactModal = false}>Cancel</Button>
+                <Button variant="secondary" size="md" onclick={() => (showContactModal = false)}>Cancel</Button>
                 <Button variant="primary" size="md" onclick={contactHost} disabled={loading}>Send</Button>
             </div>
         </div>
@@ -155,7 +171,7 @@
     .actions {
         display: flex;
         gap: 1rem;
-        
+
         @media (max-width: 600px) {
             flex-direction: column;
         }
@@ -183,19 +199,29 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .star-btn:hover {
         opacity: 0.8;
     }
 
-    .error { color: #BC2035; margin-top: 0.5rem; font-weight: bold; }
-    .success { color: var(--accent-2, green); margin-top: 0.5rem; font-weight: bold; }
+    .error {
+        color: #bc2035;
+        margin-top: 0.5rem;
+        font-weight: bold;
+    }
+    .success {
+        color: var(--accent-2, green);
+        margin-top: 0.5rem;
+        font-weight: bold;
+    }
 
     .modal-backdrop {
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -209,10 +235,10 @@
         border-radius: 8px;
         width: 100%;
         max-width: 500px;
-        box-shadow: var(--shadow-md, 0 4px 20px rgba(0,0,0,0.1));
+        box-shadow: var(--shadow-md, 0 4px 20px rgba(0, 0, 0, 0.1));
         color: var(--foreground, #333);
     }
-    
+
     h3 {
         margin-top: 0;
         color: var(--accent-1, #333);
@@ -221,14 +247,15 @@
     .form-group {
         margin-bottom: 1rem;
     }
-    
+
     .form-group label {
         display: block;
         margin-bottom: 0.5rem;
         font-weight: bold;
     }
-    
-    .form-group textarea, .form-group input {
+
+    .form-group textarea,
+    .form-group input {
         width: 100%;
         padding: 0.8rem;
         border: 1px solid var(--accent-3, #ddd);

@@ -202,7 +202,7 @@ const competitionMetadata = {
     const contactForm = document.getElementById("contact-form") as HTMLFormElement;
     contactForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+
         const btn = contactForm.querySelector('button[type="submit"]');
         let originalText = "";
         if (btn) {
@@ -220,8 +220,8 @@ const competitionMetadata = {
                 body: JSON.stringify({
                     name: formData.get("name"),
                     email: formData.get("email"),
-                    message: formData.get("message")
-                })
+                    message: formData.get("message"),
+                }),
             });
 
             const result = await res.json();
@@ -517,7 +517,7 @@ const competitionMetadata = {
 
         .info-item {
             display: flex;
-            align-items: center; 
+            align-items: center;
             justify-content: center;
             margin-bottom: 1rem;
             font-size: 1rem;
@@ -618,7 +618,6 @@ const competitionMetadata = {
     }
 
     .contact-form {
-
         .form-group {
             margin-bottom: 1.5rem;
 

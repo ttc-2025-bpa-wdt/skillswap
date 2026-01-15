@@ -12,20 +12,20 @@ export default defineConfig({
     adapter: node({ mode: "standalone" }),
     server: {
         port: 80 /* 3000 */,
-        allowedHosts: [ DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
+        allowedHosts: [DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
     },
     devToolbar: {
-        enabled: false 
+        enabled: false,
     },
     vite: {
         server: {
             host: "0.0.0.0",
             proxy: {
                 "/api": {
-                    target: "http://localhost:3000",  
+                    target: "http://localhost:3000",
                     changeOrigin: true,
-                }
-            }
+                },
+            },
         },
     },
     integrations: [
@@ -34,5 +34,5 @@ export default defineConfig({
             preprocess: vitePreprocess(),
         }),
     ],
-    scopedStyleStrategy: "attribute"
+    scopedStyleStrategy: "attribute",
 });

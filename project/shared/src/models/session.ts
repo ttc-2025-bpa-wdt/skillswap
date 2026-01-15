@@ -17,14 +17,14 @@ export class Session {
         if (orConditions.length === 0) return null;
 
         const session = await db.session.findFirst({
-            where: { OR: orConditions }
+            where: { OR: orConditions },
         });
 
         if (!session) return null;
 
         return {
             ...session,
-            categories: JSON.parse(session.categories)
+            categories: JSON.parse(session.categories),
         } as unknown as ISession;
     }
 
@@ -32,22 +32,25 @@ export class Session {
         // Search by name, categories, user handle, display name
         // Categories is stored as JSON string "['Music', 'Art']"
         // Searching inside JSON string with 'contains' usually works for simple cases, though not robust
-        
+
         const sessions = await db.session.findMany({
             where: {
                 OR: [
                     { name: { contains: query } },
                     { categories: { contains: query } },
                     { user: { handle: { contains: query } } },
-                    { user: { profile: { displayName: { contains: query } } } }
-                ]
-            }
+                    { user: { profile: { displayName: { contains: query } } } },
+                ],
+            },
         });
 
-        return sessions.map(s => ({
-            ...s,
-            categories: JSON.parse(s.categories)
-        } as unknown as ISession));
+        return sessions.map(
+            (s) =>
+                ({
+                    ...s,
+                    categories: JSON.parse(s.categories),
+                }) as unknown as ISession,
+        );
     }
 }
 

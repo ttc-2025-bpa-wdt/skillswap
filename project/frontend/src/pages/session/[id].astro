@@ -34,17 +34,17 @@ if (currentUser && session) {
         where: {
             sessionId_userId: {
                 sessionId: session.id,
-                userId: currentUser.id
-            }
-        }
+                userId: currentUser.id,
+            },
+        },
     });
     isRegistered = !!registration;
 
     const review = await db.review.findFirst({
         where: {
             sessionId: session.id,
-            authorId: currentUser.id
-        }
+            authorId: currentUser.id,
+        },
     });
     if (review) {
         userRating = review.rating;
@@ -113,11 +113,11 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
                         <p>{session.prereqs}</p>
                     </div>
 
-                    <SessionActions 
-                        sessionId={session.id} 
-                        isRegistered={isRegistered} 
+                    <SessionActions
+                        sessionId={session.id}
+                        isRegistered={isRegistered}
                         initialRating={userRating}
-                        client:load 
+                        client:load
                     />
                 </Card>
             </div>

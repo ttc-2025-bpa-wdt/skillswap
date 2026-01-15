@@ -1,29 +1,29 @@
 {
-  "name": "backend",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun run src/index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/cookie-parser": "^1.4.10",
-    "@types/express": "^5.0.6",
-    "@types/validator": "^13.15.10"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "@types/better-sqlite3": "^7.6.13",
-    "cookie-parser": "^1.4.7",
-    "express": "^5.2.1",
-    "http-proxy-middleware": "^3.0.5",
-    "prisma": "^7.2.0",
-    "socket.io": "^4.8.3",
-    "validator": "^13.15.26",
-    "validator.js": "^2.0.4"
-  }
+    "name": "backend",
+    "module": "index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "bun run src/index.ts"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/cookie-parser": "^1.4.10",
+        "@types/express": "^5.0.6",
+        "@types/validator": "^13.15.10"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "@prisma/client": "^7.2.0",
+        "@types/better-sqlite3": "^7.6.13",
+        "cookie-parser": "^1.4.7",
+        "express": "^5.2.1",
+        "http-proxy-middleware": "^3.0.5",
+        "prisma": "^7.2.0",
+        "socket.io": "^4.8.3",
+        "validator": "^13.15.26",
+        "validator.js": "^2.0.4"
+    }
 }

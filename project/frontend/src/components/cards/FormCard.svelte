@@ -1,12 +1,12 @@
 <script lang="ts">
     import Card from "../base/Card.svelte";
-    
+
     export let children: () => any;
-    
+
     let classes: string = "";
     export { classes as class };
 
-    classes = (`form-card ${classes}`).trim();
+    classes = `form-card ${classes}`.trim();
 </script>
 
 <Card class={classes}>

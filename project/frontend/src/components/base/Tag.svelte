@@ -11,7 +11,7 @@
     const name = payload.name || null;
     const color = payload.color || "var(--background)";
 
-    classes = (`tag ${classes}`).trim();
+    classes = `tag ${classes}`.trim();
 </script>
 
 <span class={classes} style={`background-color: ${color}; color: ${foreground}`}>

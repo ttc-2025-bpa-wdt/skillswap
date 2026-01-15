@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SITE_TITLE } from "shared/config";
-    
+
     const currentYear = new Date().getFullYear();
 </script>
 
@@ -18,10 +18,18 @@
     <div class="footer-section">
         <h4>Follow Us</h4>
         <div class="socials">
-            <a href="/about#contact" aria-label="Twitter"><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24"></iconify-icon></a>
-            <a href="/about#contact" aria-label="Facebook"><iconify-icon icon="fa7-brands:facebook" width="24" height="24"></iconify-icon></a>
-            <a href="/about#contact" aria-label="Instagram"><iconify-icon icon="fa7-brands:instagram" width="24" height="24"></iconify-icon></a>
-            <a href="/about#contact" aria-label="LinkedIn"><iconify-icon icon="fa7-brands:linkedin" width="24" height="24"></iconify-icon></a>
+            <a href="/about#contact" aria-label="Twitter"
+                ><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24"></iconify-icon></a
+            >
+            <a href="/about#contact" aria-label="Facebook"
+                ><iconify-icon icon="fa7-brands:facebook" width="24" height="24"></iconify-icon></a
+            >
+            <a href="/about#contact" aria-label="Instagram"
+                ><iconify-icon icon="fa7-brands:instagram" width="24" height="24"></iconify-icon></a
+            >
+            <a href="/about#contact" aria-label="LinkedIn"
+                ><iconify-icon icon="fa7-brands:linkedin" width="24" height="24"></iconify-icon></a
+            >
         </div>
     </div>
 </div>

@@ -4,11 +4,11 @@
     export let currentPage: number = 1;
     export let totalPages: number | undefined = undefined;
     export let showSelector: boolean = true;
-    
+
     let classes: string = "";
     export { classes as class };
 
-    classes = (`pagination ${classes}`).trim();
+    classes = `pagination ${classes}`.trim();
 </script>
 
 <div class={classes}>

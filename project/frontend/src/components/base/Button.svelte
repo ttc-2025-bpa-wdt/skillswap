@@ -4,12 +4,12 @@
     export let href: string | null = null;
     export let block: boolean = false;
     export let children: () => any;
-    
+
     let classes: string = "";
     export { classes as class };
 
     const element = href ? "a" : "button";
-    classes = (`button ${variant} ${size} ${block ? "block" : ""} ${classes}`).trim();
+    classes = `button ${variant} ${size} ${block ? "block" : ""} ${classes}`.trim();
 </script>
 
 <svelte:element this={element} class={classes} {href} {...$$restProps}>

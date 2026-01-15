@@ -8,7 +8,14 @@ import crypto from "crypto";
 
 import { db } from "shared/helpers";
 
-import { type IUser, type IProfile, type ISession, type IEmailVerificationToken, difficultyTags, type IAuthToken } from "shared/schema";
+import {
+    type IUser,
+    type IProfile,
+    type ISession,
+    type IEmailVerificationToken,
+    difficultyTags,
+    type IAuthToken,
+} from "shared/schema";
 import validator from "validator";
 
 import { Authentication } from "shared/models";
@@ -34,8 +41,11 @@ class ApiV1Endpoints {
     public attachSocket(io: SocketIO.Server) {
         this.socket = io;
         this.socket.on("connection", (socket) => {
-            try { this.chatConnect(socket); }
-            catch (err) { console.error("Error in chatConnect:", err); }
+            try {
+                this.chatConnect(socket);
+            } catch (err) {
+                console.error("Error in chatConnect:", err);
+            }
         });
     }
 
@@ -43,8 +53,7 @@ class ApiV1Endpoints {
         return async (req: ExpressRequest, res: ExpressResponse) => {
             try {
                 await handler(req, res);
-            }
-            catch (err) {
+            } catch (err) {
                 res.status(500).json({ success: false, error: "Internal Server Error" });
                 console.error("Error handling request:", err); // TODO: Basic logging for now. Don't need anything crazy unless we're enterprise
             }
@@ -88,18 +97,18 @@ class ApiV1Endpoints {
 
     protected startCleanupTask() {
         const cleanup = async () => {
-             try {
+            try {
                 const oneDayAgo = new Date();
                 oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-                
+
                 const result = await db.session.deleteMany({
                     where: {
                         eventDate: {
-                            lt: oneDayAgo
-                        }
-                    }
+                            lt: oneDayAgo,
+                        },
+                    },
                 });
-                
+
                 if (result.count > 0) {
                     console.log(`Cleaned up ${result.count} expired sessions.`);
                 }
@@ -109,7 +118,7 @@ class ApiV1Endpoints {
         };
 
         cleanup();
-        setInterval(cleanup, 1000 * 60 * 60); 
+        setInterval(cleanup, 1000 * 60 * 60);
     }
 
     protected ensureJson(req: ExpressRequest, res: ExpressResponse): boolean {
@@ -132,7 +141,7 @@ class ApiV1Endpoints {
 
         const token = Security.decodeToken<IAuthToken>(token_str);
         if (!token) return null;
-        
+
         const user = await db.user.findUnique({
             where: { id: token.sub },
             select: { handle: true },
@@ -141,7 +150,7 @@ class ApiV1Endpoints {
         if (!user) return null;
         return { handle: user.handle };
     }
-    
+
     protected getUserTargetHandle(req: ExpressRequest, res: ExpressResponse, reqUser: RequestUser): string | null {
         let targetHandle = (req.query.handle as string) ?? req.body.handle ?? reqUser.handle;
         if (!targetHandle) {
@@ -168,7 +177,7 @@ class ApiV1Endpoints {
 
         // Remove query params if any
         filename = filename.split("?")[0] as string;
-        
+
         if (filename === "default.png" || !filename) return; // Never delete default or empty
 
         // ensure only alphanumeric/dots/dashes (uuid + ext)
@@ -211,28 +220,31 @@ class ApiV1Endpoints {
                         skills: true,
                         sessionCount: true,
                         studentCount: true,
-                        rating: true
-                    }
+                        rating: true,
+                    },
                 },
             },
         });
 
         if (!dbRes) return res.status(404).json({ success: false, error: "User not found" });
-        
-        return res.json({ success: true, data: {
-            profile: {
-                displayName: dbRes.profile?.displayName,
-                avatarUrl: dbRes.profile?.avatarUrl,
-                bio: dbRes.profile?.bio,
-                tags: dbRes.profile?.tags ? JSON.parse(dbRes.profile?.tags) : undefined,
-                skills: dbRes.profile?.skills ? JSON.parse(dbRes.profile?.skills) : undefined,
-                sessionCount: dbRes.profile?.sessionCount,
-                studentCount: dbRes.profile?.studentCount,
-                rating: dbRes.profile?.rating,
-            }
-        } });
+
+        return res.json({
+            success: true,
+            data: {
+                profile: {
+                    displayName: dbRes.profile?.displayName,
+                    avatarUrl: dbRes.profile?.avatarUrl,
+                    bio: dbRes.profile?.bio,
+                    tags: dbRes.profile?.tags ? JSON.parse(dbRes.profile?.tags) : undefined,
+                    skills: dbRes.profile?.skills ? JSON.parse(dbRes.profile?.skills) : undefined,
+                    sessionCount: dbRes.profile?.sessionCount,
+                    studentCount: dbRes.profile?.studentCount,
+                    rating: dbRes.profile?.rating,
+                },
+            },
+        });
     }
-    
+
     public async deleteUser(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -243,13 +255,13 @@ class ApiV1Endpoints {
         if (!targetHandle) return;
 
         if (targetHandle !== reqUser.handle) {
-            if (!await this.checkUserRole(reqUser.handle, "admin"))
+            if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
         const user = await db.user.findUnique({
             where: { handle: targetHandle },
-            select: { profile: { select: { id: true, avatarUrl: true } } }
+            select: { profile: { select: { id: true, avatarUrl: true } } },
         });
 
         await db.user.delete({
@@ -268,7 +280,9 @@ class ApiV1Endpoints {
                     const files = fs.readdirSync(frontendPath);
                     for (const file of files) {
                         if (file.startsWith(targetHandle)) {
-                             try { fs.unlinkSync(path.join(frontendPath, file)); } catch (e) {}
+                            try {
+                                fs.unlinkSync(path.join(frontendPath, file));
+                            } catch (e) {}
                         }
                     }
                 } catch (e) {}
@@ -294,14 +308,14 @@ class ApiV1Endpoints {
         else return res.status(415).json({ success: false, error: "Only PNG and JPEG allowed" });
 
         const user = await db.user.findUnique({
-             where: { handle: reqUser.handle },
-             select: { profile: { select: { id: true, avatarUrl: true } } }
+            where: { handle: reqUser.handle },
+            select: { profile: { select: { id: true, avatarUrl: true } } },
         });
- 
+
         if (!user?.profile?.id) {
-             return res.status(404).json({ success: false, error: "Profile not found" });
+            return res.status(404).json({ success: false, error: "Profile not found" });
         }
- 
+
         const filename = `${reqUser.handle}.${ext}`;
         const frontendPath = path.resolve(process.cwd(), "../frontend/public/images/avatar");
         const filePath = path.join(frontendPath, filename);
@@ -312,14 +326,18 @@ class ApiV1Endpoints {
         }
 
         // Cleanup other extension if exists (e.g. uploading jpg when png exists)
-        const otherExt = ext === 'png' ? 'jpg' : 'png';
+        const otherExt = ext === "png" ? "jpg" : "png";
         const otherFile = path.join(frontendPath, `${reqUser.handle}.${otherExt}`);
         if (fs.existsSync(otherFile)) {
-            try { fs.unlinkSync(otherFile); } catch(e) { console.error("Failed to cleanup old avatar ext", e); }
+            try {
+                fs.unlinkSync(otherFile);
+            } catch (e) {
+                console.error("Failed to cleanup old avatar ext", e);
+            }
         }
 
         const fileStream = fs.createWriteStream(filePath);
-        
+
         req.pipe(fileStream);
 
         await new Promise((resolve, reject) => {
@@ -329,7 +347,7 @@ class ApiV1Endpoints {
 
         return res.json({ success: true, data: { url: `/images/avatar/${filename}` } });
     }
-    
+
     public async updateUserSettings(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -340,27 +358,29 @@ class ApiV1Endpoints {
         if (!targetHandle) return;
 
         if (targetHandle !== reqUser.handle) {
-            if (!await this.checkUserRole(reqUser.handle, "admin"))
+            if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
-        const userId = await db.user.findUnique({
-            where: { handle: targetHandle },
-            select: { id: true },
-        }).then(user => user?.id);
+        const userId = await db.user
+            .findUnique({
+                where: { handle: targetHandle },
+                select: { id: true },
+            })
+            .then((user) => user?.id);
 
         if (!userId) return res.status(404).json({ success: false, error: "User not found" });
 
         // Retrieve current profile to check for avatar changes
         const currentProfile = await db.profile.findUnique({
-             where: { userId },
-             select: { avatarUrl: true }
+            where: { userId },
+            select: { avatarUrl: true },
         });
 
         // Sanitize inputs
         const displayName = req.body.displayName ? validator.escape(validator.trim(String(req.body.displayName))) : "";
-        const avatarUrl   = req.body.avatarUrl   ? validator.trim(String(req.body.avatarUrl)) : "";
-        const bio         = req.body.bio         ? validator.escape(validator.trim(String(req.body.bio))) : "";
+        const avatarUrl = req.body.avatarUrl ? validator.trim(String(req.body.avatarUrl)) : "";
+        const bio = req.body.bio ? validator.escape(validator.trim(String(req.body.bio))) : "";
 
         // dont load images that arent uploaded to the server
         if (avatarUrl && !avatarUrl.startsWith("/images/avatar/")) {
@@ -369,7 +389,7 @@ class ApiV1Endpoints {
 
         const sanitizeList = (list: any) => {
             if (Array.isArray(list)) {
-                return list.map(item => typeof item === 'string' ? validator.escape(validator.trim(item)) : item);
+                return list.map((item) => (typeof item === "string" ? validator.escape(validator.trim(item)) : item));
             }
             return [];
         };
@@ -378,11 +398,11 @@ class ApiV1Endpoints {
             where: { userId },
             data: {
                 displayName,
-                avatarUrl:   avatarUrl || (currentProfile?.avatarUrl ?? "/images/avatar/default.png"),
+                avatarUrl: avatarUrl || (currentProfile?.avatarUrl ?? "/images/avatar/default.png"),
                 bio,
-                tags:   JSON.stringify(sanitizeList(req.body.tags)),
+                tags: JSON.stringify(sanitizeList(req.body.tags)),
                 skills: JSON.stringify(sanitizeList(req.body.skills)),
-            }
+            },
         });
 
         // Clean up old avatar if it changed
@@ -392,7 +412,6 @@ class ApiV1Endpoints {
 
         return res.json({ success: true });
     }
-                
 
     /* Authentication and session management endpoints */
 
@@ -400,18 +419,14 @@ class ApiV1Endpoints {
         if (!this.ensureJson(req, res)) return;
         const { emailOrHandle, password, remember } = req.body;
 
-        if (!emailOrHandle || !password)
-            return res.status(400).json({ success: false, error: "Missing credentials" });
+        if (!emailOrHandle || !password) return res.status(400).json({ success: false, error: "Missing credentials" });
 
         const sanitizedLogin = validator.trim(String(emailOrHandle));
 
         const user = await db.user.findFirst({
             where: {
-                OR: [
-                    { email: sanitizedLogin },
-                    { handle: sanitizedLogin }
-                ]
-            }
+                OR: [{ email: sanitizedLogin }, { handle: sanitizedLogin }],
+            },
         });
 
         if (!user || !(await Security.verifyPasswd(password, user.passwordHash, user.passwordSalt)))
@@ -445,15 +460,13 @@ class ApiV1Endpoints {
         const sFirstName = validator.escape(validator.trim(String(firstName)));
         const sLastName = validator.escape(validator.trim(String(lastName)));
 
-        if (!validator.isEmail(sEmail))
-            return res.status(400).json({ success: false, error: "Invalid email format" });
+        if (!validator.isEmail(sEmail)) return res.status(400).json({ success: false, error: "Invalid email format" });
 
         const existing = await db.user.findFirst({
-            where: { OR: [{ email: sEmail }, { handle: sHandle }] }
+            where: { OR: [{ email: sEmail }, { handle: sHandle }] },
         });
 
-        if (existing)
-            return res.status(409).json({ success: false, error: "User already exists" });
+        if (existing) return res.status(409).json({ success: false, error: "User already exists" });
 
         const [salt, hash] = await Security.hashPasswd(password);
 
@@ -468,7 +481,7 @@ class ApiV1Endpoints {
                     passwordHash: hash,
                     passwordSalt: salt,
                     emailVerified: false,
-                }
+                },
             });
 
             await tx.profile.create({
@@ -479,7 +492,7 @@ class ApiV1Endpoints {
                     bio: "",
                     tags: "[]",
                     skills: "[]",
-                }
+                },
             });
         });
 
@@ -530,7 +543,8 @@ class ApiV1Endpoints {
 
     public async getSessionInfo(req: ExpressRequest, res: ExpressResponse) {
         let { id } = req.query;
-        if (!id || typeof id !== "string") return res.status(400).json({ success: false, error: "Session ID is required" });
+        if (!id || typeof id !== "string")
+            return res.status(400).json({ success: false, error: "Session ID is required" });
 
         id = validator.trim(id);
 
@@ -539,23 +553,22 @@ class ApiV1Endpoints {
             include: { user: { select: { handle: true, profile: true } } },
         });
 
-        if (!session)
-            return res.status(404).json({ success: false, error: "Session not found" });
+        if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
         return res.json({
             success: true,
             data: {
-                id:          session.id,
-                name:        session.name,
-                categories:  JSON.parse(session.categories),
-                prereqs:     session.prereqs,
-                difficulty:  session.difficulty,
+                id: session.id,
+                name: session.name,
+                categories: JSON.parse(session.categories),
+                prereqs: session.prereqs,
+                difficulty: session.difficulty,
                 description: session.description,
-                duration:    session.duration,
-                meetingUrl:  session.meetingUrl,
-                createdAt:   session.createdAt,
-                eventDate:   session.eventDate,
-            }
+                duration: session.duration,
+                meetingUrl: session.meetingUrl,
+                createdAt: session.createdAt,
+                eventDate: session.eventDate,
+            },
         });
     }
 
@@ -566,7 +579,8 @@ class ApiV1Endpoints {
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         let { id } = req.body;
-        if (!id || typeof id !== "string") return res.status(400).json({ success: false, error: "Session ID is required" });
+        if (!id || typeof id !== "string")
+            return res.status(400).json({ success: false, error: "Session ID is required" });
 
         id = validator.trim(id);
 
@@ -575,11 +589,10 @@ class ApiV1Endpoints {
             include: { user: { select: { handle: true } } },
         });
 
-        if (!session)
-            return res.status(404).json({ success: false, error: "Session not found" });
+        if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
         if (session.user.handle !== reqUser.handle) {
-            if (!await this.checkUserRole(reqUser.handle, "admin"))
+            if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
@@ -588,7 +601,7 @@ class ApiV1Endpoints {
         const difficulty = validator.trim(String(req.body.difficulty || ""));
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
-            categories = categories.map((c: any) => typeof c === 'string' ? validator.escape(validator.trim(c)) : c);
+            categories = categories.map((c: any) => (typeof c === "string" ? validator.escape(validator.trim(c)) : c));
         } else {
             categories = [];
         }
@@ -597,7 +610,7 @@ class ApiV1Endpoints {
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
-             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
+            return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
         }
 
         const duration = parseInt(String(req.body.duration || "60"));
@@ -606,14 +619,14 @@ class ApiV1Endpoints {
             where: { id },
             data: {
                 name,
-                categories:  JSON.stringify(categories),
+                categories: JSON.stringify(categories),
                 prereqs,
                 difficulty,
                 description,
                 meetingUrl,
                 duration,
-                eventDate:   new Date(req.body.eventDate),
-            }
+                eventDate: new Date(req.body.eventDate),
+            },
         });
 
         return res.json({ success: true });
@@ -637,9 +650,9 @@ class ApiV1Endpoints {
         const difficulty = validator.trim(String(req.body.difficulty || ""));
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
-            categories = categories.map((c: any) => typeof c === 'string' ? validator.escape(validator.trim(c)) : c);
+            categories = categories.map((c: any) => (typeof c === "string" ? validator.escape(validator.trim(c)) : c));
         } else {
-             categories = [];
+            categories = [];
         }
 
         if (!difficultyTags[difficulty])
@@ -649,7 +662,7 @@ class ApiV1Endpoints {
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
-             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
+            return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
         }
 
         const duration = parseInt(String(req.body.duration || "60"));
@@ -657,15 +670,15 @@ class ApiV1Endpoints {
         const session = await db.session.create({
             data: {
                 name,
-                categories:  JSON.stringify(categories),
+                categories: JSON.stringify(categories),
                 prereqs,
                 difficulty,
                 description,
                 meetingUrl,
                 duration,
-                eventDate:   new Date(req.body.eventDate),
+                eventDate: new Date(req.body.eventDate),
                 userId: user.id,
-            }
+            },
         });
 
         return res.json({ success: true, data: { id: session.id } });
@@ -678,7 +691,8 @@ class ApiV1Endpoints {
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         let { id } = req.body;
-        if (!id || typeof id !== "string") return res.status(400).json({ success: false, error: "Session ID is required" });
+        if (!id || typeof id !== "string")
+            return res.status(400).json({ success: false, error: "Session ID is required" });
 
         id = validator.trim(id);
 
@@ -687,11 +701,10 @@ class ApiV1Endpoints {
             include: { user: { select: { handle: true } } },
         });
 
-        if (!session)
-            return res.status(404).json({ success: false, error: "Session not found" });
+        if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
         if (session.user.handle !== reqUser.handle) {
-            if (!await this.checkUserRole(reqUser.handle, "admin"))
+            if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
@@ -707,14 +720,14 @@ class ApiV1Endpoints {
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { sessionId } = req.body;
@@ -728,19 +741,19 @@ class ApiV1Endpoints {
             res.status(404).json({ success: false, error: "Session not found" });
             return;
         }
-        
+
         if (session.userId === token.sub) {
-             res.status(400).json({ success: false, error: "Cannot register for your own session" });
-             return;
+            res.status(400).json({ success: false, error: "Cannot register for your own session" });
+            return;
         }
 
         const existing = await db.sessionRegistration.findUnique({
             where: {
                 sessionId_userId: {
                     sessionId,
-                    userId: token.sub
-                }
-            }
+                    userId: token.sub,
+                },
+            },
         });
 
         if (existing) {
@@ -751,8 +764,8 @@ class ApiV1Endpoints {
         await db.sessionRegistration.create({
             data: {
                 sessionId,
-                userId: token.sub
-            }
+                userId: token.sub,
+            },
         });
 
         res.json({ success: true });
@@ -763,14 +776,14 @@ class ApiV1Endpoints {
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { sessionId } = req.body;
@@ -784,13 +797,13 @@ class ApiV1Endpoints {
                 where: {
                     sessionId_userId: {
                         sessionId,
-                        userId: token.sub
-                    }
-                }
+                        userId: token.sub,
+                    },
+                },
             });
-        } catch(e) {
+        } catch (e) {
             res.status(404).json({ success: false, error: "Not registered for this session" });
-            return; 
+            return;
         }
 
         res.json({ success: true });
@@ -801,14 +814,14 @@ class ApiV1Endpoints {
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { sessionId, hostId, message } = req.body;
@@ -830,13 +843,13 @@ class ApiV1Endpoints {
         }
 
         if (!targetHostId) {
-             res.status(400).json({ success: false, error: "Missing hostId or valid sessionId" });
-             return;
+            res.status(400).json({ success: false, error: "Missing hostId or valid sessionId" });
+            return;
         }
 
         if (targetHostId === token.sub) {
-             res.status(400).json({ success: false, error: "Cannot message yourself" });
-             return;
+            res.status(400).json({ success: false, error: "Cannot message yourself" });
+            return;
         }
 
         // Create Message
@@ -845,8 +858,8 @@ class ApiV1Endpoints {
                 content: message,
                 senderId: token.sub,
                 recipientId: targetHostId,
-                sessionName: session ? session.name : null
-            }
+                sessionName: session ? session.name : null,
+            },
         });
 
         // Optionally emit to socket?
@@ -854,24 +867,24 @@ class ApiV1Endpoints {
 
         res.json({ success: true });
     }
-    
+
     protected async rateSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { sessionId, rating, comment } = req.body;
-        
+
         if (!sessionId || !rating) {
             res.status(400).json({ success: false, error: "Missing sessionId or rating" });
             return;
@@ -892,8 +905,8 @@ class ApiV1Endpoints {
         const existingReview = await db.review.findFirst({
             where: {
                 sessionId: session.id,
-                authorId: token.sub
-            }
+                authorId: token.sub,
+            },
         });
 
         if (existingReview) {
@@ -901,8 +914,8 @@ class ApiV1Endpoints {
                 where: { id: existingReview.id },
                 data: {
                     rating: parseInt(rating),
-                    comment: comment !== undefined ? comment : undefined
-                }
+                    comment: comment !== undefined ? comment : undefined,
+                },
             });
         } else {
             await db.review.create({
@@ -911,24 +924,24 @@ class ApiV1Endpoints {
                     authorId: token.sub,
                     recipientId: session.userId,
                     rating: parseInt(rating),
-                    comment: comment || ""
-                }
+                    comment: comment || "",
+                },
             });
         }
 
         // Update average rating
         const ratings = await db.review.findMany({
             where: { recipientId: session.userId, rating: { gt: 0 } },
-            select: { rating: true }
+            select: { rating: true },
         });
-        
+
         if (ratings.length > 0) {
             const total = ratings.reduce((sum, r) => sum + r.rating, 0);
             const avg = total / ratings.length;
-            
+
             await db.profile.update({
                 where: { userId: session.userId },
-                data: { rating: avg }
+                data: { rating: avg },
             });
         }
 
@@ -940,14 +953,14 @@ class ApiV1Endpoints {
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { id } = req.body;
@@ -957,7 +970,7 @@ class ApiV1Endpoints {
         }
 
         const review = await db.review.findUnique({
-             where: { id }
+            where: { id },
         });
 
         if (!review) {
@@ -975,26 +988,26 @@ class ApiV1Endpoints {
         if (review.recipientId === token.sub) {
             await db.review.update({
                 where: { id },
-                data: { hidden: true }
+                data: { hidden: true },
             });
             return res.json({ success: true });
         }
 
         await db.review.delete({
-            where: { id }
+            where: { id },
         });
 
         // Recalculate average rating for recipient
         const ratings = await db.review.findMany({
             where: { recipientId: review.recipientId, rating: { gt: 0 } },
-            select: { rating: true }
+            select: { rating: true },
         });
-        
+
         const avg = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : 0;
-        
+
         await db.profile.update({
             where: { userId: review.recipientId },
-            data: { rating: avg }
+            data: { rating: avg },
         });
 
         res.json({ success: true });
@@ -1005,14 +1018,14 @@ class ApiV1Endpoints {
 
         const tokenStr = req.cookies[AUTH_COOKIE_NAME];
         if (!tokenStr) {
-             res.status(401).json({ success: false, error: "Unauthorized" });
-             return;
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
         }
 
         const token = Security.decodeToken<IAuthToken>(tokenStr);
         if (!token) {
-             res.status(401).json({ success: false, error: "Invalid token" });
-             return;
+            res.status(401).json({ success: false, error: "Invalid token" });
+            return;
         }
 
         const { id } = req.body;
@@ -1022,7 +1035,7 @@ class ApiV1Endpoints {
         }
 
         const message = await db.message.findUnique({
-             where: { id }
+            where: { id },
         });
 
         if (!message) {
@@ -1037,7 +1050,7 @@ class ApiV1Endpoints {
         }
 
         await db.message.delete({
-            where: { id }
+            where: { id },
         });
 
         res.json({ success: true });
@@ -1049,7 +1062,7 @@ class ApiV1Endpoints {
         // 1. Authenticate the socket connection
         const cookies = parse(socket.handshake.headers.cookie || "");
         const tokenStr = cookies[AUTH_COOKIE_NAME];
-        
+
         if (!tokenStr) {
             socket.disconnect(true);
             return;
@@ -1063,7 +1076,7 @@ class ApiV1Endpoints {
 
         const user = await db.user.findUnique({
             where: { id: token.sub },
-            select: { handle: true }
+            select: { handle: true },
         });
 
         if (!user) {
@@ -1076,23 +1089,29 @@ class ApiV1Endpoints {
         console.log(`Socket connected: ${handle} (${socket.id})`);
 
         socket.on("message", (message: ChatMessage) => {
-             try { this.chatMessage(socket, message, handle); }
-             catch (err) { console.error("Error in chatMessage:", err); }
+            try {
+                this.chatMessage(socket, message, handle);
+            } catch (err) {
+                console.error("Error in chatMessage:", err);
+            }
         });
 
         socket.on("disconnect", () => {
-             try { this.chatDisconnect(socket, handle); }
-             catch (err) { console.error("Error in chatDisconnect:", err); }
-        })
+            try {
+                this.chatDisconnect(socket, handle);
+            } catch (err) {
+                console.error("Error in chatDisconnect:", err);
+            }
+        });
     }
 
     public chatMessage(socket: SocketIO.Socket, message: ChatMessage, senderHandle: string) {
         const targetSocket = this.userSockets.get(message.handle);
-        
+
         if (targetSocket) {
             targetSocket.emit("message", {
                 handle: senderHandle,
-                content: message.content
+                content: message.content,
             });
         } else {
             // TODO: Store offline messages

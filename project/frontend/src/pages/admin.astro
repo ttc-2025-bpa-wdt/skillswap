@@ -15,18 +15,18 @@ if (!currentUser || currentUser.role !== UserRole.Admin) {
 // Fetch all users with their profiles
 const allUsers = await db.user.findMany({
     include: {
-        profile: true
+        profile: true,
     },
     orderBy: {
-        createdAt: 'desc'
-    }
+        createdAt: "desc",
+    },
 });
 
 // Fetch all sessions
 const allSessions = await db.session.findMany({
     orderBy: {
-        eventDate: 'desc'
-    }
+        eventDate: "desc",
+    },
 });
 
 const formatDate = (date: Date) => {
@@ -37,7 +37,7 @@ const formatDate = (date: Date) => {
 <GlobalLayout title="Admin Dashboard" user={currentUser}>
     <div class="admin-dashboard">
         <h1>Admin Dashboard</h1>
-        
+
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'users')">Users</button>
             <button class="tab-btn" onclick="openTab(event, 'sessions')">Sessions</button>
@@ -46,47 +46,81 @@ const formatDate = (date: Date) => {
         <div id="users" class="tab-content active">
             <h2>User Management</h2>
             <div class="items-grid">
-                {allUsers.map((user) => (
-                    <div class="item-card">
-                        <div class="item-header">
-                            <span class="badg">{user.role}</span>
-                            <h3>@{user.handle}</h3>
+                {
+                    allUsers.map((user) => (
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="badg">{user.role}</span>
+                                <h3>@{user.handle}</h3>
+                            </div>
+                            <div class="item-details">
+                                <p>
+                                    <strong>ID:</strong> {user.id}
+                                </p>
+                                <p>
+                                    <strong>Email:</strong> {user.email}
+                                </p>
+                                <p>
+                                    <strong>Name:</strong> {user.firstName} {user.lastName}
+                                </p>
+                                <p>
+                                    <strong>Display:</strong> {user.profile?.displayName || "N/A"}
+                                </p>
+                            </div>
+                            <div class="item-actions">
+                                <button
+                                    class="btn-edit"
+                                    onclick={`editUser('${user.handle}', ${JSON.stringify(user.profile).replace(/'/g, "&#39;")})`}
+                                >
+                                    Edit
+                                </button>
+                                <button class="btn-delete" onclick={`deleteUser('${user.handle}')`}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                        <div class="item-details">
-                            <p><strong>ID:</strong> {user.id}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
-                            <p><strong>Display:</strong> {user.profile?.displayName || 'N/A'}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit" onclick={`editUser('${user.handle}', ${JSON.stringify(user.profile).replace(/'/g, "&#39;")})`}>Edit</button>
-                            <button class="btn-delete" onclick={`deleteUser('${user.handle}')`}>Delete</button>
-                        </div>
-                    </div>
-                ))}
+                    ))
+                }
             </div>
         </div>
 
         <div id="sessions" class="tab-content">
             <h2>Session Management</h2>
             <div class="items-grid">
-                {allSessions.map((session) => (
-                    <div class="item-card">
-                        <div class="item-header">
-                            <h3>{session.name}</h3>
+                {
+                    allSessions.map((session) => (
+                        <div class="item-card">
+                            <div class="item-header">
+                                <h3>{session.name}</h3>
+                            </div>
+                            <div class="item-details">
+                                <p>
+                                    <strong>ID:</strong> {session.id}
+                                </p>
+                                <p>
+                                    <strong>Date:</strong> {formatDate(session.eventDate)}
+                                </p>
+                                <p>
+                                    <strong>Difficulty:</strong> {session.difficulty}
+                                </p>
+                                <p>
+                                    <strong>Categories:</strong> {session.categories}
+                                </p>
+                            </div>
+                            <div class="item-actions">
+                                <button
+                                    class="btn-edit"
+                                    onclick={`editSession(${JSON.stringify(session).replace(/'/g, "&#39;")})`}
+                                >
+                                    Edit
+                                </button>
+                                <button class="btn-delete" onclick={`deleteSession('${session.id}')`}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                        <div class="item-details">
-                            <p><strong>ID:</strong> {session.id}</p>
-                            <p><strong>Date:</strong> {formatDate(session.eventDate)}</p>
-                            <p><strong>Difficulty:</strong> {session.difficulty}</p>
-                            <p><strong>Categories:</strong> {session.categories}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit" onclick={`editSession(${JSON.stringify(session).replace(/'/g, "&#39;")})`}>Edit</button>
-                            <button class="btn-delete" onclick={`deleteSession('${session.id}')`}>Delete</button>
-                        </div>
-                    </div>
-                ))}
+                    ))
+                }
             </div>
         </div>
     </div>
@@ -96,7 +130,7 @@ const formatDate = (date: Date) => {
         <form method="dialog" id="editUserForm">
             <h3>Edit User</h3>
             <input type="hidden" name="handle" id="edit_user_handle" />
-            
+
             <label>
                 Display Name:
                 <input type="text" name="displayName" id="edit_user_displayName" />
@@ -130,7 +164,7 @@ const formatDate = (date: Date) => {
         <form method="dialog" id="editSessionForm">
             <h3>Edit Session</h3>
             <input type="hidden" name="id" id="edit_session_id" />
-            
+
             <label>
                 Name:
                 <input type="text" name="name" id="edit_session_name" />
@@ -162,7 +196,6 @@ const formatDate = (date: Date) => {
             </div>
         </form>
     </dialog>
-
 </GlobalLayout>
 
 <script>
@@ -173,7 +206,7 @@ const formatDate = (date: Date) => {
 
 <script is:inline>
     // Tab switching
-    window.openTab = function(evt, tabName) {
+    window.openTab = function (evt, tabName) {
         var i, tabcontent, tabbuttons;
         tabcontent = document.getElementsByClassName("tab-content");
         for (i = 0; i < tabcontent.length; i++) {
@@ -187,130 +220,143 @@ const formatDate = (date: Date) => {
         document.getElementById(tabName).style.display = "block";
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
-    }
+    };
 
     // Modal helpers
-    window.closeModal = function(id) {
+    window.closeModal = function (id) {
         document.getElementById(id).close();
-    }
+    };
 
     // --- User Actions ---
 
-    window.deleteUser = async function(handle) {
-        if (!await window.showConfirm(`Are you sure you want to delete user @${handle}?`, "Delete User")) return;
+    window.deleteUser = async function (handle) {
+        if (!(await window.showConfirm(`Are you sure you want to delete user @${handle}?`, "Delete User"))) return;
 
         try {
             const res = await fetch(`/api/v1/user?handle=${handle}`, {
-                method: 'DELETE',
+                method: "DELETE",
             });
             const data = await res.json();
             if (data.success) {
-                await window.showAlert('User deleted successfully');
+                await window.showAlert("User deleted successfully");
                 window.location.reload();
             } else {
-                await window.showAlert('Error: ' + data.error);
+                await window.showAlert("Error: " + data.error);
             }
         } catch (e) {
-            await window.showAlert('Request failed');
+            await window.showAlert("Request failed");
         }
-    }
+    };
 
-    window.editUser = function(handle, profile) {
+    window.editUser = function (handle, profile) {
         profile = profile || {};
-        document.getElementById('edit_user_handle').value = handle;
-        document.getElementById('edit_user_displayName').value = profile.displayName || '';
-        document.getElementById('edit_user_avatarUrl').value = profile.avatarUrl || '';
-        document.getElementById('edit_user_bio').value = profile.bio || '';
-        
+        document.getElementById("edit_user_handle").value = handle;
+        document.getElementById("edit_user_displayName").value = profile.displayName || "";
+        document.getElementById("edit_user_avatarUrl").value = profile.avatarUrl || "";
+        document.getElementById("edit_user_bio").value = profile.bio || "";
+
         // Tags/Skills could be arrays or strings in DB, checking assumption
         // The API expects arrays, but we transmit as JSON.
         // Assuming the `profile` object passed here is from Prisma.
         // Prisma stores JSON as string mostly if using sqlite/simple types, or actual JSON object.
         // The DOCS says "API expects JSON body values" for tags.
         // In the UI form we use comma separated strings.
-        
+
         let tags = profile.tags;
-        if (typeof tags === 'string') {
-            try { tags = JSON.parse(tags); } catch(e) {}
+        if (typeof tags === "string") {
+            try {
+                tags = JSON.parse(tags);
+            } catch (e) {}
         }
-        document.getElementById('edit_user_tags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
+        document.getElementById("edit_user_tags").value = Array.isArray(tags) ? tags.join(", ") : tags || "";
 
         let skills = profile.skills;
-        if (typeof skills === 'string') {
-            try { skills = JSON.parse(skills); } catch(e) {}
+        if (typeof skills === "string") {
+            try {
+                skills = JSON.parse(skills);
+            } catch (e) {}
         }
-        document.getElementById('edit_user_skills').value = Array.isArray(skills) ? skills.join(', ') : (skills || '');
+        document.getElementById("edit_user_skills").value = Array.isArray(skills) ? skills.join(", ") : skills || "";
 
-        document.getElementById('editUserModal').showModal();
-    }
+        document.getElementById("editUserModal").showModal();
+    };
 
-    document.getElementById('editUserForm').onsubmit = async function(e) {
+    document.getElementById("editUserForm").onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(e.target);
-        
-        const tagsStr = formData.get('tags');
-        const tags = tagsStr ? tagsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-        const skillsStr = formData.get('skills');
-        const skills = skillsStr ? skillsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const tagsStr = formData.get("tags");
+        const tags = tagsStr
+            ? tagsStr
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+            : [];
+
+        const skillsStr = formData.get("skills");
+        const skills = skillsStr
+            ? skillsStr
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+            : [];
 
         const payload = {
-            handle: formData.get('handle'),
-            displayName: formData.get('displayName'),
-            avatarUrl: formData.get('avatarUrl'),
-            bio: formData.get('bio'),
+            handle: formData.get("handle"),
+            displayName: formData.get("displayName"),
+            avatarUrl: formData.get("avatarUrl"),
+            bio: formData.get("bio"),
             tags: tags,
-            skills: skills
+            skills: skills,
         };
 
         try {
-            const res = await fetch('/api/v1/user', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+            const res = await fetch("/api/v1/user", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (data.success) {
-                await window.showAlert('User updated');
+                await window.showAlert("User updated");
                 window.location.reload();
             } else {
-                await window.showAlert('Error: ' + data.error);
+                await window.showAlert("Error: " + data.error);
             }
         } catch (e) {
-            await window.showAlert('Request failed');
+            await window.showAlert("Request failed");
         }
-    }
-
+    };
 
     // --- Session Actions ---
 
-    window.deleteSession = async function(id) {
-        if (!await window.showConfirm(`Delete session ${id}?`, "Delete Session")) return;
+    window.deleteSession = async function (id) {
+        if (!(await window.showConfirm(`Delete session ${id}?`, "Delete Session"))) return;
 
         try {
-            const res = await fetch('/api/v1/session', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id }) 
+            const res = await fetch("/api/v1/session", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
             });
             const data = await res.json();
             if (data.success) {
-                await window.showAlert('Session deleted');
+                await window.showAlert("Session deleted");
                 window.location.reload();
             } else {
-                await window.showAlert('Error: ' + data.error);
+                await window.showAlert("Error: " + data.error);
             }
         } catch (e) {
-            await window.showAlert('Request failed');
+            await window.showAlert("Request failed");
         }
-    }
+    };
 
-    window.editSession = function(session) {
-        document.getElementById('edit_session_id').value = session.id;
-        document.getElementById('edit_session_name').value = session.name;
-        document.getElementById('edit_session_prereqs').value = session.prereqs || '';
-        document.getElementById('edit_session_difficulty').value = session.difficulty;
-        
+    window.editSession = function (session) {
+        document.getElementById("edit_session_id").value = session.id;
+        document.getElementById("edit_session_name").value = session.name;
+        document.getElementById("edit_session_prereqs").value = session.prereqs || "";
+        document.getElementById("edit_session_difficulty").value = session.difficulty;
+
         // Date handling
         // session.eventDate is likely ISO string or Date object from JSON
         if (session.eventDate) {
@@ -318,53 +364,60 @@ const formatDate = (date: Date) => {
                 // Input datetime-local needs YYYY-MM-DDThh:mm
                 const d = new Date(session.eventDate);
                 // Adjust for timezone offset for input value
-                const localIso = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-                document.getElementById('edit_session_eventDate').value = localIso;
-            } catch(e) {}
+                const localIso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                document.getElementById("edit_session_eventDate").value = localIso;
+            } catch (e) {}
         }
 
         let cats = session.categories;
-        if (typeof cats === 'string') {
-           try { cats = JSON.parse(cats); } catch(e) {}
+        if (typeof cats === "string") {
+            try {
+                cats = JSON.parse(cats);
+            } catch (e) {}
         }
-        document.getElementById('edit_session_categories').value = Array.isArray(cats) ? cats.join(', ') : (cats || '');
+        document.getElementById("edit_session_categories").value = Array.isArray(cats) ? cats.join(", ") : cats || "";
 
-        document.getElementById('editSessionModal').showModal();
-    }
+        document.getElementById("editSessionModal").showModal();
+    };
 
-    document.getElementById('editSessionForm').onsubmit = async function(e) {
+    document.getElementById("editSessionForm").onsubmit = async function (e) {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-        const catsStr = formData.get('categories');
-        const categories = catsStr ? catsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const catsStr = formData.get("categories");
+        const categories = catsStr
+            ? catsStr
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+            : [];
 
         const payload = {
-            id: formData.get('id'),
-            name: formData.get('name'),
-            prereqs: formData.get('prereqs'),
-            difficulty: formData.get('difficulty'),
-            eventDate: new Date(formData.get('eventDate')).toISOString(),
-            categories: categories
+            id: formData.get("id"),
+            name: formData.get("name"),
+            prereqs: formData.get("prereqs"),
+            difficulty: formData.get("difficulty"),
+            eventDate: new Date(formData.get("eventDate")).toISOString(),
+            categories: categories,
         };
 
         try {
-            const res = await fetch('/api/v1/session', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+            const res = await fetch("/api/v1/session", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (data.success) {
-                await window.showAlert('Session updated');
+                await window.showAlert("Session updated");
                 window.location.reload();
             } else {
-                await window.showAlert('Error: ' + data.error);
+                await window.showAlert("Error: " + data.error);
             }
         } catch (e) {
-            await window.showAlert('Request failed');
+            await window.showAlert("Request failed");
         }
-    }
+    };
 </script>
 
 <style lang="scss">
@@ -376,7 +429,7 @@ const formatDate = (date: Date) => {
         .tabs {
             margin-bottom: 2rem;
             border-bottom: 2px solid var(--accent-3);
-            
+
             button {
                 background: none;
                 border: none;
@@ -384,7 +437,7 @@ const formatDate = (date: Date) => {
                 font-size: 1.1rem;
                 cursor: pointer;
                 color: var(--foreground);
-                
+
                 &.active {
                     border-bottom: 2px solid var(--accent-1);
                     color: var(--accent-1);
@@ -412,7 +465,7 @@ const formatDate = (date: Date) => {
         background: var(--card-bg);
         padding: 1.5rem;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border: 1px solid var(--accent-3);
         display: flex;
         flex-direction: column;
@@ -422,7 +475,10 @@ const formatDate = (date: Date) => {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            h3 { margin: 0; font-size: 1.2rem; }
+            h3 {
+                margin: 0;
+                font-size: 1.2rem;
+            }
             .badg {
                 font-size: 0.8rem;
                 background: var(--accent-3);
@@ -434,7 +490,10 @@ const formatDate = (date: Date) => {
         .item-details {
             font-size: 0.9rem;
             color: var(--foreground-muted);
-            p { margin: 0.2rem 0; word-break: break-word; }
+            p {
+                margin: 0.2rem 0;
+                word-break: break-word;
+            }
         }
 
         .item-actions {
@@ -442,16 +501,22 @@ const formatDate = (date: Date) => {
             padding-top: 1rem;
             display: flex;
             gap: 1rem;
-            
+
             button {
                 flex: 1;
                 padding: 0.5rem;
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
-                
-                &.btn-edit { background: var(--secondary); color: white; }
-                &.btn-delete { background: var(--error, #e74c3c); color: white; }
+
+                &.btn-edit {
+                    background: var(--secondary);
+                    color: white;
+                }
+                &.btn-delete {
+                    background: var(--error, #e74c3c);
+                    color: white;
+                }
             }
         }
     }
@@ -461,13 +526,13 @@ const formatDate = (date: Date) => {
         border: none;
         border-radius: 8px;
         background: var(--card-bg);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         max-width: 500px;
         width: 90%;
         color: var(--foreground);
 
         &::backdrop {
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
         }
 
         form {
@@ -482,7 +547,9 @@ const formatDate = (date: Date) => {
                 font-weight: 500;
             }
 
-            input, textarea, select {
+            input,
+            textarea,
+            select {
                 padding: 0.5rem;
                 border: 1px solid var(--accent-3);
                 border-radius: 4px;
@@ -490,22 +557,30 @@ const formatDate = (date: Date) => {
                 color: var(--foreground);
             }
 
-            textarea { min-height: 100px; }
+            textarea {
+                min-height: 100px;
+            }
 
             .modal-actions {
                 display: flex;
                 justify-content: flex-end;
                 gap: 1rem;
                 margin-top: 1rem;
-                
+
                 button {
                     padding: 0.5rem 1.5rem;
                     cursor: pointer;
                     border: none;
                     border-radius: 4px;
-                    
-                    &[type="submit"] { background: var(--primary); color: white; }
-                    &[type="button"] { background: var(--secondary); color: white; }
+
+                    &[type="submit"] {
+                        background: var(--primary);
+                        color: white;
+                    }
+                    &[type="button"] {
+                        background: var(--secondary);
+                        color: white;
+                    }
                 }
             }
         }

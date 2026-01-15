@@ -19,7 +19,7 @@ let eventDateString = "";
 
 if (id) {
     session = await db.session.findUnique({
-        where: { id }
+        where: { id },
     });
 
     if (!session) {
@@ -51,7 +51,6 @@ if (id) {
 } else {
     return Astro.redirect("/dashboard");
 }
-
 ---
 
 <Layout title="Edit Session" desc="Edit your session details">
@@ -69,22 +68,12 @@ if (id) {
 
                     <div class="form-group">
                         <label for="title">Session Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={session.name}
-                            required
-                        />
+                        <input type="text" id="title" name="title" value={session.name} required />
                     </div>
 
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows="4"
-                            required>{session.description}</textarea>
+                        <textarea id="description" name="description" rows="4" required>{session.description}</textarea>
                     </div>
 
                     <div class="form-row">
@@ -106,7 +95,9 @@ if (id) {
                             <select id="difficulty" name="difficulty" required>
                                 <option value="" disabled>Select difficulty</option>
                                 <option value="beginner" selected={session.difficulty === "beginner"}>Beginner</option>
-                                <option value="intermediate" selected={session.difficulty === "intermediate"}>Intermediate</option>
+                                <option value="intermediate" selected={session.difficulty === "intermediate"}
+                                    >Intermediate</option
+                                >
                                 <option value="advanced" selected={session.difficulty === "advanced"}>Advanced</option>
                             </select>
                         </div>
@@ -133,7 +124,13 @@ if (id) {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="date-time">Date & Time</label>
-                            <input type="datetime-local" id="date-time" name="date-time" value={eventDateString} required />
+                            <input
+                                type="datetime-local"
+                                id="date-time"
+                                name="date-time"
+                                value={eventDateString}
+                                required
+                            />
                         </div>
 
                         <div class="form-group">
@@ -271,7 +268,7 @@ if (id) {
 
     form?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+
         const btn = form.querySelector('button[type="submit"]');
         let originalText = "";
         if (btn) {
@@ -281,7 +278,7 @@ if (id) {
         }
 
         const formData = new FormData(form);
-        const id = form.getAttribute('data-id');
+        const id = form.getAttribute("data-id");
 
         try {
             const res = await fetch("/api/v1/session", {
@@ -296,8 +293,8 @@ if (id) {
                     difficulty: formData.get("difficulty"),
                     eventDate: formData.get("date-time"),
                     duration: formData.get("duration"),
-                    meetingUrl: formData.get("zoom-link")
-                })
+                    meetingUrl: formData.get("zoom-link"),
+                }),
             });
 
             const result = await res.json();

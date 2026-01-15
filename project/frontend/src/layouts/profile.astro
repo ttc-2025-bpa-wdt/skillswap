@@ -14,7 +14,7 @@ const { displayName, userId, avatarUrl, bio, tags, stats, skills } = Astro.props
 const tagStyle = tags && tags.map((tag) => profileTags[tag]).filter(Boolean);
 const user = await User.read(userId, UserFilter.Id);
 
-const offeredSkills = tags ? tags.filter(t => !profileTags[t]) : [];
+const offeredSkills = tags ? tags.filter((t) => !profileTags[t]) : [];
 const soughtSkills = skills || [];
 ---
 
@@ -68,32 +68,34 @@ const soughtSkills = skills || [];
 
             <Card>
                 <h2>Skills</h2>
-                
-                {offeredSkills.length > 0 && (
-                    <div class="skills-section">
-                        <h3>Offered</h3>
-                        <div class="skills-container">
-                            {offeredSkills.map(skill => (
-                                <span class="skill-tag">{skill}</span>
-                            ))}
-                        </div>
-                    </div>
-                )}
 
-                {soughtSkills.length > 0 && (
-                    <div class="skills-section">
-                        <h3>Sought</h3>
-                        <div class="skills-container">
-                            {soughtSkills.map(skill => (
-                                <span class="skill-tag">{skill}</span>
-                            ))}
+                {
+                    offeredSkills.length > 0 && (
+                        <div class="skills-section">
+                            <h3>Offered</h3>
+                            <div class="skills-container">
+                                {offeredSkills.map((skill) => (
+                                    <span class="skill-tag">{skill}</span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
-                {offeredSkills.length === 0 && soughtSkills.length === 0 && (
-                    <p>No skills listed yet.</p>
-                )}
+                {
+                    soughtSkills.length > 0 && (
+                        <div class="skills-section">
+                            <h3>Sought</h3>
+                            <div class="skills-container">
+                                {soughtSkills.map((skill) => (
+                                    <span class="skill-tag">{skill}</span>
+                                ))}
+                            </div>
+                        </div>
+                    )
+                }
+
+                {offeredSkills.length === 0 && soughtSkills.length === 0 && <p>No skills listed yet.</p>}
             </Card>
         </div>
     </div>

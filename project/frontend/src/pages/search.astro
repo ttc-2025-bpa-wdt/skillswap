@@ -13,16 +13,20 @@ const query = Astro.url.searchParams.get("q")?.trim();
 const profiles = query ? await Profile.search(query) : [];
 const sessions = query ? await Session.search(query) : [];
 
-const sessionData = await Promise.all(sessions.map(async (session) => {
-    const user = await User.read(session.userId, UserFilter.Id);
-    const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
-    return { session, user, profile };
-}));
+const sessionData = await Promise.all(
+    sessions.map(async (session) => {
+        const user = await User.read(session.userId, UserFilter.Id);
+        const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
+        return { session, user, profile };
+    }),
+);
 
-const profileData = await Promise.all(profiles.map(async (profile) => {
-    const user = await User.read(profile.userId, UserFilter.Id);
-    return { profile, user };
-}));
+const profileData = await Promise.all(
+    profiles.map(async (profile) => {
+        const user = await User.read(profile.userId, UserFilter.Id);
+        return { profile, user };
+    }),
+);
 
 let foundLabel = "Found ";
 

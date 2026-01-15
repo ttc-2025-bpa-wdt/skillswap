@@ -8,15 +8,15 @@
     export let redirects: boolean = true;
     export let user: IUser | null = null;
     export let profile: IProfile | null = null;
-    
+
     let { id, name, userId, difficulty, categories, prereqs, createdAt, eventDate } = payload;
 
     function formatDateShort(dateStr: string) {
         const d = new Date(dateStr);
         return d.toISOString().split("T")[0];
     }
-    
-    export async function load(): Promise<{ user: IUser, profile: IProfile }> {
+
+    export async function load(): Promise<{ user: IUser; profile: IProfile }> {
         const user = await User.read(userId, UserFilter.Id);
         const profile = await Profile.read(user.profileId, ProfileFilter.Id);
         return { user, profile };
@@ -88,7 +88,7 @@
     </Card>
 {:else}
     {#await load() then data}
-        <svelte:self payload={payload} redirects={redirects} user={data.user} profile={data.profile} />
+        <svelte:self {payload} {redirects} user={data.user} profile={data.profile} />
     {:catch error}
         <div class="session-card error">
             <p>Error loading session: {error.message}</p>

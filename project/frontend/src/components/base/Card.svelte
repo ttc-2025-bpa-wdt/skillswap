@@ -6,7 +6,7 @@
     export { classes as class };
 
     const element = href ? "a" : "div";
-    classes = (`card ${classes}`).trim();
+    classes = `card ${classes}`.trim();
 </script>
 
 <svelte:element this={element} class={classes} {href} {...$$restProps}>

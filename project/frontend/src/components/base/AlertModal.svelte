@@ -1,9 +1,9 @@
 <script>
-    import { alertStore } from '../../lib/ui';
-    import Button from './Button.svelte';
+    import { alertStore } from "../../lib/ui";
+    import Button from "./Button.svelte";
 
     let state;
-    alertStore.subscribe(value => {
+    alertStore.subscribe((value) => {
         state = value;
     });
 
@@ -15,12 +15,12 @@
 </script>
 
 {#if state.isOpen}
-    <div class="modal-backdrop" on:click={() => state.type !== 'confirm' && handleClose()}>
+    <div class="modal-backdrop" on:click={() => state.type !== "confirm" && handleClose()}>
         <div class="modal-content" on:click|stopPropagation>
             <h3>{state.title}</h3>
             <p>{state.message}</p>
             <div class="modal-actions">
-                {#if state.type === 'confirm'}
+                {#if state.type === "confirm"}
                     <Button onclick={() => handleClose(false)} variant="ghost">Cancel</Button>
                     <Button onclick={() => handleClose(true)} variant="primary">Confirm</Button>
                 {:else}
@@ -54,12 +54,12 @@
         max-width: 500px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         animation: fadeIn 0.2s ease-out;
-        
+
         h3 {
-             margin-top: 0;
-             margin-bottom: 1rem;
-             color: var(--foreground);
-             font-family: 'Montserrat', sans-serif;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--foreground);
+            font-family: "Montserrat", sans-serif;
         }
 
         p {
@@ -78,7 +78,13 @@
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>

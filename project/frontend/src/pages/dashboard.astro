@@ -13,52 +13,55 @@ if (!token) return Astro.redirect("/auth/login");
 
 const sessions = await db.session.findMany({
     where: {
-        OR: [
-            { userId: token.sub },
-            { registrations: { some: { userId: token.sub } } }
-        ]
+        OR: [{ userId: token.sub }, { registrations: { some: { userId: token.sub } } }],
     },
-    orderBy: { eventDate: 'asc' }
+    orderBy: { eventDate: "asc" },
 });
 
-const mySessions = sessions.map(s => ({
+const mySessions = sessions.map((s) => ({
     id: s.id,
     title: s.name,
     zoomLink: s.meetingUrl || "",
-    time: s.eventDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }),
+    time: s.eventDate.toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }),
     status: s.eventDate > new Date() ? "Upcoming" : "Past",
     details: s.description || "",
-    isHost: s.userId === token.sub
+    isHost: s.userId === token.sub,
 }));
 
 const reviews = await db.review.findMany({
-    where: { 
+    where: {
         recipientId: token.sub,
-        rating: { gt: 0 }
+        rating: { gt: 0 },
     },
     include: {
         author: {
             include: {
-                profile: true
-            }
+                profile: true,
+            },
         },
-        session: true
+        session: true,
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: "desc" },
 });
 
 const messages = await db.message.findMany({
     where: {
-        recipientId: token.sub
+        recipientId: token.sub,
     },
     include: {
         sender: {
             include: {
-                profile: true
-            }
-        }
+                profile: true,
+            },
+        },
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: "desc" },
 });
 
 const allTopics = [
@@ -71,7 +74,7 @@ const allTopics = [
     { icon: "🧘", title: "Wellness", description: "Yoga, Meditation, Fitness" },
     { icon: "💰", title: "Finance", description: "Investing, Budgeting, Taxes" },
     { icon: "📢", title: "Marketing", description: "Social Media, SEO, Branding" },
-    { icon: "✍️", title: "Writing", description: "Creative, Technical, Copy" }
+    { icon: "✍️", title: "Writing", description: "Creative, Technical, Copy" },
 ];
 
 const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -88,23 +91,40 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
             <Card class="dashboard-card full-width">
                 <div class="card-header">
                     <h2>Your Sessions</h2>
-                    <Button size="sm" href="/session/create">
-                        Create New Session
-                    </Button>
+                    <Button size="sm" href="/session/create"> Create New Session </Button>
                 </div>
                 <div class="teaching-list">
-                    {mySessions.map((session) => (
-                        <div class="session-item-detailed">
-                            <div class="session-main">
-                                <div class="session-header">
-                                    <h3>{session.title}</h3>
-                                    <span class={`status-badge ${session.status.toLowerCase()}`}>
-                                        {session.status}
-                                    </span>
-                                </div>
-                                <div class="session-details">
-                                    {session.zoomLink && (
-                                        <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
+                    {
+                        mySessions.map((session) => (
+                            <div class="session-item-detailed">
+                                <div class="session-main">
+                                    <div class="session-header">
+                                        <h3>{session.title}</h3>
+                                        <span class={`status-badge ${session.status.toLowerCase()}`}>
+                                            {session.status}
+                                        </span>
+                                    </div>
+                                    <div class="session-details">
+                                        {session.zoomLink && (
+                                            <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                >
+                                                    <polygon points="23 7 16 12 23 17 23 7" />
+                                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                                </svg>
+                                                Zoom Link
+                                            </a>
+                                        )}
+                                        <span class="detail-item">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width="16"
@@ -116,149 +136,171 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                             >
-                                                <polygon points="23 7 16 12 23 17 23 7" />
-                                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                                <circle cx="12" cy="12" r="10" />
+                                                <polyline points="12 6 12 12 16 14" />
                                             </svg>
-                                            Zoom Link
-                                        </a>
-                                    )}
-                                    <span class="detail-item">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        >
-                                            <circle cx="12" cy="12" r="10" />
-                                            <polyline points="12 6 12 12 16 14" />
-                                        </svg>
-                                        {session.time}
-                                    </span>
+                                            {session.time}
+                                        </span>
+                                    </div>
+                                    <p class="notes">{session.details}</p>
                                 </div>
-                                <p class="notes">{session.details}</p>
-                            </div>
-                            <div class="session-actions">
-                                {session.isHost && (
-                                    <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
-                                        Edit
+                                <div class="session-actions">
+                                    {session.isHost && (
+                                        <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
+                                            Edit
+                                        </Button>
+                                    )}
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        class="text-danger btn-cancel-session"
+                                        data-id={session.id}
+                                        data-is-host={session.isHost.toString()}
+                                    >
+                                        {session.isHost ? "Cancel" : "Leave"}
                                     </Button>
-                                )}
-                                <Button size="sm" variant="ghost" class="text-danger btn-cancel-session" data-id={session.id} data-is-host={session.isHost.toString()}>
-                                    {session.isHost ? "Cancel" : "Leave"}
-                                </Button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                    {mySessions.length === 0 && (
-                        <div class="empty-state">
-                            <p>You haven't created any sessions yet.</p>
-                        </div>
-                    )}
+                        ))
+                    }
+                    {
+                        mySessions.length === 0 && (
+                            <div class="empty-state">
+                                <p>You haven't created any sessions yet.</p>
+                            </div>
+                        )
+                    }
                 </div>
             </Card>
         </section>
 
-        {messages.length > 0 && (
-            <section class="reviews-section">
-                <div class="section-header">
-                    <h2>Messages</h2>
-                </div>
-                
-                <div class="reviews-grid">
-                    {messages.map((message) => (
-                        <Card class="review-card message-card">
-                            <div class="review-header">
-                                <div class="reviewer-info">
-                                    <img 
-                                        src={message.sender.profile?.avatarUrl || "https://ui-avatars.com/api/?name=" + message.sender.handle} 
-                                        alt={message.sender.profile?.displayName} 
-                                        class="avatar" 
-                                    />
-                                    <div>
-                                        <span class="name">{message.sender.profile?.displayName || message.sender.handle}</span>
-                                        <div class="meta-info">
-                                            <span>Message</span>
+        {
+            messages.length > 0 && (
+                <section class="reviews-section">
+                    <div class="section-header">
+                        <h2>Messages</h2>
+                    </div>
+
+                    <div class="reviews-grid">
+                        {messages.map((message) => (
+                            <Card class="review-card message-card">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <img
+                                            src={
+                                                message.sender.profile?.avatarUrl ||
+                                                "https://ui-avatars.com/api/?name=" + message.sender.handle
+                                            }
+                                            alt={message.sender.profile?.displayName}
+                                            class="avatar"
+                                        />
+                                        <div>
+                                            <span class="name">
+                                                {message.sender.profile?.displayName || message.sender.handle}
+                                            </span>
+                                            <div class="meta-info">
+                                                <span>Message</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="review-date">
-                                    {message.createdAt.toLocaleDateString()}
-                                    <button class="btn-delete-message" data-id={message.id} aria-label="Delete message">
-                                        <iconify-icon icon="material-symbols:close" width="16" height="16"></iconify-icon>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="review-content">
-                                <p>"{message.content}"</p>
-                            </div>
-
-                            {message.sessionName && (
-                                <div class="review-footer">
-                                    <small> regarding: {message.sessionName}</small>
-                                </div>
-                            )}
-                        </Card>
-                    ))}
-                </div>
-            </section>
-        )}
-
-        {reviews.length > 0 && (
-            <section class="reviews-section">
-                <div class="section-header">
-                    <h2>Student Ratings</h2>
-                </div>
-                
-                <div class="reviews-grid">
-                    {reviews.map((review) => (
-                        <Card class="review-card">
-                            <div class="review-header">
-                                <div class="reviewer-info">
-                                    <img 
-                                        src={review.author.profile?.avatarUrl || "https://ui-avatars.com/api/?name=" + review.author.handle} 
-                                        alt={review.author.profile?.displayName} 
-                                        class="avatar" 
-                                    />
-                                    <div>
-                                        <span class="name">{review.author.profile?.displayName || review.author.handle}</span>
-                                        <div class="stars">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <iconify-icon 
-                                                    icon={i < review.rating ? "material-symbols:star" : "material-symbols:star-outline"} 
-                                                    style={{ color: "var(--base-yellow)" }}
-                                                />
-                                            ))}
-                                        </div>
+                                    <div class="review-date">
+                                        {message.createdAt.toLocaleDateString()}
+                                        <button
+                                            class="btn-delete-message"
+                                            data-id={message.id}
+                                            aria-label="Delete message"
+                                        >
+                                            <iconify-icon icon="material-symbols:close" width="16" height="16" />
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="review-date">
-                                    {review.createdAt.toLocaleDateString()}
-                                    <button class="btn-delete-review" data-id={review.id} aria-label="Hide rating" title="Hide this rating">
-                                        <iconify-icon icon="material-symbols:visibility-off-outline" width="16" height="16"></iconify-icon>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="review-content">
-                                <p>"{review.comment}"</p>
-                            </div>
 
-                            {review.session && (
-                                <div class="review-footer">
-                                    <small>Session: {review.session.name}</small>
+                                <div class="review-content">
+                                    <p>"{message.content}"</p>
                                 </div>
-                            )}
-                        </Card>
-                    ))}
-                </div>
-            </section>
-        )}
+
+                                {message.sessionName && (
+                                    <div class="review-footer">
+                                        <small> regarding: {message.sessionName}</small>
+                                    </div>
+                                )}
+                            </Card>
+                        ))}
+                    </div>
+                </section>
+            )
+        }
+
+        {
+            reviews.length > 0 && (
+                <section class="reviews-section">
+                    <div class="section-header">
+                        <h2>Student Ratings</h2>
+                    </div>
+
+                    <div class="reviews-grid">
+                        {reviews.map((review) => (
+                            <Card class="review-card">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <img
+                                            src={
+                                                review.author.profile?.avatarUrl ||
+                                                "https://ui-avatars.com/api/?name=" + review.author.handle
+                                            }
+                                            alt={review.author.profile?.displayName}
+                                            class="avatar"
+                                        />
+                                        <div>
+                                            <span class="name">
+                                                {review.author.profile?.displayName || review.author.handle}
+                                            </span>
+                                            <div class="stars">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <iconify-icon
+                                                        icon={
+                                                            i < review.rating
+                                                                ? "material-symbols:star"
+                                                                : "material-symbols:star-outline"
+                                                        }
+                                                        style={{ color: "var(--base-yellow)" }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="review-date">
+                                        {review.createdAt.toLocaleDateString()}
+                                        <button
+                                            class="btn-delete-review"
+                                            data-id={review.id}
+                                            aria-label="Hide rating"
+                                            title="Hide this rating"
+                                        >
+                                            <iconify-icon
+                                                icon="material-symbols:visibility-off-outline"
+                                                width="16"
+                                                height="16"
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="review-content">
+                                    <p>"{review.comment}"</p>
+                                </div>
+
+                                {review.session && (
+                                    <div class="review-footer">
+                                        <small>Session: {review.session.name}</small>
+                                    </div>
+                                )}
+                            </Card>
+                        ))}
+                    </div>
+                </section>
+            )
+        }
 
         <section class="discover-section">
             <div class="section-header">
@@ -277,13 +319,15 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                     <div class="ideas-section">
                         <h3>Need Some Ideas?</h3>
                         <div class="categories-grid">
-                            {suggestedTopics.map(topic => (
-                                <Card class="category-card">
-                                    <span class="icon">{topic.icon}</span>
-                                    <h3>{topic.title}</h3>
-                                    <p>{topic.description}</p>
-                                </Card>
-                            ))}
+                            {
+                                suggestedTopics.map((topic) => (
+                                    <Card class="category-card">
+                                        <span class="icon">{topic.icon}</span>
+                                        <h3>{topic.title}</h3>
+                                        <p>{topic.description}</p>
+                                    </Card>
+                                ))
+                            }
                         </div>
                     </div>
 
@@ -326,7 +370,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1.5rem;
-        
+
         @media (max-width: 600px) {
             grid-template-columns: 1fr;
             gap: 1rem;
@@ -525,7 +569,6 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
         }
     }
 
-
     .reviews-section {
         margin-bottom: 3rem;
 
@@ -585,8 +628,9 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            
-            .btn-delete-review, .btn-delete-message {
+
+            .btn-delete-review,
+            .btn-delete-message {
                 background: none;
                 border: 1px solid rgba(0, 0, 0, 0.1);
                 cursor: pointer;
@@ -598,7 +642,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                 border-radius: 50%;
                 color: var(--foreground);
                 transition: all 0.2s ease;
-                
+
                 &:hover {
                     background-color: var(--ttc-red);
                     color: white;
@@ -606,16 +650,16 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                     transform: scale(1.1);
                     opacity: 1;
                 }
-                
+
                 iconify-icon {
                     font-size: 16px;
                 }
             }
-            
+
             /* Specific style for visibility/hide button to be blue/neutral instead of red */
             .btn-delete-review:hover {
-                 background-color: var(--accent-1);
-                 border-color: var(--accent-1);
+                background-color: var(--accent-1);
+                border-color: var(--accent-1);
             }
         }
 
@@ -630,13 +674,13 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 
         .review-footer {
             margin-top: auto;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
             padding-top: 0.75rem;
-            
+
             small {
                 font-size: 0.8rem;
                 opacity: 0.7;
-                
+
                 a {
                     color: inherit;
                     text-decoration: underline;
@@ -993,127 +1037,130 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 <script>
     import { showAlert, showConfirm } from "@lib/ui";
 
-    const cancelButtons = document.querySelectorAll('.btn-cancel-session');
+    const cancelButtons = document.querySelectorAll(".btn-cancel-session");
 
-    cancelButtons.forEach(button => {
-        button.addEventListener('click', async (e) => {
+    cancelButtons.forEach((button) => {
+        button.addEventListener("click", async (e) => {
             const buttonEl = e.currentTarget as HTMLButtonElement;
-            const sessionId = buttonEl.getAttribute('data-id');
-            const isHost = buttonEl.getAttribute('data-is-host') === 'true';
+            const sessionId = buttonEl.getAttribute("data-id");
+            const isHost = buttonEl.getAttribute("data-is-host") === "true";
 
-            const confirmMsg = isHost 
-                ? 'Are you sure you want to cancel this session? This action cannot be undone.'
-                : 'Are you sure you want to leave this session?';
+            const confirmMsg = isHost
+                ? "Are you sure you want to cancel this session? This action cannot be undone."
+                : "Are you sure you want to leave this session?";
 
-            if (!await showConfirm(confirmMsg, isHost ? "Cancel Session" : "Leave Session")) {
+            if (!(await showConfirm(confirmMsg, isHost ? "Cancel Session" : "Leave Session"))) {
                 return;
             }
 
             try {
-                const url = isHost ? '/api/v1/session' : '/api/v1/session/register';
+                const url = isHost ? "/api/v1/session" : "/api/v1/session/register";
                 // Host deletes via { id }, student unregisters via { sessionId }
                 const body = isHost ? { id: sessionId } : { sessionId: sessionId };
 
                 const response = await fetch(url, {
-                    method: 'DELETE',
+                    method: "DELETE",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(body),
                 });
 
                 if (response.ok) {
                     window.location.reload();
                 } else {
                     const data = await response.json();
-                    await showAlert(data.error || (isHost ? 'Failed to cancel session' : 'Failed to leave session'), "Error");
+                    await showAlert(
+                        data.error || (isHost ? "Failed to cancel session" : "Failed to leave session"),
+                        "Error",
+                    );
                 }
             } catch (error) {
-                console.error('Error processing request:', error);
-                await showAlert('An error occurred', "Error");
+                console.error("Error processing request:", error);
+                await showAlert("An error occurred", "Error");
             }
         });
     });
 
-    const deleteReviewButtons = document.querySelectorAll('.btn-delete-review');
+    const deleteReviewButtons = document.querySelectorAll(".btn-delete-review");
 
-    deleteReviewButtons.forEach(button => {
-        button.addEventListener('click', async (e) => {
-            if (!await showConfirm('Hide this rating from your dashboard?', "Hide Rating")) {
+    deleteReviewButtons.forEach((button) => {
+        button.addEventListener("click", async (e) => {
+            if (!(await showConfirm("Hide this rating from your dashboard?", "Hide Rating"))) {
                 return;
             }
 
             const buttonEl = e.currentTarget as HTMLButtonElement;
-            const reviewId = buttonEl.getAttribute('data-id');
+            const reviewId = buttonEl.getAttribute("data-id");
 
             try {
-                const response = await fetch('/api/v1/session/rate', {
-                    method: 'DELETE',
+                const response = await fetch("/api/v1/session/rate", {
+                    method: "DELETE",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ id: reviewId })
+                    body: JSON.stringify({ id: reviewId }),
                 });
 
                 if (response.ok) {
                     // Start closing animation
-                    const card = buttonEl.closest('.review-card') as HTMLElement;
+                    const card = buttonEl.closest(".review-card") as HTMLElement;
                     if (card) {
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
+                        card.style.transition = "all 0.3s ease";
+                        card.style.opacity = "0";
+                        card.style.transform = "scale(0.95)";
                         setTimeout(() => card.remove(), 300);
                     } else {
                         window.location.reload();
                     }
                 } else {
-                    console.error('Failed to delete review');
-                    await showAlert('Could not delete review', "Error");
+                    console.error("Failed to delete review");
+                    await showAlert("Could not delete review", "Error");
                 }
             } catch (error) {
-                console.error('Error deleting review:', error);
-                await showAlert('An error occurred', "Error");
+                console.error("Error deleting review:", error);
+                await showAlert("An error occurred", "Error");
             }
         });
     });
 
-    const deleteMessageButtons = document.querySelectorAll('.btn-delete-message');
+    const deleteMessageButtons = document.querySelectorAll(".btn-delete-message");
 
-    deleteMessageButtons.forEach(button => {
-        button.addEventListener('click', async (e) => {
-            if (!await showConfirm('Delete this message?', "Delete Message")) {
+    deleteMessageButtons.forEach((button) => {
+        button.addEventListener("click", async (e) => {
+            if (!(await showConfirm("Delete this message?", "Delete Message"))) {
                 return;
             }
 
             const buttonEl = e.currentTarget as HTMLButtonElement;
-            const messageId = buttonEl.getAttribute('data-id');
+            const messageId = buttonEl.getAttribute("data-id");
 
             try {
-                const response = await fetch('/api/v1/message', {
-                    method: 'DELETE',
+                const response = await fetch("/api/v1/message", {
+                    method: "DELETE",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ id: messageId })
+                    body: JSON.stringify({ id: messageId }),
                 });
 
                 if (response.ok) {
-                    const card = buttonEl.closest('.review-card') as HTMLElement;
-                   if (card) {
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
+                    const card = buttonEl.closest(".review-card") as HTMLElement;
+                    if (card) {
+                        card.style.transition = "all 0.3s ease";
+                        card.style.opacity = "0";
+                        card.style.transform = "scale(0.95)";
                         setTimeout(() => card.remove(), 300);
                     } else {
                         window.location.reload();
                     }
                 } else {
                     const data = await response.json();
-                    await showAlert(data.error || 'Failed to delete message', "Error");
+                    await showAlert(data.error || "Failed to delete message", "Error");
                 }
             } catch (error) {
-                console.error('Error deleting message:', error);
-                await showAlert('An error occurred', "Error");
+                console.error("Error deleting message:", error);
+                await showAlert("An error occurred", "Error");
             }
         });
     });

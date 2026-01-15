@@ -233,7 +233,7 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
 
     form?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+
         const btn = form.querySelector('button[type="submit"]');
         let originalText = "";
         if (btn) {
@@ -256,8 +256,8 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
                     difficulty: formData.get("difficulty"),
                     eventDate: formData.get("date-time"),
                     duration: formData.get("duration"),
-                    meetingUrl: formData.get("zoom-link")
-                })
+                    meetingUrl: formData.get("zoom-link"),
+                }),
             });
 
             const result = await res.json();

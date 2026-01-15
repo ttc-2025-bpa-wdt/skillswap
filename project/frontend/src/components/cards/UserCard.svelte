@@ -5,7 +5,7 @@
 
     export let payload: Partial<IProfile>;
     export let user: IUser | null = null;
-    
+
     const { userId, displayName, avatarUrl, tags, stats, skills } = payload as IProfile;
 
     export async function load(): Promise<{ user: IUser | null }> {
@@ -39,7 +39,7 @@
     </Card>
 {:else}
     {#await load() then data}
-        <svelte:self payload={payload} user={data.user} />
+        <svelte:self {payload} user={data.user} />
     {:catch}
         <div class="user-card error">
             <p>Error loading user</p>
