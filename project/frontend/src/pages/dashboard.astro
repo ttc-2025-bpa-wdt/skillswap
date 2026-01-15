@@ -107,38 +107,12 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                     <div class="session-details">
                                         {session.zoomLink && (
                                             <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="16"
-                                                    height="16"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                >
-                                                    <polygon points="23 7 16 12 23 17 23 7" />
-                                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                                                </svg>
+                                                <iconify-icon icon="mdi:video-outline" width="16" height="16" aria-label="Zoom Link"></iconify-icon>
                                                 Zoom Link
                                             </a>
                                         )}
                                         <span class="detail-item">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                            >
-                                                <circle cx="12" cy="12" r="10" />
-                                                <polyline points="12 6 12 12 16 14" />
-                                            </svg>
+                                            <iconify-icon icon="mdi:clock-outline" width="16" height="16" aria-label="Time"></iconify-icon>
                                             {session.time}
                                         </span>
                                     </div>
@@ -192,6 +166,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                                 "https://ui-avatars.com/api/?name=" + message.sender.handle
                                             }
                                             alt={message.sender.profile?.displayName}
+                                            aria-label={message.sender.profile?.displayName}
                                             class="avatar"
                                         />
                                         <div>
@@ -209,7 +184,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                             class="btn-delete-message"
                                             data-id={message.id}
                                             aria-label="Delete message"
-                                        >
+                                        >aria-label="Delete"></iconify-icon
                                             <iconify-icon icon="material-symbols:close" width="16" height="16" />
                                         </button>
                                     </div>
@@ -249,6 +224,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                                 "https://ui-avatars.com/api/?name=" + review.author.handle
                                             }
                                             alt={review.author.profile?.displayName}
+                                            aria-label={review.author.profile?.displayName}
                                             class="avatar"
                                         />
                                         <div>
@@ -263,6 +239,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                                                 ? "material-symbols:star"
                                                                 : "material-symbols:star-outline"
                                                         }
+                                                        aria-label="Star"
                                                         style={{ color: "var(--base-yellow)" }}
                                                     />
                                                 ))}
@@ -279,6 +256,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                         >
                                             <iconify-icon
                                                 icon="material-symbols:visibility-off-outline"
+                                                aria-label="Hide rating"
                                                 width="16"
                                                 height="16"
                                             />

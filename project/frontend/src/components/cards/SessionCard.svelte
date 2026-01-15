@@ -26,7 +26,7 @@
 {#if user && profile}
     <Card class="session-card" href={redirects ? `/session/${id}` : undefined}>
         <div class="instructor-pane">
-            <img src={profile?.avatarUrl} alt={profile?.displayName} class="avatar" />
+            <img src={profile?.avatarUrl} alt={profile?.displayName} aria-label={profile?.displayName} class="avatar" />
         </div>
         <div class="separator"></div>
 

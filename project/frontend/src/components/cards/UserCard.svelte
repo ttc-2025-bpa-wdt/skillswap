@@ -19,7 +19,7 @@
 {#if user}
     <Card class="user-card" href={`/profile/${handle}`}>
         <div class="user-pane">
-            <img src={avatarUrl} alt={displayName} class="avatar large" />
+            <img src={avatarUrl} alt={displayName} aria-label={displayName} class="avatar large" />
             <div class="rating">
                 {stats.rating.toFixed(1)}
             </div>

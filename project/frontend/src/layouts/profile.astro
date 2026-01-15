@@ -25,7 +25,7 @@ const soughtSkills = skills || [];
             <div class="profile-cover"></div>
             <div class="profile-info-wrapper">
                 <div class="profile-avatar">
-                    {avatarUrl ? <img src={avatarUrl} alt={displayName} /> : <span>{displayName.charAt(0)}</span>}
+                    {avatarUrl ? <img src={avatarUrl} alt={displayName} aria-label={displayName} /> : <span>{displayName.charAt(0)}</span>}
                 </div>
                 <div class="profile-details">
                     <div class="name-row">

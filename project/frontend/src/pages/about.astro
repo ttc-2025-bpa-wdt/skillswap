@@ -87,7 +87,7 @@ const competitionMetadata = {
             {
                 team.map((member) => (
                     <Card class="team-card">
-                        <img src={member.profile.avatarUrl} alt={member.profile.displayName} class="avatar" />
+                        <img src={member.profile.avatarUrl} alt={member.profile.displayName} aria-label={member.profile.displayName} class="avatar" />
                         <h3>
                             {member.profile.displayName.split(" ")[0] /* todo: lol this is hacky */}
                             <br />

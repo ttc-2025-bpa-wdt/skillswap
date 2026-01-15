@@ -38,7 +38,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
                                 <input type="hidden" name="avatarUrl" id="avatar-url-input" value={profile.avatarUrl} />
                                 <div class="avatar-row">
                                     <div class="avatar-current">
-                                        <img src={profile.avatarUrl} alt={profile.displayName} />
+                                        <img src={profile.avatarUrl} alt={profile.displayName} aria-label={profile.displayName} />
                                     </div>
                                     <div class="avatar-info">
                                         <h3>Profile Picture</h3>

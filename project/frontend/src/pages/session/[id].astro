@@ -126,7 +126,7 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
                 <Card class="host-card">
                     <h3>Host</h3>
                     <div class="host-profile">
-                        <img src={profile.avatarUrl} alt={profile.displayName} class="avatar" />
+                        <img src={profile.avatarUrl} alt={profile.displayName} aria-label={profile.displayName} class="avatar" />
                         <div class="host-info">
                             <span class="name">{profile.displayName}</span>
                             <span class="handle">@{user.handle}</span>

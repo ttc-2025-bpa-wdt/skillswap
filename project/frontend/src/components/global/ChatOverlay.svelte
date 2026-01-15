@@ -30,38 +30,8 @@
     <!-- Chat Button -->
     <button id="chat-toggle-btn" class="chat-fab" aria-label="Open Chat">
         <div class="icon-container">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                class="icon-chat"
-            >
-                <path
-                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                ></path>
-            </svg>
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                class="icon-close"
-            >
-                <path
-                    d="M18 6 6 18M6 6l12 12"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                ></path>
-            </svg>
+            <iconify-icon icon="mdi:message-outline" class="icon-chat" width="28" height="28" aria-label="Open Chat"></iconify-icon>
+            <iconify-icon icon="mdi:close" class="icon-close" width="28" height="28" aria-label="Close Chat"></iconify-icon>
         </div>
         <span class="unread-badge">2</span>
     </button>
@@ -73,18 +43,8 @@
         <!-- Omitting detailed interactive logic for brevity as this is a format conversion -->
         <header class="chat-header">
             <div class="header-left">
-                <button id="chat-back-btn" class="icon-btn hidden">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg
-                    >
+                <button id="chat-back-btn" class="icon-btn hidden" aria-label="Back">
+                    <iconify-icon icon="mdi:chevron-left" width="20" height="20" aria-label="Back"></iconify-icon>
                 </button>
                 <div class="header-title">
                     <h3 id="chat-title">Messages</h3>

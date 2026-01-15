@@ -17,7 +17,7 @@
 <nav class="menu-strip">
     {#each menuItems as item}
         <a href={item.href} class:active={activePage === item.href}>
-            <iconify-icon class="icon" icon={item.icon}></iconify-icon>
+            <iconify-icon class="icon" icon={item.icon} aria-label={item.label}></iconify-icon>
             <span>{item.label}</span>
         </a>
     {/each}

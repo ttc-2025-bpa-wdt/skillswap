@@ -17,7 +17,7 @@
 <div class="topbar">
     <div class="logo">
         <a href="/">
-            <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" />
+            <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" aria-label="SkillSwap Logo" />
         </a>
     </div>
 

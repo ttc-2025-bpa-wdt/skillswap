@@ -19,16 +19,16 @@
         <h4>Follow Us</h4>
         <div class="socials">
             <a href="/about#contact" aria-label="Twitter"
-                ><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24"></iconify-icon></a
+                ><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24" aria-label="Twitter"></iconify-icon></a
             >
             <a href="/about#contact" aria-label="Facebook"
-                ><iconify-icon icon="fa7-brands:facebook" width="24" height="24"></iconify-icon></a
+                ><iconify-icon icon="fa7-brands:facebook" width="24" height="24" aria-label="Facebook"></iconify-icon></a
             >
             <a href="/about#contact" aria-label="Instagram"
-                ><iconify-icon icon="fa7-brands:instagram" width="24" height="24"></iconify-icon></a
+                ><iconify-icon icon="fa7-brands:instagram" width="24" height="24" aria-label="Instagram"></iconify-icon></a
             >
             <a href="/about#contact" aria-label="LinkedIn"
-                ><iconify-icon icon="fa7-brands:linkedin" width="24" height="24"></iconify-icon></a
+                ><iconify-icon icon="fa7-brands:linkedin" width="24" height="24" aria-label="LinkedIn"></iconify-icon></a
             >
         </div>
     </div>

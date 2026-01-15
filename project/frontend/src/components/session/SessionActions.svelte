@@ -115,6 +115,7 @@
                             icon={userRating >= star ? "material-symbols:star" : "material-symbols:star-outline"}
                             width="24"
                             height="24"
+                            aria-label="Star"
                         ></iconify-icon>
                     </button>
                 {/each}
