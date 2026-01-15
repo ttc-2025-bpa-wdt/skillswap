@@ -12,7 +12,12 @@ const token = Authentication.validateToken(Astro.request);
 if (!token) return Astro.redirect("/auth/login");
 
 const sessions = await db.session.findMany({
-    where: { userId: token.sub },
+    where: {
+        OR: [
+            { userId: token.sub },
+            { registrations: { some: { userId: token.sub } } }
+        ]
+    },
     orderBy: { eventDate: 'asc' }
 });
 
@@ -22,7 +27,8 @@ const mySessions = sessions.map(s => ({
     zoomLink: s.meetingUrl || "",
     time: s.eventDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }),
     status: s.eventDate > new Date() ? "Upcoming" : "Past",
-    details: s.description || ""
+    details: s.description || "",
+    isHost: s.userId === token.sub
 }));
 
 const reviews = await db.review.findMany({
@@ -137,11 +143,13 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                 <p class="notes">{session.details}</p>
                             </div>
                             <div class="session-actions">
-                                <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
-                                    Edit
-                                </Button>
-                                <Button size="sm" variant="ghost" class="text-danger btn-cancel-session" data-id={session.id}>
-                                    Cancel
+                                {session.isHost && (
+                                    <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
+                                        Edit
+                                    </Button>
+                                )}
+                                <Button size="sm" variant="ghost" class="text-danger btn-cancel-session" data-id={session.id} data-is-host={session.isHost.toString()}>
+                                    {session.isHost ? "Cancel" : "Leave"}
                                 </Button>
                             </div>
                         </div>
@@ -987,31 +995,40 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 
     cancelButtons.forEach(button => {
         button.addEventListener('click', async (e) => {
-            if (!confirm('Are you sure you want to cancel this session? This action cannot be undone.')) {
+            const buttonEl = e.currentTarget as HTMLButtonElement;
+            const sessionId = buttonEl.getAttribute('data-id');
+            const isHost = buttonEl.getAttribute('data-is-host') === 'true';
+
+            const confirmMsg = isHost 
+                ? 'Are you sure you want to cancel this session? This action cannot be undone.'
+                : 'Are you sure you want to leave this session?';
+
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
-            const buttonEl = e.currentTarget as HTMLButtonElement;
-            const sessionId = buttonEl.getAttribute('data-id');
-
             try {
-                const response = await fetch('/api/v1/session', {
+                const url = isHost ? '/api/v1/session' : '/api/v1/session/register';
+                // Host deletes via { id }, student unregisters via { sessionId }
+                const body = isHost ? { id: sessionId } : { sessionId: sessionId };
+
+                const response = await fetch(url, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ id: sessionId })
+                    body: JSON.stringify(body)
                 });
 
                 if (response.ok) {
                     window.location.reload();
                 } else {
                     const data = await response.json();
-                    alert(data.error || 'Failed to cancel session');
+                    alert(data.error || (isHost ? 'Failed to cancel session' : 'Failed to leave session'));
                 }
             } catch (error) {
-                console.error('Error cancelling session:', error);
-                alert('An error occurred while cancelling the session');
+                console.error('Error processing request:', error);
+                alert('An error occurred');
             }
         });
     });

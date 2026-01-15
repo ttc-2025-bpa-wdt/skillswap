@@ -74,6 +74,7 @@ class ApiV1Endpoints {
         router.get("/session", this.expressExceptionWrap(this.getSessionInfo.bind(this)));
         router.post("/session", this.expressExceptionWrap(this.createSession.bind(this)));
         router.post("/session/register", this.expressExceptionWrap(this.registerForSession.bind(this)));
+        router.delete("/session/register", this.expressExceptionWrap(this.unregisterFromSession.bind(this)));
         router.post("/session/rate", this.expressExceptionWrap(this.rateSession.bind(this)));
         router.delete("/session/rate", this.expressExceptionWrap(this.deleteRating.bind(this)));
         router.delete("/message", this.expressExceptionWrap(this.deleteMessage.bind(this)));
@@ -753,6 +754,44 @@ class ApiV1Endpoints {
                 userId: token.sub
             }
         });
+
+        res.json({ success: true });
+    }
+
+    protected async unregisterFromSession(req: ExpressRequest, res: ExpressResponse) {
+        if (!this.ensureJson(req, res)) return;
+
+        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
+        if (!tokenStr) {
+             res.status(401).json({ success: false, error: "Unauthorized" });
+             return;
+        }
+
+        const token = Security.decodeToken<IAuthToken>(tokenStr);
+        if (!token) {
+             res.status(401).json({ success: false, error: "Invalid token" });
+             return;
+        }
+
+        const { sessionId } = req.body;
+        if (!sessionId) {
+            res.status(400).json({ success: false, error: "Missing sessionId" });
+            return;
+        }
+
+        try {
+            await db.sessionRegistration.delete({
+                where: {
+                    sessionId_userId: {
+                        sessionId,
+                        userId: token.sub
+                    }
+                }
+            });
+        } catch(e) {
+            res.status(404).json({ success: false, error: "Not registered for this session" });
+            return; 
+        }
 
         res.json({ success: true });
     }
