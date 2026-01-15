@@ -1,6 +1,0 @@
-- Aria labels
-- Fix styles
-- Mailgun
-- Docker container
-- Render profile
-- Backend/frontend glue
