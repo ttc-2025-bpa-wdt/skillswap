@@ -1,4 +1,7 @@
-export interface DbCacheConfig<T> {
+import { PrismaBunSqlite } from "prisma-adapter-bun-sqlite";
+import { PrismaClient } from "shared/prisma";
+
+export interface DbCacheConfig {
     key: string;
     ttl: number;
 }
@@ -11,7 +14,7 @@ interface CacheEntry {
 export class DataCache {
     private static cache: Record<string, CacheEntry> = {};
 
-    public static async read<T>({ key, ttl }: DbCacheConfig<T>, read: () => Promise<T | null>): Promise<T | null> {
+    public static async read<T>({ key, ttl }: DbCacheConfig, read: () => Promise<T | null>): Promise<T | null> {
         const now = Date.now();
         const cached = this.cache[key] as CacheEntry | undefined;
         if (cached && cached.expiresAt > now) return cached.value as T;
@@ -22,3 +25,7 @@ export class DataCache {
         return value;
     }
 }
+
+export const db = new PrismaClient({
+    adapter: new PrismaBunSqlite({ url: process.env.DATABASE_URL! }),
+});

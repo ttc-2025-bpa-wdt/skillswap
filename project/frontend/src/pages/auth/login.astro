@@ -1,82 +1,87 @@
 ---
-import { AUTH_COOKIE_NAME, AUTH_COOKIE_EXPIRY } from "shared/config";
-import { z } from "zod/v4";
-
-import Layout from "@layouts/auth.astro";
+import Layout from "@layouts/global.astro";
+import Card from "@components/base/Card.svelte";
 import Button from "@components/base/Button.svelte";
-
-import { User } from "shared/models";
-
-const loginRequest = z.object({
-    emailOrHandle: z.string().min(1, "Email or handle is required"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    remember: z.boolean().optional(),
-});
-
-let errorMessage: string | null = null;
-
-if (Astro.request.method === "POST") {
-    const formData = await Astro.request.formData();
-
-    const { success, data, error } = loginRequest.safeParse({
-        emailOrHandle: formData.get("emailOrHandle"),
-        password: formData.get("password"),
-        remember: formData.get("remember") === "on",
-    });
-
-    if (success) {
-        const { emailOrHandle, password, remember } = data;
-        const token = await User.authenticate(emailOrHandle, password, remember);
-
-        if (token) {
-            Astro.cookies.set(AUTH_COOKIE_NAME, token, {
-                path: "/",
-                httpOnly: true,
-                secure: import.meta.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: remember ? AUTH_COOKIE_EXPIRY : undefined,
-            });
-
-            return Astro.redirect("/dashboard");
-        } else {
-            errorMessage = "Invalid email/handle or password";
-            Astro.response.status = 401;
-        }
-    } else {
-        errorMessage = "Invalid form data.";
-        Astro.response.status = 400;
-    }
-}
+import "@styles/auth.scss";
 ---
 
-<Layout title="Log In" header="Welcome Back" subheader="Sign in to continue to SkillSwap" error={errorMessage}>
-    <form id="login-form" method="POST" novalidate>
-        <div class="form-group">
-            <label for="emailOrHandle">Email or Handle</label>
-            <input type="text" name="emailOrHandle" placeholder="Email or handle" required />
-            <span class="error-message" id="emailOrHandle-error"></span>
-        </div>
+<Layout title="Log In">
+    <div class="auth-container">
+        <Card class="auth-card narrow">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to continue to SkillSwap</p>
+            
+            <div id="client-error" class="error-message" style="display: none; margin-bottom: 1rem; text-align: center;"></div>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" placeholder="Password" required minlength="8" />
-            <span class="error-message" id="password-error"></span>
-        </div>
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="emailOrHandle">Email or Handle</label>
+                    <input type="text" name="emailOrHandle" placeholder="Email or handle" required />
+                </div>
 
-        <div class="form-options">
-            <label class="checkbox-container">
-                <input type="checkbox" name="remember" />
-                <span class="checkmark">Remember me</span>
-            </label>
-            <a href="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
-        </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" placeholder="Password" required minlength="8" />
+                </div>
 
-        <Button type="submit" variant="primary" block>Log In</Button>
-    </form>
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="remember" />
+                        <span>Remember me</span>
+                    </label>
+                    <a href="/auth/forgot-password" class="forgot-password">Forgot Password?</a>
+                </div>
 
-    <p class="register-link">
-        Don't have an account? <a href="/auth/register">Create Account</a>
-    </p>
+                <Button type="submit" variant="primary" block>Log In</Button>
+            </form>
+            
+            <script>
+                const form = document.getElementById('login-form') as HTMLFormElement;
+                const errorDiv = document.getElementById('client-error');
+
+                form?.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (errorDiv) errorDiv.style.display = 'none';
+
+                    const formData = new FormData(form);
+                    const emailOrHandle = formData.get('emailOrHandle');
+                    const password = formData.get('password');
+                    const remember = formData.get('remember') === 'on';
+
+                    try {
+                        const res = await fetch('/api/v1/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ emailOrHandle, password, remember })
+                        });
+                        
+                        const result = await res.json();
+                        
+                        if (result.success) {
+                            window.location.href = '/dashboard';
+                        } else {
+                            if (errorDiv) {
+                                errorDiv.innerText = result.error || "Login failed";
+                                errorDiv.style.display = 'block';
+                            } else {
+                                alert(result.error);
+                            }
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        if (errorDiv) {
+                            errorDiv.innerText = "Connection error";
+                            errorDiv.style.display = 'block';
+                        }
+                    }
+                });
+            </script>
+
+            <p class="register-link">
+                Don't have an account? <a href="/auth/register">Create Account</a>
+            </p>
+        </Card>
+    </div>
 </Layout>
 
 <style lang="scss">
@@ -84,40 +89,9 @@ if (Astro.request.method === "POST") {
         color: var(--accent-1);
         text-decoration: none;
         font-weight: 500;
-
+        
         &:hover {
             text-decoration: underline;
         }
     }
-
-    .register-link {
-        margin-top: 1.5rem;
-        margin-bottom: 0;
-        text-align: center;
-
-        a {
-            color: var(--accent-1);
-            text-decoration: none;
-            font-weight: 500;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
 </style>
-
-<script>
-    import { Form, FormValidators } from "@lib/Form";
-
-    new Form("login-form")
-        .addField("emailOrHandle", {
-            validateOn: "input",
-            validator: FormValidators.email(),
-        })
-        .addField("password", {
-            validateOn: "input",
-            validator: FormValidators.password({ minLength: 8 }),
-        })
-        .addField("remember");
-</script>

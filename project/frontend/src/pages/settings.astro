@@ -3,7 +3,7 @@ import { Authentication, Profile, ProfileFilter, User, UserFilter } from "shared
 
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
+import Card from "@components/base/Card.svelte";
 
 const token = Authentication.validateToken(Astro.request);
 if (!token) return Astro.redirect("/auth/login");
@@ -12,7 +12,12 @@ const user = await User.read(token.sub, UserFilter.Id);
 if (!user) return Astro.redirect("/auth/login");
 
 const profile = await Profile.read(user.profileId, ProfileFilter.Id);
-if (!profile) return Astro.redirect("/"); // todo: handle this server error
+
+const tagsList = profile?.tags;
+const tagsValue = Array.isArray(tagsList) ? tagsList.join(", ") : "";
+
+const skillsList = profile?.skills;
+const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 ---
 
 <Layout title="Settings" desc="Manage your account settings">
@@ -24,10 +29,11 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
 
         <div class="settings-grid">
             <!-- Profile Section -->
-            <section class="settings-section">
+            {profile && <section class="settings-section">
                 <h2 class="section-heading">Public Profile</h2>
                 <Card class="settings-card">
                     <form id="profile-form">
+                        <input type="hidden" name="avatarUrl" id="avatar-url-input" value={profile.avatarUrl} />
                         <div class="avatar-row">
                             <div class="avatar-current">
                                 <img src={profile.avatarUrl} alt={profile.displayName} />
@@ -35,8 +41,9 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
                             <div class="avatar-info">
                                 <h3>Profile Picture</h3>
                                 <div class="avatar-actions">
-                                    <Button size="sm" variant="secondary" type="button">Upload New</Button>
-                                    <Button size="sm" variant="ghost" type="button" class="text-danger">Remove</Button>
+                                    <input type="file" id="avatar-upload" accept="image/png, image/jpeg" style="display:none" />
+                                    <Button size="sm" variant="secondary" id="btn-upload-avatar" type="button">Upload New</Button>
+                                    <Button size="sm" variant="ghost" class="text-danger" id="btn-remove-avatar" type="button">Remove</Button>
                                 </div>
                             </div>
                         </div>
@@ -60,9 +67,33 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
 
                         <div class="form-group">
                             <label for="bio">Bio</label>
-                            <textarea id="bio" rows="3" placeholder="Tell us a little about yourself"
+                            <textarea id="bio" name="bio" rows="3" placeholder="Tell us a little about yourself"
                                 >{profile.bio}</textarea
                             >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tags">Skills Offered</label>
+                            <input
+                                type="text"
+                                id="tags"
+                                name="tags"
+                                value={tagsValue}
+                                placeholder="e.g. Mathematics, Piano, Coding"
+                            />
+                            <p class="helper-text">Comma-separated list of skills you can teach.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="skills">Skills Sought</label>
+                            <input
+                                type="text"
+                                id="skills"
+                                name="skills"
+                                value={skillsValue}
+                                placeholder="e.g. Cooking, Spanish, Guitar"
+                            />
+                            <p class="helper-text">Comma-separated list of skills you want to learn.</p>
                         </div>
 
                         <div class="form-footer">
@@ -70,7 +101,7 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
                         </div>
                     </form>
                 </Card>
-            </section>
+            </section>}
 
             <!-- Account Section -->
             <section class="settings-section">
@@ -90,8 +121,8 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
                                     <input type="password" placeholder="Current Password" />
                                 </div>
                                 <div class="password-buttons">
-                                    <Button type="button" variant="secondary">Change Password</Button>
-                                    <Button type="button" variant="outline">Forgot Password?</Button>
+                                    <Button variant="secondary">Change Password</Button>
+                                    <Button variant="outline">Forgot Password?</Button>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +133,7 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
                         </div>
 
                         <div class="form-footer">
-                            <Button type="submit">Update Email</Button>
+                            <Button>Update Email</Button>
                         </div>
                     </form>
                 </Card>
@@ -117,20 +148,14 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
                             <h3>Sign Out</h3>
                             <p>Sign out of your account on this device.</p>
                         </div>
-                        <Button variant="outline" class="btn-danger" type="button" href="/auth/logout">Sign Out</Button>
+                        <Button variant="outline" class="btn-danger" href="/auth/logout">Sign Out</Button>
                     </div>
                     <div class="danger-item">
                         <div class="danger-info">
                             <h3>Delete Account</h3>
                             <p>Permanently delete your account and all of your content.</p>
                         </div>
-                        <Button
-                            variant="outline"
-                            class="btn-danger"
-                            type="button"
-                            onclick="confirm('Are you surely you want to delete your account? This action cannot be undone.')"
-                            >Delete Account</Button
-                        >
+                        <Button variant="outline" class="btn-danger" id="btn-delete-account">Delete Account</Button>
                     </div>
                 </Card>
             </section>
@@ -193,7 +218,6 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
         input,
         textarea {
             width: 100%;
-            /* Theme overrides */
             padding: 0.75rem 1rem;
             border-radius: 6px;
 
@@ -359,28 +383,132 @@ if (!profile) return Astro.redirect("/"); // todo: handle this server error
 </style>
 
 <script>
-    // Form handling simulation
-    const profileForm = document.getElementById("profile-form");
+    // Form handling
+    const profileForm = document.getElementById("profile-form") as HTMLFormElement;
     const accountForm = document.getElementById("account-form");
 
-    profileForm?.addEventListener("submit", (e) => {
+    // Avatar handling
+    const avatarInput = document.getElementById("avatar-upload") as HTMLInputElement;
+    const uploadBtn = document.getElementById("btn-upload-avatar");
+    const removeBtn = document.getElementById("btn-remove-avatar");
+    const avatarUrlInput = document.getElementById("avatar-url-input") as HTMLInputElement;
+    const avatarImg = document.querySelector(".avatar-current img") as HTMLImageElement;
+
+    uploadBtn?.addEventListener("click", () => avatarInput?.click());
+
+    removeBtn?.addEventListener("click", () => {
+        if (confirm("Reset avatar to default?")) {
+            const defaultUrl = "/images/avatar/default.png";
+            if (avatarImg) avatarImg.src = defaultUrl;
+            if (avatarUrlInput) avatarUrlInput.value = defaultUrl;
+        }
+    });
+
+    avatarInput?.addEventListener("change", async () => {
+        const file = avatarInput.files?.[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert("File is too large (max 5MB)");
+            return;
+        }
+
+        const originalText = uploadBtn!.textContent;
+        if (uploadBtn) uploadBtn.textContent = "Uploading...";
+
+        try {
+            const res = await fetch("/api/v1/user/avatar", {
+                method: "POST",
+                headers: { "Content-Type": file.type },
+                body: file
+            });
+            const result = await res.json();
+            
+            if (result.success) {
+                const url = result.data.url;
+                if (avatarImg) avatarImg.src = `${url}?v=${Date.now()}`;
+                if (avatarUrlInput) avatarUrlInput.value = url;
+            } else {
+                alert(result.error || "Upload failed");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Upload failed");
+        } finally {
+            if (uploadBtn) uploadBtn.textContent = originalText;
+            avatarInput.value = ""; 
+        }
+    });
+
+    profileForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = profileForm.querySelector('button[type="submit"]');
         if (btn) {
             const originalText = btn.textContent;
             btn.textContent = "Saving...";
-            // Simulate API call
-            setTimeout(() => {
-                btn.textContent = "Saved!";
-                setTimeout(() => {
+            
+            const formData = new FormData(profileForm);
+            
+            try {
+                const res = await fetch('/api/v1/user', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        displayName: formData.get('name'),
+                        bio: formData.get('bio'),
+                        avatarUrl: formData.get('avatarUrl'),
+                        tags: (formData.get('tags') as string || "").split(",").map(s => s.trim()).filter(Boolean),
+                        skills: (formData.get('skills') as string || "").split(",").map(s => s.trim()).filter(Boolean)
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    btn.textContent = "Saved!";
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                } else {
                     btn.textContent = originalText;
-                }, 2000);
-            }, 800);
+                    alert(result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                btn.textContent = originalText;
+                alert("Error saving settings");
+            }
         }
     });
 
     accountForm?.addEventListener("submit", (e) => {
         e.preventDefault();
         alert("Email update functionality to be implemented.");
+    });
+
+    // Delete Account
+    const deleteAccountBtn = document.getElementById("btn-delete-account");
+    deleteAccountBtn?.addEventListener("click", async () => {
+        if (confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
+             const originalText = deleteAccountBtn.textContent;
+             deleteAccountBtn.textContent = "Deleting...";
+             try {
+                 const res = await fetch("/api/v1/user", {
+                     method: "DELETE",
+                     headers: { 'Content-Type': 'application/json' }
+                 });
+                 const result = await res.json();
+                 if (result.success) {
+                     alert("Account deleted.");
+                     window.location.href = "/";
+                 } else {
+                     alert(result.error || "Failed to delete account");
+                     deleteAccountBtn.textContent = originalText;
+                 }
+             } catch (err) {
+                 console.error(err);
+                 alert("Request failed");
+                 deleteAccountBtn.textContent = originalText;
+             }
+        }
     });
 </script>

@@ -2,26 +2,22 @@
     export let variant: "primary" | "secondary" | "outline" | "ghost" = "primary";
     export let size: "sm" | "md" | "lg" = "md";
     export let href: string | null = null;
-    export let className: string = "";
     export let block: boolean = false;
+    export let children: () => any;
+    
+    let classes: string = "";
+    export { classes as class };
 
-    const classes = ["button", variant, size !== "md" ? size : "", className, block ? "block" : ""]
-        .filter(Boolean)
-        .join(" ");
+    const element = href ? "a" : "button";
+    classes = (`button ${variant} ${size} ${block ? "block" : ""} ${classes}`).trim();
 </script>
 
-{#if href}
-    <a {href} class={classes} {...$$restProps}>
-        <slot />
-    </a>
-{:else}
-    <button class={classes} {...$$restProps}>
-        <slot />
-    </button>
-{/if}
+<svelte:element this={element} class={classes} {href} {...$$restProps}>
+    {@render children()}
+</svelte:element>
 
 <style lang="scss">
-    .button {
+    :global(.button) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -35,6 +31,7 @@
         border: none;
         text-decoration: none;
         gap: 0.5rem;
+        white-space: nowrap;
 
         &:disabled {
             opacity: 0.6;

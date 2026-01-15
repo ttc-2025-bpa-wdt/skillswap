@@ -1,0 +1,118 @@
+generator client {
+    provider        = "prisma-client"
+    engineType      = "client"
+    runtime         = "bun"
+    output          = "../gen/prisma"
+    binaryTargets   = ["native"]
+}
+
+datasource db {
+    provider = "sqlite"
+}
+
+model User {
+    id            String   @id @default(uuid())
+    email         String   @unique
+    handle        String   @unique
+    passwordHash  String
+    passwordSalt  String
+    emailVerified Boolean
+    role          String   @default("USER")
+    firstName     String
+    lastName      String
+    dob           DateTime
+    createdAt     DateTime @default(now())
+
+    // Relations
+    profile Profile?
+    sessions Session[]
+    registrations SessionRegistration[]
+    authoredReviews Review[] @relation("ReviewAuthor")
+    receivedReviews Review[] @relation("ReviewRecipient")
+    sentMessages Message[] @relation("MessageSender")
+    receivedMessages Message[] @relation("MessageRecipient")
+}
+
+model Profile {
+    id          String @id @default(uuid())
+    displayName String
+    avatarUrl   String
+    bio         String
+    
+    // Arrays stored as JSON strings
+    tags   String
+    skills String
+
+    // Flattened IUserStats
+    sessionCount Int   @default(0)
+    studentCount Int   @default(0)
+    rating       Float @default(0.0)
+
+    // Relations
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+    id          String   @id @default(uuid())
+    name        String
+    categories  String   // JSON array of categories
+    prereqs     String
+    difficulty  String   // difficultyTags key
+    description String   @default("")
+    meetingUrl  String   @default("")
+    duration    Int      @default(60)
+    createdAt   DateTime @default(now())
+    eventDate   DateTime
+
+    // Relations
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    registrations SessionRegistration[]
+    reviews Review[]
+}
+
+model SessionRegistration {
+    id        String   @id @default(uuid())
+    sessionId String
+    userId    String
+    createdAt DateTime @default(now())
+
+    session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([sessionId, userId])
+}
+
+model Review {
+    id          String   @id @default(uuid())
+    rating      Int
+    comment     String
+    hidden      Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    
+    sessionId   String
+    session     Session  @relation(fields: [sessionId], references: [id])
+    
+    authorId    String
+    author      User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+    
+    recipientId String
+    recipient   User     @relation("ReviewRecipient", fields: [recipientId], references: [id])
+}
+
+model Message {
+    id        String   @id @default(uuid())
+    content   String
+    createdAt DateTime @default(now())
+
+    senderId  String
+    sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+
+    recipientId String
+    recipient   User     @relation("MessageRecipient", fields: [recipientId], references: [id])
+    
+    // No relation to Session, just name
+    sessionName String?
+}
+

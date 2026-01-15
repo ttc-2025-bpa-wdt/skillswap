@@ -1,10 +1,10 @@
 ---
 import Layout from "@layouts/global.astro";
-import SessionCard from "@components/cards/SessionCard.astro";
-import UserCard from "@components/cards/UserCard.astro";
-import Pagination from "@components/base/Pagination.astro";
+import SessionCard from "@components/cards/SessionCard.svelte";
+import UserCard from "@components/cards/UserCard.svelte";
+import Pagination from "@components/base/Pagination.svelte";
 
-import { Profile, Session } from "shared/models";
+import { Profile, Session, User, UserFilter, ProfileFilter } from "shared/models";
 
 export const prerender = false;
 
@@ -12,6 +12,17 @@ const query = Astro.url.searchParams.get("q")?.trim();
 
 const profiles = query ? await Profile.search(query) : [];
 const sessions = query ? await Session.search(query) : [];
+
+const sessionData = await Promise.all(sessions.map(async (session) => {
+    const user = await User.read(session.userId, UserFilter.Id);
+    const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
+    return { session, user, profile };
+}));
+
+const profileData = await Promise.all(profiles.map(async (profile) => {
+    const user = await User.read(profile.userId, UserFilter.Id);
+    return { profile, user };
+}));
 
 let foundLabel = "Found ";
 
@@ -44,8 +55,8 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
                             <Pagination />
                         </div>
                         <div class="results-list">
-                            {sessions.map((session) => (
-                                <SessionCard payload={session} />
+                            {sessionData.map(({ session, user, profile }) => (
+                                <SessionCard payload={session} user={user} profile={profile} />
                             ))}
                         </div>
                     </section>
@@ -60,8 +71,8 @@ const title = query ? `Search Results for "${query}"` : "Search Results";
                             <Pagination />
                         </div>
                         <div class="results-list">
-                            {profiles.map((user) => (
-                                <UserCard payload={user} />
+                            {profileData.map(({ profile, user }) => (
+                                <UserCard payload={profile} user={user} />
                             ))}
                         </div>
                     </section>

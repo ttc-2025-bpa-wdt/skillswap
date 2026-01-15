@@ -1,16 +1,17 @@
----
-interface Props {
-    placeholder?: string;
-    action?: string;
-    queryParam?: string;
-    value?: string;
-    class?: string;
-}
+<script lang="ts">
+    export let placeholder: string = "Search...";
+    export let action: string = "/search";
+    export let queryParam: string = "q";
+    export let value: string = "";
+    export let children: (() => any) | undefined = undefined;
 
-const { placeholder = "Search...", action = "/search", queryParam = "q", value = "", class: className } = Astro.props;
----
+    let classes: string = "";
+    export { classes as class };
 
-<form class:list={["search-form", className]} action={action}>
+    classes = (`search-form ${classes}`).trim();
+</script>
+
+<form class={classes} {action}>
     <div class="input-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="search-icon">
             <path
@@ -18,13 +19,15 @@ const { placeholder = "Search...", action = "/search", queryParam = "q", value =
                 d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z"
                 clip-rule="evenodd"></path>
         </svg>
-        <input type="text" name={queryParam} placeholder={placeholder} value={value} />
+        <input type="text" name={queryParam} {placeholder} {value} aria-label={placeholder} />
     </div>
-    <slot />
+    {#if children}
+        {@render children()}
+    {/if}
 </form>
 
 <style lang="scss">
-    .search-form {
+    :global(.search-form) {
         display: flex;
         gap: 1rem;
         width: 100%;

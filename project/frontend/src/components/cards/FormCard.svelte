@@ -1,20 +1,21 @@
----
-import Card from "@components/base/Card.astro";
+<script lang="ts">
+    import Card from "../base/Card.svelte";
+    
+    export let children: () => any;
+    
+    let classes: string = "";
+    export { classes as class };
 
-interface Props {
-    class?: string;
-    [key: string]: any;
-}
+    classes = (`form-card ${classes}`).trim();
+</script>
 
-const { class: className, ...rest } = Astro.props;
----
-
-<Card class:list={["form-card", className]} {...rest}>
-    <slot />
+<Card class={classes}>
+    {@render children()}
 </Card>
 
-<style lang="scss" is:global>
-    .form-group {
+<style lang="scss">
+    // Using :global because these styles seem intended to apply to children slots
+    :global(.form-group) {
         label {
             display: block;
             font-family: "Montserrat", sans-serif;
@@ -44,7 +45,7 @@ const { class: className, ...rest } = Astro.props;
         }
     }
 
-    .form-options {
+    :global(.form-options) {
         display: flex;
         justify-content: space-between;
         align-items: center;

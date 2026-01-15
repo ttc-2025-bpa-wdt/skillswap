@@ -1,7 +1,11 @@
 ---
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
+import Card from "@components/base/Card.svelte";
+import { Authentication } from "shared/models";
+
+const token = Authentication.validateToken(Astro.request);
+if (token) return Astro.redirect("/dashboard");
 ---
 
 <Layout title="Home" desc="SkillSwap - Learn. Teach. Connect.">
@@ -323,18 +327,18 @@ import Card from "@components/base/Card.astro";
         margin: 0 auto;
     }
 
-    .skill-card {
+    :global(.skill-card) {
         flex: 1 1 240px;
         max-width: 280px;
         text-align: center;
         transition: all 0.3s ease;
         cursor: pointer;
-    }
 
-    .skill-card:hover {
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        transform: translateY(-10px);
-        border-color: var(--accent-1);
+        &:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-10px);
+            border-color: var(--accent-1);
+        }
     }
 
     .skill-icon {

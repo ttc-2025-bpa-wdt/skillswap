@@ -1,9 +1,11 @@
 ---
 import Layout from "@layouts/global.astro";
+import Card from "@components/base/Card.svelte";
+import SessionActions from "@components/session/SessionActions.svelte";
+import { Profile, ProfileFilter, Session, SessionFilter, User, UserFilter, Authentication } from "shared/models";
+import { db } from "shared/helpers";
+import Tag from "@components/base/Tag.svelte";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
-import { Profile, ProfileFilter, Session, SessionFilter, User, UserFilter } from "shared/models";
-import Tag from "@components/base/Tag.astro";
 
 interface Props {
     login: {};
@@ -11,12 +13,42 @@ interface Props {
 
 const { id } = Astro.params;
 
+// Auth check
+const token = Authentication.validateToken(Astro.request);
+const currentUser = token ? await User.read(token.sub, UserFilter.Id) : null;
+
 const session = id && (await Session.read(id, SessionFilter.Id));
 const user = session ? await User.read(session.userId, UserFilter.Id) : null;
 const profile = user ? await Profile.read(user.profileId, ProfileFilter.Id) : null;
 
 if (!session) {
     return Astro.redirect("/404");
+}
+
+// User-Specific Data
+let isRegistered = false;
+let userRating = 0;
+
+if (currentUser && session) {
+    const registration = await db.sessionRegistration.findUnique({
+        where: {
+            sessionId_userId: {
+                sessionId: session.id,
+                userId: currentUser.id
+            }
+        }
+    });
+    isRegistered = !!registration;
+
+    const review = await db.review.findFirst({
+        where: {
+            sessionId: session.id,
+            authorId: currentUser.id
+        }
+    });
+    if (review) {
+        userRating = review.rating;
+    }
 }
 
 const formatDate = (date: Date) => {
@@ -81,10 +113,12 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
                         <p>{session.prereqs}</p>
                     </div>
 
-                    <div class="actions">
-                        <Button variant="primary" size="lg">Register for Session</Button>
-                        <Button variant="outline" size="lg">Contact Host</Button>
-                    </div>
+                    <SessionActions 
+                        sessionId={session.id} 
+                        isRegistered={isRegistered} 
+                        initialRating={userRating}
+                        client:load 
+                    />
                 </Card>
             </div>
 
@@ -225,15 +259,6 @@ const difficultyColor = difficultyColors[session.difficulty as keyof typeof diff
         p {
             margin: 0;
             opacity: 0.8;
-        }
-    }
-
-    .actions {
-        display: flex;
-        gap: 1rem;
-
-        @media (max-width: 600px) {
-            flex-direction: column;
         }
     }
 

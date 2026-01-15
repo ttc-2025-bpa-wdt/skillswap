@@ -1,7 +1,7 @@
 ---
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
+import Card from "@components/base/Card.svelte";
 import { profileTags, type IProfile } from "shared/schema";
 import { User, UserFilter } from "shared/models";
 
@@ -9,10 +9,13 @@ interface Props {
     payload: IProfile;
 }
 
-const { displayName, userId, avatarUrl, bio, tags, stats } = Astro.props.payload;
+const { displayName, userId, avatarUrl, bio, tags, stats, skills } = Astro.props.payload;
 
 const tagStyle = tags && tags.map((tag) => profileTags[tag]).filter(Boolean);
 const user = await User.read(userId, UserFilter.Id);
+
+const offeredSkills = tags ? tags.filter(t => !profileTags[t]) : [];
+const soughtSkills = skills || [];
 ---
 
 <Layout title={`@${user.handle}`} desc={`Profile of ${displayName}`}>
@@ -26,7 +29,7 @@ const user = await User.read(userId, UserFilter.Id);
                 </div>
                 <div class="profile-details">
                     <div class="name-row">
-                        <h1 class="editable" data-field="name">{displayName}</h1>
+                        <h1 data-field="name">{displayName}</h1>
                         {
                             tags &&
                                 tagStyle.map((x) => (
@@ -47,15 +50,10 @@ const user = await User.read(userId, UserFilter.Id);
                                 <span class="value">{stats.rating} ⭐</span>
                                 <span class="label">Rating</span>
                             </div>
-                            <div class="stat">
-                                <span class="value">{stats.studentCount}</span>
-                                <span class="label">Students</span>
-                            </div>
                         </div>
                         <div class="profile-actions">
-                            <Button id="edit-profile-btn" variant="secondary">Edit Profile</Button>
-                            <Button variant="primary">Request Session</Button>
-                            <Button variant="ghost" iconOnly aria-label="Message">💬</Button>
+                            <!-- <Button variant="primary">Request Session</Button>
+                            <Button variant="ghost" iconOnly aria-label="Message">💬</Button> -->
                         </div>
                     </div>
                 </div>
@@ -65,51 +63,37 @@ const user = await User.read(userId, UserFilter.Id);
         <div class="content-grid">
             <Card>
                 <h2>Bio</h2>
-                <p class="editable-area" data-field="bio">{bio}</p>
-            </Card>
-
-            <Card>
-                <h2>Student Feedback</h2>
-                <!--div class="reviews-list">
-                    {reviews.map(review => (
-                        <div class="review-item">
-                            <div class="review-header">
-                                <span class="reviewer-name">{review.user}</span>
-                                <span class="review-date">{review.date}</span>
-                            </div>
-                            <div class="star-rating">
-                                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-                            </div>
-                            <p class="review-text">{review.comment}</p>
-                        </div>
-                    ))}
-                </div-->
+                <p data-field="bio">{bio}</p>
             </Card>
 
             <Card>
                 <h2>Skills</h2>
-                <p class="hint-text">Drag to reorder skills (Enable Edit Mode)</p>
-                <!--div class="skills-container" id="skills-list">
-                    {skills.map((skill) => (
-                        <div class="skill-tag" draggable="true">
-                            {skill}
-                            <span class="remove-skill">&times;</span>
+                
+                {offeredSkills.length > 0 && (
+                    <div class="skills-section">
+                        <h3>Offered</h3>
+                        <div class="skills-container">
+                            {offeredSkills.map(skill => (
+                                <span class="skill-tag">{skill}</span>
+                            ))}
                         </div>
-                    ))}
-                    <button class="add-skill-btn">+ Add Skill</button>
-                </div-->
-            </Card>
+                    </div>
+                )}
 
-            <Card>
-                <h2>Badges</h2>
-                <!--div class="badges-grid">
-                    {badges.map((badge) => (
-                        <div class="badge-item">
-                            <span class="badge-icon">🏅</span>
-                            <span>{badge}</span>
+                {soughtSkills.length > 0 && (
+                    <div class="skills-section">
+                        <h3>Sought</h3>
+                        <div class="skills-container">
+                            {soughtSkills.map(skill => (
+                                <span class="skill-tag">{skill}</span>
+                            ))}
                         </div>
-                    ))}
-                </div-->
+                    </div>
+                )}
+
+                {offeredSkills.length === 0 && soughtSkills.length === 0 && (
+                    <p>No skills listed yet.</p>
+                )}
             </Card>
         </div>
     </div>
@@ -288,6 +272,22 @@ const user = await User.read(userId, UserFilter.Id);
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+    }
+
+    .skills-section {
+        margin-bottom: 1.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--foreground);
+            opacity: 0.8;
+            font-family: inherit;
+        }
     }
 
     /* Skills Drag & Drop */

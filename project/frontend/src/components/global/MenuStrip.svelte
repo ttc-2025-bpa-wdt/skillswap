@@ -1,27 +1,26 @@
----
-import { Icon } from "astro-icon/components";
+<script lang="ts">
+    import { onMount } from 'svelte';
 
-const currentPath = Astro.url.pathname;
-const segment = currentPath.split("/")[1] || "dashboard";
-const activePage = `/${segment}`;
+    export let currentPath: string = "/dashboard"; // Default, or passed prop
 
-const menuItems = [
-    { href: "/dashboard", icon: "mdi:view-dashboard", label: "Dashboard" },
-    { href: "/search", icon: "mdi:search", label: "Search" },
-    { href: "/sessions", icon: "mdi:account-box", label: "My Sessions" },
-    { href: "/settings", icon: "mdi:settings", label: "Settings" },
-];
----
+    $: segment = currentPath.split("/")[1] || "dashboard";
+    $: activePage = `/${segment}`;
+
+    const menuItems = [
+        { href: "/dashboard", icon: "mdi:view-dashboard", label: "Dashboard" },
+        { href: "/search", icon: "mdi:search", label: "Search" },
+        { href: "/sessions", icon: "mdi:account-box", label: "My Sessions" },
+        { href: "/settings", icon: "mdi:settings", label: "Settings" },
+    ];
+</script>
 
 <nav class="menu-strip">
-    {
-        menuItems.map((item) => (
-            <a href={item.href} class:list={{ active: activePage === item.href }}>
-                <Icon class="icon" name={item.icon} />
-                <span>{item.label}</span>
-            </a>
-        ))
-    }
+    {#each menuItems as item}
+        <a href={item.href} class:active={activePage === item.href}>
+            <iconify-icon class="icon" icon={item.icon}></iconify-icon>
+            <span>{item.label}</span>
+        </a>
+    {/each}
 </nav>
 
 <style lang="scss">
@@ -54,7 +53,7 @@ const menuItems = [
             color: color-mix(in srgb, var(--foreground) 70%, var(--background) 20%);
             text-decoration: none;
 
-            .icon {
+            :global(.icon) {
                 font-size: 1.5rem;
             }
 

@@ -1,77 +1,77 @@
----
-import type { ISession } from "shared/schema";
-import Card from "@components/base/Card.astro";
-import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
-import Tag from "@components/base/Tag.astro";
+<script lang="ts">
+    import type { ISession, IProfile, IUser } from "shared/schema";
+    import Card from "../base/Card.svelte";
+    import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
+    import Tag from "../base/Tag.svelte";
 
-interface Props {
-    payload: ISession;
-    redirects?: boolean;
-}
+    export let payload: ISession;
+    export let redirects: boolean = true;
+    export let user: IUser | null = null;
+    export let profile: IProfile | null = null;
+    
+    let { id, name, userId, difficulty, categories, prereqs, createdAt, eventDate } = payload;
 
-const { redirects = true } = Astro.props;
-const { id, name, userId, difficulty, categories, prereqs, createdAt, eventDate } = Astro.props.payload;
+    function formatDateShort(dateStr: string) {
+        const d = new Date(dateStr);
+        return d.toISOString().split("T")[0];
+    }
+    
+    export async function load(): Promise<{ user: IUser, profile: IProfile }> {
+        const user = await User.read(userId, UserFilter.Id);
+        const profile = await Profile.read(user.profileId, ProfileFilter.Id);
+        return { user, profile };
+    }
+</script>
 
-function formatDateShort(dateStr: string) {
-    const d = new Date(dateStr);
-    return d.toISOString().split("T")[0];
-}
-
-const sessionOwner = await User.read(userId, UserFilter.Id);
-const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id);
----
-
-<Card class="skill-card-horizontal" href={redirects ? `/session/${id}` : undefined}>
-    <div class="instructor-pane">
-        <img src={ownerProfile?.avatarUrl} alt={ownerProfile?.displayName} class="avatar" />
-    </div>
-
-    <div class="separator"></div>
-
-    <div class="skill-content">
-        <div class="skill-header">
-            <div class="skill-row">
-                <h3 class="skill-title">{name}</h3>
-                {
-                    /* truncate to two entries */
-                    categories
-                        .slice(0, 2)
-                        .map((name) => <Tag class="skill-tag" payload={{ name, color: "var(--background)" }} />)
-                }
-            </div>
-            <div class="instructor-row">
-                <span class="instructor-name">by {ownerProfile.displayName}</span>
-                <span class="rating-tag"><span class="star">★</span>{ownerProfile.stats.rating.toFixed(1)}</span>
-            </div>
+{#if user && profile}
+    <Card class="session-card" href={redirects ? `/session/${id}` : undefined}>
+        <div class="instructor-pane">
+            <img src={profile?.avatarUrl} alt={profile?.displayName} class="avatar" />
         </div>
+        <div class="separator"></div>
 
-        <div class="skill-meta">
-            <div class="meta-item meta-difficulty">
-                <span class="label">
-                    <span class="text-long">Difficulty</span>
-                    <span class="text-short">Diff</span>
-                </span>
-                <span class={`badge ${difficulty.toLowerCase()}`}>{difficulty}</span>
+        <div class="skill-content">
+            <div class="skill-header">
+                <div class="skill-row">
+                    <h3 class="skill-title">{name}</h3>
+                    {#each categories.slice(0, 2) as catName}
+                        <Tag class="skill-tag" payload={{ name: catName, color: "var(--background)" }} />
+                    {/each}
+                </div>
+                <div class="instructor-row">
+                    <span class="instructor-name">by {profile?.displayName}</span>
+                    {#if profile?.stats}
+                        <span class="rating-tag"><span class="star">★</span>{profile.stats.rating.toFixed(1)}</span>
+                    {/if}
+                </div>
             </div>
-            <div class="meta-item meta-prereqs">
-                <span class="label">
-                    <span class="text-long">Prereqs</span>
-                    <span class="text-short">Pre</span>
-                </span>
-                <span class="value text-truncate">{prereqs}</span>
-            </div>
-            <div class="meta-item meta-created">
-                <span class="label">
-                    <span class="text-long">Created</span>
-                    <span class="text-short">Made</span>
-                </span>
-                <span class="value">
-                    <span class="text-long">{createdAt.toISOString().split("T")[0]}</span>
-                    <span class="text-short">{formatDateShort(createdAt.toISOString())}</span>
-                </span>
-            </div>
-            {
-                eventDate && (
+
+            <div class="skill-meta">
+                <div class="meta-item meta-difficulty">
+                    <span class="label">
+                        <span class="text-long">Difficulty</span>
+                        <span class="text-short">Diff</span>
+                    </span>
+                    <span class={`badge ${difficulty.toLowerCase()}`}>{difficulty}</span>
+                </div>
+                <div class="meta-item meta-prereqs">
+                    <span class="label">
+                        <span class="text-long">Prereqs</span>
+                        <span class="text-short">Pre</span>
+                    </span>
+                    <span class="value text-truncate">{prereqs}</span>
+                </div>
+                <div class="meta-item meta-created">
+                    <span class="label">
+                        <span class="text-long">Created</span>
+                        <span class="text-short">Made</span>
+                    </span>
+                    <span class="value">
+                        <span class="text-long">{createdAt.toISOString().split("T")[0]}</span>
+                        <span class="text-short">{formatDateShort(createdAt.toISOString())}</span>
+                    </span>
+                </div>
+                {#if eventDate}
                     <div class="meta-item meta-event">
                         <span class="label">
                             <span class="text-long">Event</span>
@@ -82,14 +82,22 @@ const ownerProfile = await Profile.read(sessionOwner.profileId, ProfileFilter.Id
                             <span class="text-short">{formatDateShort(eventDate.toISOString())}</span>
                         </span>
                     </div>
-                )
-            }
+                {/if}
+            </div>
         </div>
-    </div>
-</Card>
+    </Card>
+{:else}
+    {#await load() then data}
+        <svelte:self payload={payload} redirects={redirects} user={data.user} profile={data.profile} />
+    {:catch error}
+        <div class="session-card error">
+            <p>Error loading session: {error.message}</p>
+        </div>
+    {/await}
+{/if}
 
 <style lang="scss">
-    .skill-card-horizontal {
+    :global(.session-card) {
         display: flex;
         align-items: center;
         flex-direction: row;

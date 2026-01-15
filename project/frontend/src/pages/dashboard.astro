@@ -1,52 +1,74 @@
 ---
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
-import SessionCard from "@components/cards/SessionCard.astro";
-import SearchBar from "@components/base/SearchBar.astro";
+import Card from "@components/base/Card.svelte";
+import SessionCard from "@components/cards/SessionCard.svelte";
+import SearchBar from "@components/base/SearchBar.svelte";
 
-import { sessions as mockSessions } from "shared/mock";
+import { Authentication } from "shared/models";
+import { db } from "shared/helpers";
 
-// Mock SSR role check
-const isTeacher = true;
+const token = Authentication.validateToken(Astro.request);
+if (!token) return Astro.redirect("/auth/login");
 
-// Mock data for the dashboard
-const sessionRequests = [
-    { id: 1, user: "Alex M.", skill: "Intro to Python", active: true },
-    { id: 2, user: "Sarah K.", skill: "Graphic Design", active: false },
+const sessions = await db.session.findMany({
+    where: { userId: token.sub },
+    orderBy: { eventDate: 'asc' }
+});
+
+const mySessions = sessions.map(s => ({
+    id: s.id,
+    title: s.name,
+    zoomLink: s.meetingUrl || "",
+    time: s.eventDate.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' }),
+    status: s.eventDate > new Date() ? "Upcoming" : "Past",
+    details: s.description || ""
+}));
+
+const reviews = await db.review.findMany({
+    where: { 
+        recipientId: token.sub,
+        rating: { gt: 0 }
+    },
+    include: {
+        author: {
+            include: {
+                profile: true
+            }
+        },
+        session: true
+    },
+    orderBy: { createdAt: 'desc' }
+});
+
+const messages = await db.message.findMany({
+    where: {
+        recipientId: token.sub
+    },
+    include: {
+        sender: {
+            include: {
+                profile: true
+            }
+        }
+    },
+    orderBy: { createdAt: 'desc' }
+});
+
+const allTopics = [
+    { icon: "💻", title: "Technology", description: "Programming, Design, Data" },
+    { icon: "🎨", title: "Arts & Creative", description: "Drawing, Painting, Music" },
+    { icon: "🍳", title: "Lifestyle", description: "Cooking, Gardening, DIY" },
+    { icon: "🗣️", title: "Languages", description: "Spanish, French, ESL" },
+    { icon: "🎸", title: "Music", description: "Guitar, Piano, Theory" },
+    { icon: "📸", title: "Photography", description: "Digital, Film, Editing" },
+    { icon: "🧘", title: "Wellness", description: "Yoga, Meditation, Fitness" },
+    { icon: "💰", title: "Finance", description: "Investing, Budgeting, Taxes" },
+    { icon: "📢", title: "Marketing", description: "Social Media, SEO, Branding" },
+    { icon: "✍️", title: "Writing", description: "Creative, Technical, Copy" }
 ];
 
-const upcomingSessions = [
-    { id: 1, title: "Advanced CSS Layouts", partner: "Jordan T.", time: "Today, 4:30 PM", type: "learning" },
-    { id: 2, title: "Guitar Basics", partner: "Casey W.", time: "Tomorrow, 10:00 AM", type: "teaching" },
-];
-
-const teachingSessions = [
-    {
-        id: 1,
-        title: "Intro to Python Mentoring",
-        zoomLink: "https://zoom.us/j/123456789",
-        time: "Today, 2:00 PM",
-        status: "Upcoming",
-        details: "Reviewing loops and functions.",
-    },
-    {
-        id: 2,
-        title: "Guitar Basics",
-        zoomLink: "https://zoom.us/j/987654321",
-        time: "Tomorrow, 4:00 PM",
-        status: "Pending",
-        details: "First lesson: C, G, D chords.",
-    },
-    {
-        id: 3,
-        title: "Advanced React Patterns",
-        zoomLink: "https://zoom.us/j/555555555",
-        time: "Fri, 10:00 AM",
-        status: "Upcoming",
-        details: "Discussing Composition vs. Inheritance.",
-    },
-];
+const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 ---
 
 <Layout title="Dashboard">
@@ -56,142 +78,179 @@ const teachingSessions = [
             <p>Here's what's happening in your learning journey.</p>
         </header>
 
-        <div class="dashboard-grid">
-            <!-- Upcoming Sessions -->
-            <Card class="dashboard-card">
-                <h2>Upcoming Sessions</h2>
-                <div class="session-list">
-                    {
-                        upcomingSessions.map((session) => (
-                            <div class="list-item">
-                                <div class="info">
-                                    <span class="title">{session.title}</span>
-                                    <span class="meta">
-                                        {session.type === "learning" ? "Learning from" : "Teaching"} {session.partner} •{" "}
+        <section class="teacher-dashboard">
+            <Card class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>Your Sessions</h2>
+                    <Button size="sm" href="/session/create">
+                        Create New Session
+                    </Button>
+                </div>
+                <div class="teaching-list">
+                    {mySessions.map((session) => (
+                        <div class="session-item-detailed">
+                            <div class="session-main">
+                                <div class="session-header">
+                                    <h3>{session.title}</h3>
+                                    <span class={`status-badge ${session.status.toLowerCase()}`}>
+                                        {session.status}
+                                    </span>
+                                </div>
+                                <div class="session-details">
+                                    {session.zoomLink && (
+                                        <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <polygon points="23 7 16 12 23 17 23 7" />
+                                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                            </svg>
+                                            Zoom Link
+                                        </a>
+                                    )}
+                                    <span class="detail-item">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <circle cx="12" cy="12" r="10" />
+                                            <polyline points="12 6 12 12 16 14" />
+                                        </svg>
                                         {session.time}
                                     </span>
                                 </div>
-                                <Button size="sm" variant="secondary" iconOnly>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        width="20"
-                                        height="20"
-                                    >
-                                        <path d="M3.196 12.87l-.825.483a.75.75 0 000 1.294l7.25 4.25a.75.75 0 00.758 0l7.25-4.25a.75.75 0 000-1.294l-.825-.484-5.666 3.322a2.25 2.25 0 01-2.276 0L3.196 12.87z" />
-                                        <path d="M15.804 7.63l.825-.483a.75.75 0 000-1.294l-7.25-4.25a.75.75 0 00-.758 0l-7.25 4.25a.75.75 0 000 1.294l.825.484 5.666-3.322a2.25 2.25 0 012.276 0l5.666 3.322z" />
-                                    </svg>
+                                <p class="notes">{session.details}</p>
+                            </div>
+                            <div class="session-actions">
+                                <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
+                                    Edit
+                                </Button>
+                                <Button size="sm" variant="ghost" class="text-danger btn-cancel-session" data-id={session.id}>
+                                    Cancel
                                 </Button>
                             </div>
-                        ))
-                    }
-                    {upcomingSessions.length === 0 && <p class="empty-state">No upcoming sessions.</p>}
-                </div>
-                <div class="card-footer">
-                    <Button variant="primary" block href="/search">Find a New Mentor</Button>
+                        </div>
+                    ))}
+                    {mySessions.length === 0 && (
+                        <div class="empty-state">
+                            <p>You haven't created any sessions yet.</p>
+                        </div>
+                    )}
                 </div>
             </Card>
+        </section>
 
-            <!-- Requests -->
-            <Card class="dashboard-card">
-                <h2>Pending Requests</h2>
-                <div class="request-list">
-                    {
-                        sessionRequests.map((req) => (
-                            <div class="list-item">
-                                <div class="info">
-                                    <span class="title">{req.user}</span>
-                                    <span class="meta">Wants to learn {req.skill}</span>
+        {messages.length > 0 && (
+            <section class="reviews-section">
+                <div class="section-header">
+                    <h2>Messages</h2>
+                </div>
+                
+                <div class="reviews-grid">
+                    {messages.map((message) => (
+                        <Card class="review-card message-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <img 
+                                        src={message.sender.profile?.avatarUrl || "https://ui-avatars.com/api/?name=" + message.sender.handle} 
+                                        alt={message.sender.profile?.displayName} 
+                                        class="avatar" 
+                                    />
+                                    <div>
+                                        <span class="name">{message.sender.profile?.displayName || message.sender.handle}</span>
+                                        <div class="meta-info">
+                                            <span>Message</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="actions-row">
-                                    <Button size="sm" variant="primary">
-                                        Accept
-                                    </Button>
-                                    <Button size="sm" variant="outline">
-                                        Decline
-                                    </Button>
+                                <div class="review-date">
+                                    {message.createdAt.toLocaleDateString()}
+                                    <button class="btn-delete-message" data-id={message.id} aria-label="Delete message">
+                                        <iconify-icon icon="material-symbols:close" width="16" height="16"></iconify-icon>
+                                    </button>
                                 </div>
                             </div>
-                        ))
-                    }
-                </div>
-            </Card>
-        </div>
+                            
+                            <div class="review-content">
+                                <p>"{message.content}"</p>
+                            </div>
 
-        {
-            isTeacher && (
-                <section class="teacher-dashboard">
-                    <Card class="dashboard-card full-width">
-                        <div class="card-header">
-                            <h2>Your Sessions</h2>
-                            <Button size="sm" href="/create">
-                                Create New Session
-                            </Button>
-                        </div>
-                        <div class="teaching-list">
-                            {teachingSessions.map((session) => (
-                                <div class="session-item-detailed">
-                                    <div class="session-main">
-                                        <div class="session-header">
-                                            <h3>{session.title}</h3>
-                                            <span class={`status-badge ${session.status.toLowerCase()}`}>
-                                                {session.status}
-                                            </span>
+                            {message.sessionName && (
+                                <div class="review-footer">
+                                    <small> regarding: {message.sessionName}</small>
+                                </div>
+                            )}
+                        </Card>
+                    ))}
+                </div>
+            </section>
+        )}
+
+        {reviews.length > 0 && (
+            <section class="reviews-section">
+                <div class="section-header">
+                    <h2>Student Ratings</h2>
+                </div>
+                
+                <div class="reviews-grid">
+                    {reviews.map((review) => (
+                        <Card class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <img 
+                                        src={review.author.profile?.avatarUrl || "https://ui-avatars.com/api/?name=" + review.author.handle} 
+                                        alt={review.author.profile?.displayName} 
+                                        class="avatar" 
+                                    />
+                                    <div>
+                                        <span class="name">{review.author.profile?.displayName || review.author.handle}</span>
+                                        <div class="stars">
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <iconify-icon 
+                                                    icon={i < review.rating ? "material-symbols:star" : "material-symbols:star-outline"} 
+                                                    style={{ color: "var(--base-yellow)" }}
+                                                />
+                                            ))}
                                         </div>
-                                        <div class="session-details">
-                                            <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="16"
-                                                    height="16"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                >
-                                                    <polygon points="23 7 16 12 23 17 23 7" />
-                                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                                                </svg>
-                                                Zoom Link
-                                            </a>
-                                            <span class="detail-item">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="16"
-                                                    height="16"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    stroke-width="2"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                >
-                                                    <circle cx="12" cy="12" r="10" />
-                                                    <polyline points="12 6 12 12 16 14" />
-                                                </svg>
-                                                {session.time}
-                                            </span>
-                                        </div>
-                                        <p class="notes">{session.details}</p>
-                                    </div>
-                                    <div class="session-actions">
-                                        <Button size="sm" variant="outline">
-                                            Reschedule
-                                        </Button>
-                                        <Button size="sm" variant="ghost" class="text-danger">
-                                            Cancel
-                                        </Button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </Card>
-                </section>
-            )
-        }
+                                <div class="review-date">
+                                    {review.createdAt.toLocaleDateString()}
+                                    <button class="btn-delete-review" data-id={review.id} aria-label="Hide rating" title="Hide this rating">
+                                        <iconify-icon icon="material-symbols:visibility-off-outline" width="16" height="16"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="review-content">
+                                <p>"{review.comment}"</p>
+                            </div>
+
+                            {review.session && (
+                                <div class="review-footer">
+                                    <small>Session: {review.session.name}</small>
+                                </div>
+                            )}
+                        </Card>
+                    ))}
+                </div>
+            </section>
+        )}
 
         <section class="discover-section">
             <div class="section-header">
@@ -201,93 +260,133 @@ const teachingSessions = [
             <Card class="search-card">
                 <SearchBar placeholder="Find a skill (e.g., 'Guitar', 'Python', 'Cooking')...">
                     <div class="vertical-divider"></div>
-                    <Button type="submit" variant="primary">Search</Button>
+                    <Button variant="primary">Search</Button>
                 </SearchBar>
             </Card>
 
             <div class="discover-layout" id="discover-layout">
-                <div class="skills-list">
-                    {
-                        Object.values(mockSessions)
-                            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-                            .map((session) => <SessionCard payload={session} redirects={false} />)
-                    }
+                <div class="filler-content">
+                    <div class="ideas-section">
+                        <h3>Need Some Ideas?</h3>
+                        <div class="categories-grid">
+                            {suggestedTopics.map(topic => (
+                                <Card class="category-card">
+                                    <span class="icon">{topic.icon}</span>
+                                    <h3>{topic.title}</h3>
+                                    <p>{topic.description}</p>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div class="promo-banner">
+                        <div class="banner-content">
+                            <h3>Ready to share your skills?</h3>
+                            <p>Create a session today and start teaching your passion to others in the community.</p>
+                        </div>
+                        <Button href="/session/create" variant="primary">Start Teaching</Button>
+                    </div>
                 </div>
-
-                <Card class="details-flyout" id="details-flyout">
-                    <div class="flyout-header">
-                        <h3>Course Details</h3>
-                        <button class="close-btn" id="close-flyout" aria-label="Close details">×</button>
-                    </div>
-                    <div class="flyout-content">
-                        <h2 id="flyout-title">Introduction to React</h2>
-                        <div class="flyout-bg placeholder-bg"></div>
-                        <p class="instructor" id="flyout-instructor">by Sarah Jenkins</p>
-
-                        <div class="tags">
-                            <span class="badge beginner">Beginner</span>
-                            <span class="badge">Frontend</span>
-                        </div>
-
-                        <p class="description">
-                            This detailed breakdown covers everything you need to know about the course. It explores the
-                            fundamental concepts, prerequisites, and expected outcomes. Instructors can share their
-                            teaching philosophy and schedule details here.
-                        </p>
-
-                        <div class="flyout-actions">
-                            <Button variant="primary" block>Request Session</Button>
-                            <Button variant="outline" block>View Profile</Button>
-                        </div>
-                    </div>
-                </Card>
             </div>
         </section>
     </div>
 </Layout>
 
 <script>
-    const layout = document.getElementById("discover-layout");
-    const flyout = document.getElementById("details-flyout");
-    const closeBtn = document.getElementById("close-flyout");
-    const SessionCards = document.querySelectorAll(".skill-card-horizontal");
-
-    // Elements to update
-    const titleEl = document.getElementById("flyout-title");
-    const instructorEl = document.getElementById("flyout-instructor");
-    const tagsContainer = document.querySelector("#details-flyout .tags");
-
-    if (layout && closeBtn) {
-        SessionCards.forEach((card) => {
-            card.addEventListener("click", (e) => {
-                const title = card.querySelector(".skill-title")?.textContent;
-                const instructor = card.querySelector(".instructor-name")?.textContent;
-                const difficultyBadge = card.querySelector(".badge");
-
-                if (title && titleEl) titleEl.textContent = title;
-                if (instructor && instructorEl) instructorEl.textContent = instructor;
-
-                if (tagsContainer && difficultyBadge) {
-                    tagsContainer.innerHTML = "";
-                    // Clone the difficulty badge
-                    tagsContainer.appendChild(difficultyBadge.cloneNode(true));
-                }
-
-                layout.classList.add("details-open");
-            });
-        });
-
-        closeBtn.addEventListener("click", () => {
-            layout.classList.add("details-closing");
-            layout.classList.remove("details-open");
-            setTimeout(() => {
-                layout.classList.remove("details-closing");
-            }, 400);
-        });
-    }
+    // Placeholder for search functionality
 </script>
 
 <style lang="scss">
+    .filler-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+        margin-top: 1rem;
+    }
+
+    .ideas-section {
+        h3 {
+            font-family: "Montserrat", sans-serif;
+            font-size: 1.25rem;
+            color: var(--foreground);
+            margin: 0 0 1.5rem 0.5rem;
+            opacity: 0.9;
+        }
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+
+    .category-card {
+        text-align: center;
+        padding: 2rem;
+        transition: transform 0.2s ease;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
+        }
+
+        p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin: 0;
+        }
+    }
+
+    .promo-banner {
+        background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+        border-radius: 12px;
+        padding: 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .banner-content {
+            h3 {
+                font-size: 1.75rem;
+                margin-bottom: 0.75rem;
+                font-family: "Montserrat", sans-serif;
+                color: white; /* Explicitly set color for h3 */
+            }
+
+            p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                max-width: 600px;
+                margin: 0;
+                color: white; /* Explicitly set color for p */
+            }
+        }
+    }
+
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -418,7 +517,126 @@ const teachingSessions = [
         }
     }
 
-    /* Teacher Dashboard */
+
+    .reviews-section {
+        margin-bottom: 3rem;
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .review-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: var(--accent-3);
+            }
+
+            .name {
+                font-weight: 600;
+                font-size: 0.95rem;
+                display: block;
+            }
+
+            .stars {
+                display: flex;
+                gap: 2px;
+                font-size: 0.9rem;
+            }
+
+            .meta-info {
+                font-size: 0.8rem;
+                opacity: 0.7;
+            }
+        }
+
+        .review-date {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            
+            .btn-delete-review, .btn-delete-message {
+                background: none;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                color: var(--foreground);
+                transition: all 0.2s ease;
+                
+                &:hover {
+                    background-color: var(--ttc-red);
+                    color: white;
+                    border-color: var(--ttc-red);
+                    transform: scale(1.1);
+                    opacity: 1;
+                }
+                
+                iconify-icon {
+                    font-size: 16px;
+                }
+            }
+            
+            /* Specific style for visibility/hide button to be blue/neutral instead of red */
+            .btn-delete-review:hover {
+                 background-color: var(--accent-1);
+                 border-color: var(--accent-1);
+            }
+        }
+
+        .review-content {
+            p {
+                margin: 0;
+                font-style: italic;
+                opacity: 0.9;
+                line-height: 1.5;
+            }
+        }
+
+        .review-footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 0.75rem;
+            
+            small {
+                font-size: 0.8rem;
+                opacity: 0.7;
+                
+                a {
+                    color: inherit;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
     .teacher-dashboard {
         margin: 2rem 0;
 
@@ -539,55 +757,9 @@ const teachingSessions = [
         }
     }
 
-    /* order-bottom: 1px solid rgba(0,0,0,0.05);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .info {
-      display: flex;
-      flex-direction: column;
-
-      .title {
-        font-weight: 600;
-        color: var(--foreground);
-      }
-
-      .meta {
-        font-size: 0.85rem;
-        opacity: 0.7;
-      }
-    }
-  }
-
-  .actions-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .card-footer {
-    margin-top: auto;
-    padding-top: 1.5rem;
-  }
-
-  .empty-state {
-      text-align: center;
-      padding: 2rem 0;
-      opacity: 0.6;
-      font-style: italic;
-  }
-
-  @media (max-width: 768px) {
-      .dashboard-grid {
-          grid-template-columns: 1fr;
-      }
-  }
-
-  /* Discover Section */
     .discover-section {
         margin-top: 3rem;
-        padding: 0; /* wow you're so fucking stupid you can't do this */
+        padding: 0;
     }
 
     .discover-layout {
@@ -809,3 +981,121 @@ const teachingSessions = [
         gap: 1rem;
     }
 </style>
+
+<script>
+    const cancelButtons = document.querySelectorAll('.btn-cancel-session');
+
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            if (!confirm('Are you sure you want to cancel this session? This action cannot be undone.')) {
+                return;
+            }
+
+            const buttonEl = e.currentTarget as HTMLButtonElement;
+            const sessionId = buttonEl.getAttribute('data-id');
+
+            try {
+                const response = await fetch('/api/v1/session', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: sessionId })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Failed to cancel session');
+                }
+            } catch (error) {
+                console.error('Error cancelling session:', error);
+                alert('An error occurred while cancelling the session');
+            }
+        });
+    });
+
+    const deleteReviewButtons = document.querySelectorAll('.btn-delete-review');
+
+    deleteReviewButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            if (!confirm('Hide this rating from your dashboard?')) {
+                return;
+            }
+
+            const buttonEl = e.currentTarget as HTMLButtonElement;
+            const reviewId = buttonEl.getAttribute('data-id');
+
+            try {
+                const response = await fetch('/api/v1/session/rate', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: reviewId })
+                });
+
+                if (response.ok) {
+                    // Start closing animation
+                    const card = buttonEl.closest('.review-card') as HTMLElement;
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => card.remove(), 300);
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    console.error('Failed to delete review');
+                    alert('Could not delete review');
+                }
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                alert('An error occurred');
+            }
+        });
+    });
+
+    const deleteMessageButtons = document.querySelectorAll('.btn-delete-message');
+
+    deleteMessageButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            if (!confirm('Delete this message?')) {
+                return;
+            }
+
+            const buttonEl = e.currentTarget as HTMLButtonElement;
+            const messageId = buttonEl.getAttribute('data-id');
+
+            try {
+                const response = await fetch('/api/v1/message', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: messageId })
+                });
+
+                if (response.ok) {
+                    const card = buttonEl.closest('.review-card') as HTMLElement;
+                   if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => card.remove(), 300);
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Failed to delete message');
+                }
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                alert('An error occurred');
+            }
+        });
+    });
+</script>

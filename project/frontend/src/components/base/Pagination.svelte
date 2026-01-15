@@ -1,28 +1,27 @@
----
-import Button from "@components/base/Button.svelte";
+<script lang="ts">
+    import Button from "./Button.svelte";
 
-interface Props {
-    currentPage?: number;
-    totalPages?: number;
-    showSelector?: boolean;
-}
+    export let currentPage: number = 1;
+    export let totalPages: number | undefined = undefined;
+    export let showSelector: boolean = true;
+    
+    let classes: string = "";
+    export { classes as class };
 
-const { currentPage = 1, showSelector = true } = Astro.props;
----
+    classes = (`pagination ${classes}`).trim();
+</script>
 
-<div class="pagination">
-    {
-        showSelector && (
-            <div class="page-info">
-                <label for="per-page">Show</label>
-                <select id="per-page">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                </select>
-            </div>
-        )
-    }
+<div class={classes}>
+    {#if showSelector}
+        <div class="page-info">
+            <label for="per-page">Show</label>
+            <select id="per-page">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+            </select>
+        </div>
+    {/if}
 
     <div class="nav-controls">
         <Button variant="outline" class="page-btn">&lt;</Button>
@@ -37,7 +36,7 @@ const { currentPage = 1, showSelector = true } = Astro.props;
 <style lang="scss">
     $gap: 0.5rem;
 
-    .pagination {
+    :global(.pagination) {
         display: inline-flex;
         align-items: center;
         gap: $gap;
@@ -96,13 +95,5 @@ const { currentPage = 1, showSelector = true } = Astro.props;
         .page-info {
             white-space: nowrap; /* Keep label and input together */
         }
-    }
-
-    .page-btn {
-        display: inline-flex;
-        width: 2rem;
-        height: 2.25rem;
-        padding: 0;
-        font-size: 1rem;
     }
 </style>

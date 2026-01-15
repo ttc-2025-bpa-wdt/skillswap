@@ -1,8 +1,8 @@
----
-import { SITE_TITLE } from "shared/config";
-
-import { Icon } from "astro-icon/components";
----
+<script lang="ts">
+    import { SITE_TITLE } from "shared/config";
+    
+    const currentYear = new Date().getFullYear();
+</script>
 
 <div class="footer-content">
     <div class="footer-section">
@@ -18,15 +18,15 @@ import { Icon } from "astro-icon/components";
     <div class="footer-section">
         <h4>Follow Us</h4>
         <div class="socials">
-            <a href="#" aria-label="Twitter"><Icon name="fa7-brands:x-twitter" size={24} /></a>
-            <a href="#" aria-label="Facebook"><Icon name="fa7-brands:facebook" size={24} /></a>
-            <a href="#" aria-label="Instagram"><Icon name="fa7-brands:instagram" size={24} /></a>
-            <a href="#" aria-label="LinkedIn"><Icon name="fa7-brands:linkedin" size={24} /></a>
+            <a href="/about#contact" aria-label="Twitter"><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24"></iconify-icon></a>
+            <a href="/about#contact" aria-label="Facebook"><iconify-icon icon="fa7-brands:facebook" width="24" height="24"></iconify-icon></a>
+            <a href="/about#contact" aria-label="Instagram"><iconify-icon icon="fa7-brands:instagram" width="24" height="24"></iconify-icon></a>
+            <a href="/about#contact" aria-label="LinkedIn"><iconify-icon icon="fa7-brands:linkedin" width="24" height="24"></iconify-icon></a>
         </div>
     </div>
 </div>
 <div class="copyright">
-    <p>&copy; {new Date().getFullYear()} {SITE_TITLE}. All rights reserved.</p>
+    <p>&copy; {currentYear} {SITE_TITLE}. All rights reserved.</p>
 </div>
 
 <style lang="scss">
@@ -98,18 +98,16 @@ import { Icon } from "astro-icon/components";
 
             &:hover {
                 background-color: var(--accent-1);
-                color: white;
-                transform: translateY(-3px);
             }
         }
     }
 
     .copyright {
         text-align: center;
-        margin-top: 4rem;
-        padding-top: 2rem;
-        border-top: 1px solid color-mix(in srgb, var(--foreground), transparent 90%);
-        opacity: 0.7;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         font-size: 0.9rem;
+        opacity: 0.7;
     }
 </style>

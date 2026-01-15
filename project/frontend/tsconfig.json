@@ -1,4 +1,5 @@
 {
+    "exclude": [ "../shared/" ],
     "compilerOptions": {
         "paths": {
             "@components/*": ["./src/components/*"],

@@ -4,7 +4,7 @@ import { Profile, ProfileFilter, User, UserFilter } from "shared/models";
 
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
-import Card from "@components/base/Card.astro";
+import Card from "@components/base/Card.svelte";
 
 const team = [
     {
@@ -148,10 +148,7 @@ const competitionMetadata = {
                     </div>
                 </div>
 
-                <div class="info-row">
-                    <Button variant="primary" href={competitionMetadata.repo} target="_blank">GitHub Repo</Button>
-                    <Button variant="outline" href={competitionMetadata.project} target="_blank">Project Board</Button>
-                </div>
+                <Button variant="primary" href={competitionMetadata.repo} target="_blank">GitHub Repo</Button>
             </div>
         </Card>
     </section>
@@ -181,24 +178,69 @@ const competitionMetadata = {
                 </div>
             </div>
 
-            <form class="contact-form" onsubmit="event.preventDefault(); alert('Message sent!');">
+            <form id="contact-form" class="contact-form">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" id="name" placeholder="Your Name" required />
+                    <input type="text" id="name" name="name" placeholder="Your Name" required />
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Your Email" required />
+                    <input type="email" id="email" name="email" placeholder="Your Email" required />
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" rows="4" placeholder="How can we help?" required></textarea>
+                    <textarea id="message" name="message" rows="4" placeholder="How can we help?" required></textarea>
                 </div>
                 <Button type="submit" variant="primary" block>Send Message</Button>
             </form>
         </Card>
     </section>
 </Layout>
+
+<script>
+    const contactForm = document.getElementById("contact-form") as HTMLFormElement;
+    contactForm?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const btn = contactForm.querySelector('button[type="submit"]');
+        let originalText = "";
+        if (btn) {
+            originalText = btn.textContent || "Send Message";
+            btn.textContent = "Sending...";
+            (btn as HTMLButtonElement).disabled = true;
+        }
+
+        const formData = new FormData(contactForm);
+
+        try {
+            const res = await fetch("/api/v1/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: formData.get("name"),
+                    email: formData.get("email"),
+                    message: formData.get("message")
+                })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert("Message sent successfully!");
+                contactForm.reset();
+            } else {
+                alert(result.error || "Failed to send message");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error sending message");
+        } finally {
+            if (btn) {
+                btn.textContent = originalText;
+                (btn as HTMLButtonElement).disabled = false;
+            }
+        }
+    });
+</script>
 
 <style lang="scss">
     .about-hero {
@@ -440,14 +482,17 @@ const competitionMetadata = {
     }
 
     .contact-card {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 3rem;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
         padding: 3rem;
+        box-sizing: border-box;
 
-        @media (max-width: 900px) {
-            grid-template-columns: 1fr;
-            gap: 2rem;
+        @media (max-width: 768px) {
+            padding: 2rem;
         }
 
         @media (max-width: 600px) {
@@ -456,6 +501,8 @@ const competitionMetadata = {
     }
 
     .contact-info {
+        text-align: center;
+
         h3 {
             font-family: "Montserrat", sans-serif;
             font-size: 1.5rem;
@@ -469,7 +516,8 @@ const competitionMetadata = {
 
         .info-item {
             display: flex;
-            align-items: flex-start; /* Align top for multi-line text */
+            align-items: center; 
+            justify-content: center;
             margin-bottom: 1rem;
             font-size: 1rem;
 
@@ -569,6 +617,7 @@ const competitionMetadata = {
     }
 
     .contact-form {
+
         .form-group {
             margin-bottom: 1.5rem;
 

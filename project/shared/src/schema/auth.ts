@@ -3,3 +3,7 @@ export interface IAuthToken {
     iat: number;
     exp?: number;
 }
+
+export interface IEmailVerificationToken extends IAuthToken {
+    email: string;
+}

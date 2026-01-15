@@ -1,39 +1,54 @@
----
-import Card from "@components/base/Card.astro";
-import { User, UserFilter } from "shared/models";
-import { profileTags, type IProfile } from "shared/schema";
+<script lang="ts">
+    import Card from "@components/base/Card.svelte";
+    import { User, UserFilter } from "shared/models";
+    import { profileTags, type IProfile, type IUser } from "shared/schema";
 
-interface Props {
-    payload: IProfile;
-}
+    export let payload: Partial<IProfile>;
+    export let user: IUser | null = null;
+    
+    const { userId, displayName, avatarUrl, tags, stats, skills } = payload as IProfile;
 
-const { userId, displayName, avatarUrl, tags, stats, skills } = Astro.props.payload;
-const user = await User.read(userId, UserFilter.Id);
+    export async function load(): Promise<{ user: IUser | null }> {
+        const user = await User.read(userId, UserFilter.Id);
+        return { user };
+    }
 
-const handle = user?.handle || "__unk"; // todo: handle this (it shouldnt ever happen but whatever)
----
+    $: handle = user?.handle || "__unk";
+</script>
 
-<Card class="user-card-horizontal" href={`/profile/${handle}`}>
-    <div class="user-pane">
-        <img src={avatarUrl} alt={displayName} class="avatar large" />
-        <div class="rating">
-            {stats.rating.toFixed(1)}
+{#if user}
+    <Card class="user-card" href={`/profile/${handle}`}>
+        <div class="user-pane">
+            <img src={avatarUrl} alt={displayName} class="avatar large" />
+            <div class="rating">
+                {stats.rating.toFixed(1)}
+            </div>
         </div>
-    </div>
 
-    <div class="separator"></div>
+        <div class="separator"></div>
 
-    <div class="user-content">
-        <h3 class="user-name">{displayName}</h3>
-        <p class="user-role">{tags.map((tag) => profileTags[tag]?.name).join(", ")}</p>
-        <div class="skills-tags">
-            {skills.map((skill) => <span class="tag">{skill}</span>)}
+        <div class="user-content">
+            <h3 class="user-name">{displayName}</h3>
+            <p class="user-role">{tags.map((tag) => profileTags[tag]?.name).join(", ")}</p>
+            <div class="skills-tags">
+                {#each skills as skill}
+                    <span class="tag">{skill}</span>
+                {/each}
+            </div>
         </div>
-    </div>
-</Card>
+    </Card>
+{:else}
+    {#await load() then data}
+        <svelte:self payload={payload} user={data.user} />
+    {:catch}
+        <div class="user-card error">
+            <p>Error loading user</p>
+        </div>
+    {/await}
+{/if}
 
 <style lang="scss">
-    .user-card-horizontal {
+    :global(.user-card) {
         display: flex;
         align-items: flex-start;
         flex-direction: row;

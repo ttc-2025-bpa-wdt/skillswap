@@ -2,9 +2,8 @@
 import { SITE_TITLE } from "shared/config";
 
 import Metadata from "@components/global/Metadata.astro";
-import Topbar from "@components/global/TopBar.astro";
-import Footer from "@components/global/Footer.astro";
-import ChatWidget from "@components/global/ChatOverlay.astro";
+import Topbar from "@components/global/TopBar.svelte";
+import Footer from "@components/global/Footer.svelte";
 
 interface Props {
     title: string;
@@ -21,11 +20,14 @@ const rootAttributes = {
 import "@styles/global.scss";
 
 import { Authentication, User, UserFilter } from "shared/models";
-import { IUser } from "shared/schema";
-import MenuStrip from "@components/global/MenuStrip.astro";
+import { IUser, UserRole } from "shared/schema";
+
+// import ChatWidget from "@components/global/ChatOverlay.svelte";
+// import MenuStrip from "@components/global/MenuStrip.svelte";
 
 const token = Authentication.validateToken(Astro.request);
 const user = token ? await User.read(token.sub, UserFilter.Id) : null;
+const isAdmin = user?.role === UserRole.Admin;
 ---
 
 <!doctype html>
@@ -41,17 +43,20 @@ const user = token ? await User.read(token.sub, UserFilter.Id) : null;
     </head>
     <body>
         <header>
-            <Topbar user={user} />
+            <Topbar user={user} isAdmin={isAdmin} client:load />
         </header>
         <main>
             <slot />
         </main>
         <footer>
             <Footer />
-            <MenuStrip />
+            <!-- <MenuStrip /> -->
         </footer>
         <span data-overlay></span>
-        {user ? <ChatWidget user={user} /> : null}
+        <!-- {user ? <ChatWidget user={user} /> : null} -->
+
+        <!-- Iconify for icons used in various components. Svelte made this more difficult than it had to be. -->
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.0/dist/iconify-icon.min.js"></script>
     </body>
 </html>
 
