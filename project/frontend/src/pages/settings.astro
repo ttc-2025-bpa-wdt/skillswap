@@ -397,7 +397,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 
     uploadBtn?.addEventListener("click", () => avatarInput?.click());
 
-    resetAvatarBtn?.addEventListener("click", async () => {
+    removeBtn?.addEventListener("click", async () => {
         if (await showConfirm("Reset avatar to default?", "Reset Avatar")) {
             const defaultUrl = "/images/avatar/default.png";
             if (avatarImg) avatarImg.src = defaultUrl;

@@ -100,7 +100,7 @@ select {
     }
 
     &[disabled] {
-        background-color: color-mix(in srgb, var(--background), black 10%) !important; // FUCK YOU
+        background-color: color-mix(in srgb, var(--background), black 10%) !important;
         cursor: not-allowed;
     }
 
