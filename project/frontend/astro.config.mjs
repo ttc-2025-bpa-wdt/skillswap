@@ -14,6 +14,9 @@ export default defineConfig({
         port: 80 /* 3000 */,
         allowedHosts: [ DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
     },
+    devToolbar: {
+        enabled: false 
+    },
     vite: {
         server: {
             host: "0.0.0.0",
