@@ -266,6 +266,7 @@ if (id) {
 </style>
 
 <script>
+    import { showAlert } from "@lib/ui";
     const form = document.getElementById("edit-session-form") as HTMLFormElement;
 
     form?.addEventListener("submit", async (e) => {
@@ -301,10 +302,10 @@ if (id) {
 
             const result = await res.json();
             if (result.success) {
-                alert("Session updated successfully!");
+                await showAlert("Session updated successfully!", "Success");
                 window.location.href = `/dashboard`;
             } else {
-                alert(result.error || "Failed to update session");
+                await showAlert(result.error || "Failed to update session", "Error");
                 if (btn) {
                     btn.textContent = originalText;
                     (btn as HTMLButtonElement).disabled = false;
@@ -312,7 +313,7 @@ if (id) {
             }
         } catch (err) {
             console.error(err);
-            alert("Error updating session");
+            await showAlert("Error updating session", "Error");
             if (btn) {
                 btn.textContent = originalText;
                 (btn as HTMLButtonElement).disabled = false;

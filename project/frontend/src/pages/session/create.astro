@@ -219,6 +219,7 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
 </style>
 
 <script>
+    import { showAlert } from "@lib/ui";
     const form = document.getElementById("create-session-form") as HTMLFormElement;
 
     // Set default datetime to tomorrow at this time
@@ -261,10 +262,10 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
 
             const result = await res.json();
             if (result.success && result.data?.id) {
-                alert("Session created successfully!");
+                await showAlert("Session created successfully!", "Success");
                 window.location.href = `/session/${result.data.id}`;
             } else {
-                alert(result.error || "Failed to create session");
+                await showAlert(result.error || "Failed to create session", "Error");
                 if (btn) {
                     btn.textContent = originalText;
                     (btn as HTMLButtonElement).disabled = false;
@@ -272,7 +273,7 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
             }
         } catch (err) {
             console.error(err);
-            alert("Error creating session");
+            await showAlert("Error creating session", "Error");
             if (btn) {
                 btn.textContent = originalText;
                 (btn as HTMLButtonElement).disabled = false;

@@ -36,6 +36,8 @@ import "@styles/auth.scss";
             </form>
             
             <script>
+                import { showAlert } from "@lib/ui";
+
                 const form = document.getElementById('login-form') as HTMLFormElement;
                 const errorDiv = document.getElementById('client-error');
 
@@ -64,7 +66,7 @@ import "@styles/auth.scss";
                                 errorDiv.innerText = result.error || "Login failed";
                                 errorDiv.style.display = 'block';
                             } else {
-                                alert(result.error);
+                                await showAlert(result.error || "Login failed", "Error");
                             }
                         }
                     } catch (err) {

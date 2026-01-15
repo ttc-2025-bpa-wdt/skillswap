@@ -4,6 +4,7 @@ import { SITE_TITLE } from "shared/config";
 import Metadata from "@components/global/Metadata.astro";
 import Topbar from "@components/global/TopBar.svelte";
 import Footer from "@components/global/Footer.svelte";
+import AlertModal from "@components/base/AlertModal.svelte";
 
 interface Props {
     title: string;
@@ -53,6 +54,8 @@ const isAdmin = user?.role === UserRole.Admin;
             <!-- <MenuStrip /> -->
         </footer>
         <span data-overlay></span>
+        <AlertModal client:load />
+
         <!-- {user ? <ChatWidget user={user} /> : null} -->
 
         <!-- Iconify for icons used in various components. Svelte made this more difficult than it had to be. -->

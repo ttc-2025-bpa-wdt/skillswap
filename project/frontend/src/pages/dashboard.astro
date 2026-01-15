@@ -991,6 +991,8 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 </style>
 
 <script>
+    import { showAlert, showConfirm } from "@lib/ui";
+
     const cancelButtons = document.querySelectorAll('.btn-cancel-session');
 
     cancelButtons.forEach(button => {
@@ -1003,7 +1005,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                 ? 'Are you sure you want to cancel this session? This action cannot be undone.'
                 : 'Are you sure you want to leave this session?';
 
-            if (!confirm(confirmMsg)) {
+            if (!await showConfirm(confirmMsg, isHost ? "Cancel Session" : "Leave Session")) {
                 return;
             }
 
@@ -1024,11 +1026,11 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                     window.location.reload();
                 } else {
                     const data = await response.json();
-                    alert(data.error || (isHost ? 'Failed to cancel session' : 'Failed to leave session'));
+                    await showAlert(data.error || (isHost ? 'Failed to cancel session' : 'Failed to leave session'), "Error");
                 }
             } catch (error) {
                 console.error('Error processing request:', error);
-                alert('An error occurred');
+                await showAlert('An error occurred', "Error");
             }
         });
     });
@@ -1037,7 +1039,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 
     deleteReviewButtons.forEach(button => {
         button.addEventListener('click', async (e) => {
-            if (!confirm('Hide this rating from your dashboard?')) {
+            if (!await showConfirm('Hide this rating from your dashboard?', "Hide Rating")) {
                 return;
             }
 
@@ -1066,11 +1068,11 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                     }
                 } else {
                     console.error('Failed to delete review');
-                    alert('Could not delete review');
+                    await showAlert('Could not delete review', "Error");
                 }
             } catch (error) {
                 console.error('Error deleting review:', error);
-                alert('An error occurred');
+                await showAlert('An error occurred', "Error");
             }
         });
     });
@@ -1079,7 +1081,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 
     deleteMessageButtons.forEach(button => {
         button.addEventListener('click', async (e) => {
-            if (!confirm('Delete this message?')) {
+            if (!await showConfirm('Delete this message?', "Delete Message")) {
                 return;
             }
 
@@ -1107,11 +1109,11 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                     }
                 } else {
                     const data = await response.json();
-                    alert(data.error || 'Failed to delete message');
+                    await showAlert(data.error || 'Failed to delete message', "Error");
                 }
             } catch (error) {
                 console.error('Error deleting message:', error);
-                alert('An error occurred');
+                await showAlert('An error occurred', "Error");
             }
         });
     });

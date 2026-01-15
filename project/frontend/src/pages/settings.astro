@@ -383,6 +383,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 </style>
 
 <script>
+    import { showAlert, showConfirm } from "@lib/ui";
     // Form handling
     const profileForm = document.getElementById("profile-form") as HTMLFormElement;
     const accountForm = document.getElementById("account-form");
@@ -396,8 +397,8 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 
     uploadBtn?.addEventListener("click", () => avatarInput?.click());
 
-    removeBtn?.addEventListener("click", () => {
-        if (confirm("Reset avatar to default?")) {
+    resetAvatarBtn?.addEventListener("click", async () => {
+        if (await showConfirm("Reset avatar to default?", "Reset Avatar")) {
             const defaultUrl = "/images/avatar/default.png";
             if (avatarImg) avatarImg.src = defaultUrl;
             if (avatarUrlInput) avatarUrlInput.value = defaultUrl;
@@ -409,7 +410,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
         if (!file) return;
         
         if (file.size > 5 * 1024 * 1024) {
-            alert("File is too large (max 5MB)");
+            await showAlert("File is too large (max 5MB)", "Error");
             return;
         }
 
@@ -429,11 +430,11 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
                 if (avatarImg) avatarImg.src = `${url}?v=${Date.now()}`;
                 if (avatarUrlInput) avatarUrlInput.value = url;
             } else {
-                alert(result.error || "Upload failed");
+                await showAlert(result.error || "Upload failed", "Error");
             }
         } catch (err) {
             console.error(err);
-            alert("Upload failed");
+            await showAlert("Upload failed", "Error");
         } finally {
             if (uploadBtn) uploadBtn.textContent = originalText;
             avatarInput.value = ""; 
@@ -470,25 +471,25 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
                     }, 2000);
                 } else {
                     btn.textContent = originalText;
-                    alert(result.error);
+                    await showAlert(result.error, "Error");
                 }
             } catch (err) {
                 console.error(err);
                 btn.textContent = originalText;
-                alert("Error saving settings");
+                await showAlert("Error saving settings", "Error");
             }
         }
     });
 
-    accountForm?.addEventListener("submit", (e) => {
+    accountForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        alert("Email update functionality to be implemented.");
+        await showAlert("Email update functionality to be implemented.", "Info");
     });
 
     // Delete Account
     const deleteAccountBtn = document.getElementById("btn-delete-account");
     deleteAccountBtn?.addEventListener("click", async () => {
-        if (confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
+        if (await showConfirm("Are you sure you want to permanently delete your account? This action cannot be undone.", "Delete Account")) {
              const originalText = deleteAccountBtn.textContent;
              deleteAccountBtn.textContent = "Deleting...";
              try {
@@ -498,15 +499,15 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
                  });
                  const result = await res.json();
                  if (result.success) {
-                     alert("Account deleted.");
+                     await showAlert("Account deleted.", "Success");
                      window.location.href = "/";
                  } else {
-                     alert(result.error || "Failed to delete account");
+                     await showAlert(result.error || "Failed to delete account", "Error");
                      deleteAccountBtn.textContent = originalText;
                  }
              } catch (err) {
                  console.error(err);
-                 alert("Request failed");
+                 await showAlert("Request failed", "Error");
                  deleteAccountBtn.textContent = originalText;
              }
         }

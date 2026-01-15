@@ -165,6 +165,12 @@ const formatDate = (date: Date) => {
 
 </GlobalLayout>
 
+<script>
+    import { showAlert, showConfirm } from "@lib/ui";
+    (window as any).showAlert = showAlert;
+    (window as any).showConfirm = showConfirm;
+</script>
+
 <script is:inline>
     // Tab switching
     window.openTab = function(evt, tabName) {
@@ -191,7 +197,7 @@ const formatDate = (date: Date) => {
     // --- User Actions ---
 
     window.deleteUser = async function(handle) {
-        if (!confirm(`Are you sure you want to delete user @${handle}?`)) return;
+        if (!await window.showConfirm(`Are you sure you want to delete user @${handle}?`, "Delete User")) return;
 
         try {
             const res = await fetch(`/api/v1/user?handle=${handle}`, {
@@ -199,13 +205,13 @@ const formatDate = (date: Date) => {
             });
             const data = await res.json();
             if (data.success) {
-                alert('User deleted successfully');
+                await window.showAlert('User deleted successfully');
                 window.location.reload();
             } else {
-                alert('Error: ' + data.error);
+                await window.showAlert('Error: ' + data.error);
             }
         } catch (e) {
-            alert('Request failed');
+            await window.showAlert('Request failed');
         }
     }
 
@@ -265,13 +271,13 @@ const formatDate = (date: Date) => {
             });
             const data = await res.json();
             if (data.success) {
-                alert('User updated');
+                await window.showAlert('User updated');
                 window.location.reload();
             } else {
-                alert('Error: ' + data.error);
+                await window.showAlert('Error: ' + data.error);
             }
         } catch (e) {
-            alert('Request failed');
+            await window.showAlert('Request failed');
         }
     }
 
@@ -279,7 +285,7 @@ const formatDate = (date: Date) => {
     // --- Session Actions ---
 
     window.deleteSession = async function(id) {
-        if (!confirm(`Delete session ${id}?`)) return;
+        if (!await window.showConfirm(`Delete session ${id}?`, "Delete Session")) return;
 
         try {
             const res = await fetch('/api/v1/session', {
@@ -289,13 +295,13 @@ const formatDate = (date: Date) => {
             });
             const data = await res.json();
             if (data.success) {
-                alert('Session deleted');
+                await window.showAlert('Session deleted');
                 window.location.reload();
             } else {
-                alert('Error: ' + data.error);
+                await window.showAlert('Error: ' + data.error);
             }
         } catch (e) {
-            alert('Request failed');
+            await window.showAlert('Request failed');
         }
     }
 
@@ -350,13 +356,13 @@ const formatDate = (date: Date) => {
             });
             const data = await res.json();
             if (data.success) {
-                alert('Session updated');
+                await window.showAlert('Session updated');
                 window.location.reload();
             } else {
-                alert('Error: ' + data.error);
+                await window.showAlert('Error: ' + data.error);
             }
         } catch (e) {
-            alert('Request failed');
+            await window.showAlert('Request failed');
         }
     }
 </script>

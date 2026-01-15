@@ -219,6 +219,7 @@ import "@styles/auth.scss";
 </Layout>
 
 <script>
+    import { showAlert } from "@lib/ui";
     const form = document.getElementById("register-form") as HTMLFormElement;
     const firstnameInput = document.getElementById("firstname") as HTMLInputElement;
     const lastnameInput = document.getElementById("lastname") as HTMLInputElement;
@@ -434,13 +435,13 @@ import "@styles/auth.scss";
                 } else {
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
-                    alert(result.error || "Registration failed");
+                    await showAlert(result.error || "Registration failed", "Error");
                 }
             } catch (err) {
                 console.error(err);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
-                alert("Communication error, please try again.");
+                await showAlert("Communication error, please try again.", "Error");
             }
         }
     });

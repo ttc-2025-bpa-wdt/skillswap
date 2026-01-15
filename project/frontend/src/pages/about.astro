@@ -198,6 +198,7 @@ const competitionMetadata = {
 </Layout>
 
 <script>
+    import { showAlert } from "@lib/ui";
     const contactForm = document.getElementById("contact-form") as HTMLFormElement;
     contactForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -225,14 +226,14 @@ const competitionMetadata = {
 
             const result = await res.json();
             if (result.success) {
-                alert("Message sent successfully!");
+                await showAlert("Message sent successfully!", "Success");
                 contactForm.reset();
             } else {
-                alert(result.error || "Failed to send message");
+                await showAlert(result.error || "Failed to send message", "Error");
             }
         } catch (err) {
             console.error(err);
-            alert("Error sending message");
+            await showAlert("Error sending message", "Error");
         } finally {
             if (btn) {
                 btn.textContent = originalText;
