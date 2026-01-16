@@ -383,7 +383,9 @@ class ApiV1Endpoints {
         const bio = req.body.bio ? validator.escape(validator.trim(String(req.body.bio))) : "";
 
         if (displayName.length > LIMITS.DISPLAY_NAME_MAX)
-            return res.status(400).json({ success: false, error: `Display name cannot exceed ${LIMITS.DISPLAY_NAME_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Display name cannot exceed ${LIMITS.DISPLAY_NAME_MAX} characters` });
         if (bio.length > LIMITS.BIO_MAX)
             return res.status(400).json({ success: false, error: `Bio cannot exceed ${LIMITS.BIO_MAX} characters` });
 
@@ -474,7 +476,10 @@ class ApiV1Endpoints {
         if (sHandle.length < LIMITS.HANDLE_MIN || sHandle.length > LIMITS.HANDLE_MAX)
             return res
                 .status(400)
-                .json({ success: false, error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters` });
+                .json({
+                    success: false,
+                    error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters`,
+                });
         if (sFirstName.length > LIMITS.NAME_MAX || sLastName.length > LIMITS.NAME_MAX)
             return res.status(400).json({ success: false, error: `Name cannot exceed ${LIMITS.NAME_MAX} characters` });
 
@@ -550,7 +555,9 @@ class ApiV1Endpoints {
         }
 
         if (message.length > LIMITS.MESSAGE_MAX)
-            return res.status(400).json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
 
         console.log(`[FEEDBACK] From: ${name} <${email}>`);
         console.log(`[FEEDBACK] Message: ${message}`);
@@ -620,9 +627,13 @@ class ApiV1Endpoints {
         const difficulty = validator.trim(String(req.body.difficulty || ""));
 
         if (name.length > LIMITS.SESSION_NAME_MAX)
-            return res.status(400).json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
         if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
-            return res.status(400).json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
 
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
@@ -640,7 +651,9 @@ class ApiV1Endpoints {
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
 
         if (description.length > LIMITS.SESSION_DESC_MAX)
-            return res.status(400).json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
@@ -683,9 +696,13 @@ class ApiV1Endpoints {
         const difficulty = validator.trim(String(req.body.difficulty || ""));
 
         if (name.length > LIMITS.SESSION_NAME_MAX)
-            return res.status(400).json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
         if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
-            return res.status(400).json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
 
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
@@ -706,7 +723,9 @@ class ApiV1Endpoints {
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
 
         if (description.length > LIMITS.SESSION_DESC_MAX)
-            return res.status(400).json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
+            return res
+                .status(400)
+                .json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
