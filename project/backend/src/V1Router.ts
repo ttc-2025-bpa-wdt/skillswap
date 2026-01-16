@@ -19,7 +19,7 @@ import {
 import validator from "validator";
 
 import { Authentication } from "shared/models";
-import { AUTH_COOKIE_EXPIRY, AUTH_COOKIE_NAME, DEVELOPMENT_MODE } from "shared/config";
+import { AUTH_COOKIE_EXPIRY, AUTH_COOKIE_NAME, DEVELOPMENT_MODE, LIMITS } from "shared/config";
 import { Security } from "shared/helpers";
 
 // TODO (optimization): Currently using synchronous filesystem APIs. This really isn't a problem unless we have
@@ -382,6 +382,11 @@ class ApiV1Endpoints {
         const avatarUrl = req.body.avatarUrl ? validator.trim(String(req.body.avatarUrl)) : "";
         const bio = req.body.bio ? validator.escape(validator.trim(String(req.body.bio))) : "";
 
+        if (displayName.length > LIMITS.DISPLAY_NAME_MAX)
+            return res.status(400).json({ success: false, error: `Display name cannot exceed ${LIMITS.DISPLAY_NAME_MAX} characters` });
+        if (bio.length > LIMITS.BIO_MAX)
+            return res.status(400).json({ success: false, error: `Bio cannot exceed ${LIMITS.BIO_MAX} characters` });
+
         // dont load images that arent uploaded to the server
         if (avatarUrl && !avatarUrl.startsWith("/images/avatar/")) {
             return res.status(400).json({ success: false, error: "Invalid avatar URL" });
@@ -389,7 +394,12 @@ class ApiV1Endpoints {
 
         const sanitizeList = (list: any) => {
             if (Array.isArray(list)) {
-                return list.map((item) => (typeof item === "string" ? validator.escape(validator.trim(item)) : item));
+                if (list.length > LIMITS.TAGS_COUNT_MAX) list.length = LIMITS.TAGS_COUNT_MAX;
+                return list.map((item) => {
+                    let s = typeof item === "string" ? validator.escape(validator.trim(item)) : "";
+                    if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
+                    return s;
+                });
             }
             return [];
         };
@@ -461,6 +471,12 @@ class ApiV1Endpoints {
         const sLastName = validator.escape(validator.trim(String(lastName)));
 
         if (!validator.isEmail(sEmail)) return res.status(400).json({ success: false, error: "Invalid email format" });
+        if (sHandle.length < LIMITS.HANDLE_MIN || sHandle.length > LIMITS.HANDLE_MAX)
+            return res
+                .status(400)
+                .json({ success: false, error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters` });
+        if (sFirstName.length > LIMITS.NAME_MAX || sLastName.length > LIMITS.NAME_MAX)
+            return res.status(400).json({ success: false, error: `Name cannot exceed ${LIMITS.NAME_MAX} characters` });
 
         const existing = await db.user.findFirst({
             where: { OR: [{ email: sEmail }, { handle: sHandle }] },
@@ -533,6 +549,9 @@ class ApiV1Endpoints {
             return res.status(400).json({ success: false, error: "Missing required fields" });
         }
 
+        if (message.length > LIMITS.MESSAGE_MAX)
+            return res.status(400).json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
+
         console.log(`[FEEDBACK] From: ${name} <${email}>`);
         console.log(`[FEEDBACK] Message: ${message}`);
 
@@ -599,15 +618,29 @@ class ApiV1Endpoints {
         const name = validator.escape(validator.trim(String(req.body.name || "")));
         const prereqs = validator.escape(validator.trim(String(req.body.prereqs || "")));
         const difficulty = validator.trim(String(req.body.difficulty || ""));
+
+        if (name.length > LIMITS.SESSION_NAME_MAX)
+            return res.status(400).json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
+        if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
+            return res.status(400).json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
+
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
-            categories = categories.map((c: any) => (typeof c === "string" ? validator.escape(validator.trim(c)) : c));
+            if (categories.length > LIMITS.TAGS_COUNT_MAX) categories.length = LIMITS.TAGS_COUNT_MAX;
+            categories = categories.map((c: any) => {
+                let s = typeof c === "string" ? validator.escape(validator.trim(c)) : "";
+                if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
+                return s;
+            });
         } else {
             categories = [];
         }
 
         const description = validator.escape(validator.trim(String(req.body.description || "")));
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
+
+        if (description.length > LIMITS.SESSION_DESC_MAX)
+            return res.status(400).json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
@@ -648,9 +681,20 @@ class ApiV1Endpoints {
         const name = validator.escape(validator.trim(String(req.body.name || "")));
         const prereqs = validator.escape(validator.trim(String(req.body.prereqs || "")));
         const difficulty = validator.trim(String(req.body.difficulty || ""));
+
+        if (name.length > LIMITS.SESSION_NAME_MAX)
+            return res.status(400).json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
+        if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
+            return res.status(400).json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
+
         let categories = req.body.categories;
         if (Array.isArray(categories)) {
-            categories = categories.map((c: any) => (typeof c === "string" ? validator.escape(validator.trim(c)) : c));
+            if (categories.length > LIMITS.TAGS_COUNT_MAX) categories.length = LIMITS.TAGS_COUNT_MAX;
+            categories = categories.map((c: any) => {
+                let s = typeof c === "string" ? validator.escape(validator.trim(c)) : "";
+                if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
+                return s;
+            });
         } else {
             categories = [];
         }
@@ -660,6 +704,9 @@ class ApiV1Endpoints {
 
         const description = validator.escape(validator.trim(String(req.body.description || "")));
         const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
+
+        if (description.length > LIMITS.SESSION_DESC_MAX)
+            return res.status(400).json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
 
         if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
             return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
@@ -831,6 +878,11 @@ class ApiV1Endpoints {
             return;
         }
 
+        if (message.length > LIMITS.MESSAGE_MAX) {
+            res.status(400).json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
+            return;
+        }
+
         let targetHostId = hostId;
         let session = null;
 
@@ -887,6 +939,11 @@ class ApiV1Endpoints {
 
         if (!sessionId || !rating) {
             res.status(400).json({ success: false, error: "Missing sessionId or rating" });
+            return;
+        }
+
+        if (comment && comment.length > LIMITS.COMMENT_MAX) {
+            res.status(400).json({ success: false, error: `Comment cannot exceed ${LIMITS.COMMENT_MAX} characters` });
             return;
         }
 
@@ -1106,6 +1163,10 @@ class ApiV1Endpoints {
     }
 
     public chatMessage(socket: SocketIO.Socket, message: ChatMessage, senderHandle: string) {
+        if (!message.content || message.content.length > LIMITS.CHAT_MSG_MAX) {
+            return;
+        }
+
         const targetSocket = this.userSockets.get(message.handle);
 
         if (targetSocket) {

@@ -26,6 +26,22 @@ export const CORS_ORIGIN = DEVELOPMENT_MODE ? "*" : "skillswap.bpariverside.org"
 export const AUTH_COOKIE_NAME = "__sstk";
 export const AUTH_COOKIE_EXPIRY = ms("7d") / 1000;
 
+export const LIMITS = {
+    HANDLE_MIN: 3,
+    HANDLE_MAX: 24,
+    NAME_MAX: 64,
+    DISPLAY_NAME_MAX: 64,
+    BIO_MAX: 500,
+    TAG_MAX: 32,
+    TAGS_COUNT_MAX: 10,
+    SESSION_NAME_MAX: 100,
+    SESSION_DESC_MAX: 2000,
+    SESSION_PREREQ_MAX: 500,
+    MESSAGE_MAX: 2000,
+    COMMENT_MAX: 1000,
+    CHAT_MSG_MAX: 1000,
+};
+
 // Verify that critical environment variables are set at startup
 
 if (!resolveEnv("DATABASE_URL")) {
