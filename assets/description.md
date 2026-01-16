@@ -34,6 +34,7 @@ The core interaction on SkillSwap resolves around **Sessions**:
 To ensure quality and trust:
 *   **Reviews:** After a session, participants can leave reviews and ratings.
 *   **Gamification:** Users earn recognition for their contributions.
+-   **Moderation:** The platform includes tools for managing content on the platform.
 
 ## Technical Overview
 
