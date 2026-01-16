@@ -38,6 +38,7 @@ class ApiV1Endpoints {
     protected socket: SocketIO.Server | null = null;
     protected userSockets: Map<string, SocketIO.Socket> = new Map();
 
+    /** Attaches the socket.io server instance and sets up connection listeners. */
     public attachSocket(io: SocketIO.Server) {
         this.socket = io;
         this.socket.on("connection", (socket) => {
@@ -49,6 +50,7 @@ class ApiV1Endpoints {
         });
     }
 
+    /** Wraps an async express handler to catch errors and send a 500 response. */
     protected expressExceptionWrap(handler: (req: ExpressRequest, res: ExpressResponse) => Promise<unknown>) {
         return async (req: ExpressRequest, res: ExpressResponse) => {
             try {
@@ -60,6 +62,7 @@ class ApiV1Endpoints {
         };
     }
 
+    /** Initializes the router with all API endpoints and starts background tasks. */
     public constructor(router: Router) {
         /* User management and administration endpoints */
         router.use(cookieParser());
@@ -95,6 +98,7 @@ class ApiV1Endpoints {
         this.startCleanupTask();
     }
 
+    /** Starts a periodic task to remove expired sessions from the database. */
     protected startCleanupTask() {
         const cleanup = async () => {
             try {
@@ -121,6 +125,7 @@ class ApiV1Endpoints {
         setInterval(cleanup, 1000 * 60 * 60);
     }
 
+    /** Validates that the request has the correct Content-Type and Accept headers for JSON. */
     protected ensureJson(req: ExpressRequest, res: ExpressResponse): boolean {
         if (req.method !== "GET" && !req.is("application/json")) {
             res.status(415).json({ success: false, error: "Unsupported Media Type" });
@@ -135,11 +140,9 @@ class ApiV1Endpoints {
         return true;
     }
 
+    /** Authenticates the user from the request cookies and returns the user handle. */
     protected async authUser(req: ExpressRequest): Promise<RequestUser | null> {
-        const token_str = req.cookies[AUTH_COOKIE_NAME];
-        if (!token_str) return null;
-
-        const token = Security.decodeToken<IAuthToken>(token_str);
+        const token = this.getAuthToken(req);
         if (!token) return null;
 
         const user = await db.user.findUnique({
@@ -151,6 +154,7 @@ class ApiV1Endpoints {
         return { handle: user.handle };
     }
 
+    /** Determines the target user handle from the request query, body, or authenticated user. */
     protected getUserTargetHandle(req: ExpressRequest, res: ExpressResponse, reqUser: RequestUser): string | null {
         let targetHandle = (req.query.handle as string) ?? req.body.handle ?? reqUser.handle;
         if (!targetHandle) {
@@ -162,6 +166,7 @@ class ApiV1Endpoints {
         return validator.escape(validator.trim(targetHandle));
     }
 
+    /** Checks if a user has a specific role. */
     protected async checkUserRole(handle: string, requiredRole: string): Promise<boolean> {
         const user = await db.user.findUnique({
             where: { handle },
@@ -171,6 +176,7 @@ class ApiV1Endpoints {
         return user?.role === requiredRole;
     }
 
+    /** Deletes a user's avatar file from the filesystem. */
     protected deleteAvatarFile(url: string) {
         if (!url || !url.startsWith("/images/avatar/")) return;
         let filename = url.replace("/images/avatar/", "");
@@ -196,8 +202,61 @@ class ApiV1Endpoints {
         }
     }
 
+    protected getAuthToken(req: ExpressRequest): IAuthToken | null {
+        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
+        if (!tokenStr) return null;
+        return Security.decodeToken<IAuthToken>(tokenStr);
+    }
+
+    protected sanitizeTags(list: any): string[] {
+        if (Array.isArray(list)) {
+            if (list.length > LIMITS.TAGS_COUNT_MAX) list.length = LIMITS.TAGS_COUNT_MAX;
+            return list.map((item) => {
+                let s = typeof item === "string" ? validator.escape(validator.trim(item)) : "";
+                if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
+                return s;
+            });
+        }
+        return [];
+    }
+
+    protected validateSessionData(body: any) {
+        const name = validator.escape(validator.trim(String(body.name || "")));
+        const prereqs = validator.escape(validator.trim(String(body.prereqs || "")));
+        const difficulty = validator.trim(String(body.difficulty || ""));
+        const description = validator.escape(validator.trim(String(body.description || "")));
+        const meetingUrl = validator.trim(String(body.meetingUrl || ""));
+        const duration = parseInt(String(body.duration || "60"));
+
+        if (name.length > LIMITS.SESSION_NAME_MAX)
+            return { error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` };
+        if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
+            return { error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` };
+        if (description.length > LIMITS.SESSION_DESC_MAX)
+            return { error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` };
+
+        if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us"))
+            return { error: "Invalid meeting URL. Must be a valid Zoom link." };
+
+        if (!difficultyTags[difficulty]) return { error: "Invalid difficulty level" };
+
+        return {
+            data: {
+                name,
+                prereqs,
+                difficulty,
+                description,
+                meetingUrl,
+                duration,
+                categories: JSON.stringify(this.sanitizeTags(body.categories)),
+                eventDate: new Date(body.eventDate),
+            },
+        };
+    }
+
     /* User management and administration endpoints */
 
+    /** Retrieves public profile information for a specific user. */
     public async getUserInfo(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -245,6 +304,7 @@ class ApiV1Endpoints {
         });
     }
 
+    /** Deletes a user account and associated data. */
     public async deleteUser(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -254,6 +314,7 @@ class ApiV1Endpoints {
         const targetHandle = this.getUserTargetHandle(req, res, reqUser);
         if (!targetHandle) return;
 
+        // Only allow users to delete their own account, unless they are an admin
         if (targetHandle !== reqUser.handle) {
             if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
@@ -292,15 +353,18 @@ class ApiV1Endpoints {
         return res.json({ success: true });
     }
 
+    /** Handles avatar image upload and saves it to the public directory. */
     public async uploadAvatar(req: ExpressRequest, res: ExpressResponse) {
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
 
+        // Limit file size to 5MB
         const contentLength = parseInt(req.headers["content-length"] || "0");
         if (contentLength > 5 * 1024 * 1024) {
             return res.status(413).json({ success: false, error: "File too large (max 5MB)" });
         }
 
+        // Basic content type check
         const mime = req.headers["content-type"];
         let ext = "";
         if (mime === "image/png") ext = "png";
@@ -316,6 +380,7 @@ class ApiV1Endpoints {
             return res.status(404).json({ success: false, error: "Profile not found" });
         }
 
+        // Generate a unique filename using the user's handle and a random suffix
         const filename = `${reqUser.handle}.${ext}`;
         const frontendPath = path.resolve(process.cwd(), "../frontend/public/images/avatar");
         const filePath = path.join(frontendPath, filename);
@@ -348,6 +413,7 @@ class ApiV1Endpoints {
         return res.json({ success: true, data: { url: `/images/avatar/${filename}` } });
     }
 
+    /** Updates a user's profile information and settings. */
     public async updateUserSettings(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -357,11 +423,13 @@ class ApiV1Endpoints {
         const targetHandle = this.getUserTargetHandle(req, res, reqUser);
         if (!targetHandle) return;
 
+        // If the user is trying to update someone else's profile, they must be an admin
         if (targetHandle !== reqUser.handle) {
             if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
+        // Get user ID for the target handle
         const userId = await db.user
             .findUnique({
                 where: { handle: targetHandle },
@@ -394,26 +462,14 @@ class ApiV1Endpoints {
             return res.status(400).json({ success: false, error: "Invalid avatar URL" });
         }
 
-        const sanitizeList = (list: any) => {
-            if (Array.isArray(list)) {
-                if (list.length > LIMITS.TAGS_COUNT_MAX) list.length = LIMITS.TAGS_COUNT_MAX;
-                return list.map((item) => {
-                    let s = typeof item === "string" ? validator.escape(validator.trim(item)) : "";
-                    if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
-                    return s;
-                });
-            }
-            return [];
-        };
-
         await db.profile.update({
             where: { userId },
             data: {
                 displayName,
                 avatarUrl: avatarUrl || (currentProfile?.avatarUrl ?? "/images/avatar/default.png"),
                 bio,
-                tags: JSON.stringify(sanitizeList(req.body.tags)),
-                skills: JSON.stringify(sanitizeList(req.body.skills)),
+                tags: JSON.stringify(this.sanitizeTags(req.body.tags)),
+                skills: JSON.stringify(this.sanitizeTags(req.body.skills)),
             },
         });
 
@@ -427,6 +483,7 @@ class ApiV1Endpoints {
 
     /* Authentication and session management endpoints */
 
+    /** Authenticates a user and issues a session cookie. */
     public async login(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
         const { emailOrHandle, password, remember } = req.body;
@@ -434,7 +491,6 @@ class ApiV1Endpoints {
         if (!emailOrHandle || !password) return res.status(400).json({ success: false, error: "Missing credentials" });
 
         const sanitizedLogin = validator.trim(String(emailOrHandle));
-
         const user = await db.user.findFirst({
             where: {
                 OR: [{ email: sanitizedLogin }, { handle: sanitizedLogin }],
@@ -456,6 +512,7 @@ class ApiV1Endpoints {
         return res.json({ success: true });
     }
 
+    /** Creates a new user account with the provided details. */
     public async register(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -473,13 +530,15 @@ class ApiV1Endpoints {
         const sLastName = validator.escape(validator.trim(String(lastName)));
 
         if (!validator.isEmail(sEmail)) return res.status(400).json({ success: false, error: "Invalid email format" });
+
+        // Handles must be alphanumeric with optional underscores/dashes, and between 3-24 chars
         if (sHandle.length < LIMITS.HANDLE_MIN || sHandle.length > LIMITS.HANDLE_MAX)
-            return res
-                .status(400)
-                .json({
-                    success: false,
-                    error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters`,
-                });
+            return res.status(400).json({
+                success: false,
+                error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters`,
+            });
+
+        // Check for invalid characters in handle
         if (sFirstName.length > LIMITS.NAME_MAX || sLastName.length > LIMITS.NAME_MAX)
             return res.status(400).json({ success: false, error: `Name cannot exceed ${LIMITS.NAME_MAX} characters` });
 
@@ -489,6 +548,7 @@ class ApiV1Endpoints {
 
         if (existing) return res.status(409).json({ success: false, error: "User already exists" });
 
+        // Hash the password with a unique salt and create db entry
         const [salt, hash] = await Security.hashPasswd(password);
 
         await db.$transaction(async (tx) => {
@@ -520,6 +580,7 @@ class ApiV1Endpoints {
         return res.json({ success: true });
     }
 
+    /** Verifies a user's email address using a token. */
     public async verifyEmail(req: ExpressRequest, res: ExpressResponse) {
         const { email } = Security.decodeToken<IEmailVerificationToken>(req.query.token as string) || {};
         if (!email) return res.status(400).json({ success: false, error: "Email is required" });
@@ -545,6 +606,7 @@ class ApiV1Endpoints {
         return res.redirect("/dashboard");
     }
 
+    /** Accepts user feedback and logs it (or sends via email). */
     public async sendFeedback(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -554,6 +616,7 @@ class ApiV1Endpoints {
             return res.status(400).json({ success: false, error: "Missing required fields" });
         }
 
+        // Basic sanitization and validation
         if (message.length > LIMITS.MESSAGE_MAX)
             return res
                 .status(400)
@@ -567,6 +630,7 @@ class ApiV1Endpoints {
 
     /* Session management endpoints */
 
+    /** Retrieves details for a specific session. */
     public async getSessionInfo(req: ExpressRequest, res: ExpressResponse) {
         let { id } = req.query;
         if (!id || typeof id !== "string")
@@ -598,6 +662,7 @@ class ApiV1Endpoints {
         });
     }
 
+    /** Updates an existing session's details. */
     public async updateSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -617,67 +682,24 @@ class ApiV1Endpoints {
 
         if (!session) return res.status(404).json({ success: false, error: "Session not found" });
 
+        // Only allow session hosts to update their sessions, unless the requester is an admin
         if (session.user.handle !== reqUser.handle) {
             if (!(await this.checkUserRole(reqUser.handle, "admin")))
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
-        const name = validator.escape(validator.trim(String(req.body.name || "")));
-        const prereqs = validator.escape(validator.trim(String(req.body.prereqs || "")));
-        const difficulty = validator.trim(String(req.body.difficulty || ""));
-
-        if (name.length > LIMITS.SESSION_NAME_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
-        if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
-
-        let categories = req.body.categories;
-        if (Array.isArray(categories)) {
-            if (categories.length > LIMITS.TAGS_COUNT_MAX) categories.length = LIMITS.TAGS_COUNT_MAX;
-            categories = categories.map((c: any) => {
-                let s = typeof c === "string" ? validator.escape(validator.trim(c)) : "";
-                if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
-                return s;
-            });
-        } else {
-            categories = [];
-        }
-
-        const description = validator.escape(validator.trim(String(req.body.description || "")));
-        const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
-
-        if (description.length > LIMITS.SESSION_DESC_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
-
-        if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
-            return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
-        }
-
-        const duration = parseInt(String(req.body.duration || "60"));
+        const valid = this.validateSessionData(req.body);
+        if (valid.error || !valid.data) return res.status(400).json({ success: false, error: valid.error });
 
         await db.session.update({
             where: { id },
-            data: {
-                name,
-                categories: JSON.stringify(categories),
-                prereqs,
-                difficulty,
-                description,
-                meetingUrl,
-                duration,
-                eventDate: new Date(req.body.eventDate),
-            },
+            data: valid.data,
         });
 
         return res.json({ success: true });
     }
 
+    /** Creates a new session hosted by the authenticated user. */
     public async createSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -691,58 +713,12 @@ class ApiV1Endpoints {
 
         if (!user?.id) return res.status(404).json({ success: false, error: "User not found" });
 
-        const name = validator.escape(validator.trim(String(req.body.name || "")));
-        const prereqs = validator.escape(validator.trim(String(req.body.prereqs || "")));
-        const difficulty = validator.trim(String(req.body.difficulty || ""));
-
-        if (name.length > LIMITS.SESSION_NAME_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` });
-        if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Prerequisites cannot exceed ${LIMITS.SESSION_PREREQ_MAX} characters` });
-
-        let categories = req.body.categories;
-        if (Array.isArray(categories)) {
-            if (categories.length > LIMITS.TAGS_COUNT_MAX) categories.length = LIMITS.TAGS_COUNT_MAX;
-            categories = categories.map((c: any) => {
-                let s = typeof c === "string" ? validator.escape(validator.trim(c)) : "";
-                if (s.length > LIMITS.TAG_MAX) s = s.substring(0, LIMITS.TAG_MAX);
-                return s;
-            });
-        } else {
-            categories = [];
-        }
-
-        if (!difficultyTags[difficulty])
-            return res.status(400).json({ success: false, error: "Invalid difficulty level" });
-
-        const description = validator.escape(validator.trim(String(req.body.description || "")));
-        const meetingUrl = validator.trim(String(req.body.meetingUrl || ""));
-
-        if (description.length > LIMITS.SESSION_DESC_MAX)
-            return res
-                .status(400)
-                .json({ success: false, error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` });
-
-        if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us")) {
-            return res.status(400).json({ success: false, error: "Invalid meeting URL. Must be a valid Zoom link." });
-        }
-
-        const duration = parseInt(String(req.body.duration || "60"));
+        const valid = this.validateSessionData(req.body);
+        if (valid.error || !valid.data) return res.status(400).json({ success: false, error: valid.error });
 
         const session = await db.session.create({
             data: {
-                name,
-                categories: JSON.stringify(categories),
-                prereqs,
-                difficulty,
-                description,
-                meetingUrl,
-                duration,
-                eventDate: new Date(req.body.eventDate),
+                ...valid.data,
                 userId: user.id,
             },
         });
@@ -750,6 +726,7 @@ class ApiV1Endpoints {
         return res.json({ success: true, data: { id: session.id } });
     }
 
+    /** Deletes a session. */
     public async deleteSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
@@ -781,20 +758,12 @@ class ApiV1Endpoints {
         return res.json({ success: true });
     }
 
+    /** Registers the authenticated user for a specific session. */
     protected async registerForSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { sessionId } = req.body;
         if (!sessionId) {
@@ -837,20 +806,12 @@ class ApiV1Endpoints {
         res.json({ success: true });
     }
 
+    /** Unregisters the authenticated user from a session. */
     protected async unregisterFromSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { sessionId } = req.body;
         if (!sessionId) {
@@ -875,20 +836,12 @@ class ApiV1Endpoints {
         res.json({ success: true });
     }
 
+    /** Sends a direct message from the authenticated user to a session host. */
     protected async contactHost(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { sessionId, hostId, message } = req.body;
 
@@ -897,6 +850,7 @@ class ApiV1Endpoints {
             return;
         }
 
+        // Basic sanitization for message content
         if (message.length > LIMITS.MESSAGE_MAX) {
             res.status(400).json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
             return;
@@ -939,20 +893,12 @@ class ApiV1Endpoints {
         res.json({ success: true });
     }
 
+    /** Submits a rating and review for a session. */
     protected async rateSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { sessionId, rating, comment } = req.body;
 
@@ -1024,20 +970,12 @@ class ApiV1Endpoints {
         res.json({ success: true });
     }
 
+    /** Deletes a session rating/review. */
     protected async deleteRating(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { id } = req.body;
         if (!id) {
@@ -1089,20 +1027,12 @@ class ApiV1Endpoints {
         res.json({ success: true });
     }
 
+    /** Deletes a message. */
     protected async deleteMessage(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const tokenStr = req.cookies[AUTH_COOKIE_NAME];
-        if (!tokenStr) {
-            res.status(401).json({ success: false, error: "Unauthorized" });
-            return;
-        }
-
-        const token = Security.decodeToken<IAuthToken>(tokenStr);
-        if (!token) {
-            res.status(401).json({ success: false, error: "Invalid token" });
-            return;
-        }
+        const token = this.getAuthToken(req);
+        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
 
         const { id } = req.body;
         if (!id) {
@@ -1134,8 +1064,8 @@ class ApiV1Endpoints {
 
     /* Socket endpoints */
 
+    /** Handles a new socket connection and authenticates the user. */
     public async chatConnect(socket: SocketIO.Socket) {
-        // 1. Authenticate the socket connection
         const cookies = parse(socket.handshake.headers.cookie || "");
         const tokenStr = cookies[AUTH_COOKIE_NAME];
 
@@ -1181,6 +1111,7 @@ class ApiV1Endpoints {
         });
     }
 
+    /** Processes and routes a chat message to the target user. */
     public chatMessage(socket: SocketIO.Socket, message: ChatMessage, senderHandle: string) {
         if (!message.content || message.content.length > LIMITS.CHAT_MSG_MAX) {
             return;
@@ -1199,6 +1130,7 @@ class ApiV1Endpoints {
         }
     }
 
+    /** Handles user disconnection and cleans up the socket map. */
     public chatDisconnect(socket: SocketIO.Socket, handle: string) {
         if (this.userSockets.get(handle)?.id === socket.id) {
             this.userSockets.delete(handle);
