@@ -9,12 +9,28 @@ interface Props {
     payload: IProfile;
 }
 
-const { displayName, userId, avatarUrl, bio, tags, stats, skills } = Astro.props.payload;
+const decodeEntities = (str: string) => {
+    if (!str) return str;
+    return str
+        .replace(/&#(\d+);?/g, (_, dec) => String.fromCharCode(dec))
+        .replace(/&#x([0-9A-Fa-f]+);?/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'") // '
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&");
+};
+
+const { displayName: _displayName, userId, avatarUrl, bio: _bio, tags, stats, skills: _skills } = Astro.props.payload;
+
+const displayName = decodeEntities(_displayName);
+const bio = decodeEntities(_bio);
+const skills = _skills?.map(decodeEntities);
 
 const tagStyle = tags && tags.map((tag) => profileTags[tag]).filter(Boolean);
 const user = await User.read(userId, UserFilter.Id);
 
-const offeredSkills = tags ? tags.filter((t) => !profileTags[t]) : [];
+const offeredSkills = tags ? tags.filter((t) => !profileTags[t]).map(decodeEntities) : [];
 const soughtSkills = skills || [];
 ---
 
