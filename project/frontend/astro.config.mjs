@@ -12,7 +12,7 @@ export default defineConfig({
     adapter: node({ mode: "standalone" }),
     server: {
         port: parseInt(resolveEnv("PORT", "3000")),
-        allowedHosts: [DEVELOPMENT_MODE ? "skillswap.bpariverside.org" : "localhost"],
+        allowedHosts: true,
     },
     devToolbar: {
         enabled: false,
@@ -22,7 +22,7 @@ export default defineConfig({
             host: "0.0.0.0",
             proxy: {
                 "/api": {
-                    target: "http://localhost:3001",
+                    target: process.env.BACKEND_URL || "http://localhost:3001",
                     changeOrigin: true,
                 },
             },

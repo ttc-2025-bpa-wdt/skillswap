@@ -1,4 +1,7 @@
 {
+    "scripts": {
+        "envgen": "bun run scripts/envgen.ts"
+    },
     "dependencies": {
         "@types/cookie": "^1.0.0",
         "cookie": "^1.1.1"

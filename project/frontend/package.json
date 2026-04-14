@@ -24,7 +24,8 @@
         "dev:docker": "astro dev --port 3000 --host --silent",
         "build": "astro build",
         "preview": "astro preview",
-        "astro": "astro"
+        "astro": "astro",
+        "test:e2e": "playwright test"
     },
     "type": "module",
     "devDependencies": {
@@ -37,6 +38,7 @@
         "@types/jsonwebtoken": "^9.0.10",
         "@types/remarkable": "^2.0.8",
         "@types/uuid": "^11.0.0",
+        "@playwright/test": "^1.52.0",
         "sass-embedded": "^1.93.3"
     }
 }

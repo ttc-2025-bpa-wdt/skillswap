@@ -1,16 +1,17 @@
 FROM oven/bun:alpine
 
-WORKDIR /app
+WORKDIR /build
 
-# Copy application files
-COPY . .
-COPY ../shared/ ../shared/
+# Install shared package
+COPY shared/ /shared/
+RUN cd /shared && bun install --frozen-lockfile && bunx prisma generate && bun link
 
-# Install dependencies for both frontend and shared code
-RUN bun install --no-save
-RUN cd ../shared/ && bun install --no-save
+# Install backend dependencies and link shared
+COPY backend/ /build/
+RUN bun install --frozen-lockfile && bun link shared
 
-# Expose port 80
-EXPOSE 80
+WORKDIR /build
+
+EXPOSE 3001
 
 CMD ["bun", "run", "start"]

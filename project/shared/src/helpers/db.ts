@@ -1,4 +1,5 @@
-import { PrismaBunSqlite } from "prisma-adapter-bun-sqlite";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 import { PrismaClient } from "shared/prisma";
 
 export interface DbCacheConfig {
@@ -26,6 +27,8 @@ export class DataCache {
     }
 }
 
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
+
 export const db = new PrismaClient({
-    adapter: new PrismaBunSqlite({ url: process.env.DATABASE_URL! }),
+    adapter: new PrismaPg(pool),
 });

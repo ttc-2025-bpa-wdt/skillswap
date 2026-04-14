@@ -2,7 +2,9 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
-# Expose port 80
-EXPOSE 80
+COPY entrypoint.dev.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["/bin/sh", "-c", "bun install --no-save && bun run dev"]
+EXPOSE 3001
+
+ENTRYPOINT ["/entrypoint.sh"]
