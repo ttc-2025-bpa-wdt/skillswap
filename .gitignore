@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# ai agents for fast iteration
+.claude/
+CLAUDE.md
+
+# temp directories
+/tmp/

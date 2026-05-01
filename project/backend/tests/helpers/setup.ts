@@ -1,57 +1,92 @@
-import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import type { Server } from "http";
+import type { Server as SocketIOServer } from "socket.io";
 
-/**
- * Test setup utilities for backend integration tests.
- *
- * Usage:
- *   import { setupTestServer } from "./helpers/setup";
- *   const { server, url } = await setupTestServer();
- *   // ... run tests against url ...
- *   server.close();
- */
+import { db } from "shared/helpers";
 
-const TEST_PORT = 3099;
+// Shared singleton server — started once, never stopped between test files.
+// Process exit cleans up everything.
+let sharedServer: { server: Server; io: SocketIOServer; url: string } | null = null;
 
-export async function setupTestServer(): Promise<{ server: Server; url: string }> {
-    const { default: app } = await import("../../src/index.ts");
+export async function startTestServer(): Promise<{ server: Server; url: string; io: SocketIOServer }> {
+    process.env.NODE_ENV = "test";
+
+    if (sharedServer) {
+        return sharedServer;
+    }
+
+    await db.$connect();
+
+    const { createAppServer } = await import("../../src/index.ts");
+    const { server, io } = createAppServer();
 
     return new Promise((resolve, reject) => {
-        const server = app.listen(TEST_PORT, () => {
-            resolve({ server, url: `http://localhost:${TEST_PORT}` });
+        server.listen(0, () => {
+            const addr = server.address();
+            if (!addr || typeof addr === "string") {
+                reject(new Error("Failed to get server address"));
+                return;
+            }
+            const url = `http://localhost:${addr.port}`;
+            sharedServer = { server, io, url };
+            resolve(sharedServer);
         });
         server.on("error", reject);
     });
 }
 
-export function teardownTestServer(server: Server): Promise<void> {
-    return new Promise((resolve, reject) => {
-        server.close((err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
+export async function stopTestServer(): Promise<void> {
+    // No-op: the shared server persists for the entire test run.
+    // Process exit handles cleanup.
 }
 
-/** Helper to make authenticated requests */
-export async function authenticatedFetch(
+export async function resetDatabase(): Promise<void> {
+    // Use raw SQL TRUNCATE with CASCADE to avoid FK ordering issues
+    // and race conditions with async achievement checks
+    await db.$executeRawUnsafe(`
+        TRUNCATE TABLE
+            "UserAchievement",
+            "PushSubscription",
+            "Notification",
+            "Message",
+            "Review",
+            "SessionRegistration",
+            "Session",
+            "Profile",
+            "User"
+        CASCADE
+    `);
+    // Re-seed achievements after truncating
+    await seedAchievements();
+}
+
+export async function seedAchievements(): Promise<void> {
+    const { initializeAchievements } = await import("../../src/services/achievement.ts");
+    await initializeAchievements();
+}
+
+/** Make an HTTP request to the test server */
+export async function apiFetch(
     url: string,
     path: string,
-    options?: RequestInit & { token?: string }
+    options: RequestInit & { cookie?: string } = {}
 ): Promise<Response> {
+    const { cookie, ...fetchOptions } = options;
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
         Accept: "application/json",
-        ...(options?.headers as Record<string, string>),
     };
 
-    if (options?.token) {
-        headers["Cookie"] = `__sstk=${options.token}`;
+    if (cookie) {
+        headers["Cookie"] = cookie;
+    }
+
+    if (fetchOptions.headers) {
+        const existing = fetchOptions.headers as Record<string, string>;
+        Object.assign(headers, existing);
     }
 
     return fetch(`${url}${path}`, {
-        ...options,
+        ...fetchOptions,
         headers,
-        credentials: "include",
     });
 }

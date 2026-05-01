@@ -10,6 +10,25 @@ datasource db {
     provider = "postgresql"
 }
 
+// Notification types for the system
+enum NotificationType {
+  MESSAGE
+  SESSION_REMINDER
+  SESSION_JOIN
+  SESSION_CANCEL
+  NEW_REVIEW
+  ACHIEVEMENT_UNLOCKED
+  SYSTEM
+  FOLLOW
+}
+
+// Message delivery status
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
 model User {
     id            String   @id @default(uuid())
     email         String   @unique
@@ -31,6 +50,9 @@ model User {
     receivedReviews Review[] @relation("ReviewRecipient")
     sentMessages Message[] @relation("MessageSender")
     receivedMessages Message[] @relation("MessageRecipient")
+    notifications Notification[]
+    achievements UserAchievement[]
+    pushSubscriptions PushSubscription[]
 }
 
 model Profile {
@@ -47,6 +69,9 @@ model Profile {
     sessionCount Int   @default(0)
     studentCount Int   @default(0)
     rating       Float @default(0.0)
+    
+    // Achievement points total
+    achievementPoints Int @default(0)
 
     // Relations
     userId String @unique
@@ -105,6 +130,9 @@ model Message {
     id        String   @id @default(uuid())
     content   String
     createdAt DateTime @default(now())
+    status    MessageStatus @default(SENT)
+    deliveredAt DateTime?
+    readAt     DateTime?
 
     senderId  String
     sender    User     @relation("MessageSender", fields: [senderId], references: [id])
@@ -114,5 +142,63 @@ model Message {
     
     // No relation to Session, just name
     sessionName String?
+}
+
+// Notifications for in-app and push notifications
+model Notification {
+    id          String           @id @default(uuid())
+    userId      String
+    user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    type        NotificationType
+    title       String
+    body        String
+    data        String?          // JSON string for additional structured data
+    read        Boolean          @default(false)
+    createdAt   DateTime         @default(now())
+    
+    @@index([userId, read])
+    @@index([userId, createdAt])
+}
+
+// Achievements definition (badges users can unlock)
+model Achievement {
+    id          String   @id @default(uuid())
+    key         String   @unique // e.g., "first-session", "ten-sessions"
+    name        String
+    description String
+    iconUrl     String   // Badge image or icon name
+    category    String   // teaching, learning, community, special
+    criteria    String   // JSON string with achievement unlock conditions
+    points      Int      @default(0)
+    hidden      Boolean  @default(false) // Secret achievements
+    createdAt   DateTime @default(now())
+    
+    userAchievements UserAchievement[]
+}
+
+// User's unlocked achievements
+model UserAchievement {
+    id             String      @id @default(uuid())
+    userId         String
+    user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    achievementId  String
+    achievement    Achievement @relation(fields: [achievementId], references: [id])
+    unlockedAt     DateTime    @default(now())
+    
+    @@unique([userId, achievementId])
+    @@index([userId])
+}
+
+// Push notification subscriptions for Web Push API
+model PushSubscription {
+    id          String   @id @default(uuid())
+    userId      String
+    user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    endpoint    String   @unique
+    p256dh      String   // Public key
+    auth        String   // Auth secret
+    createdAt   DateTime @default(now())
+    
+    @@index([userId])
 }
 

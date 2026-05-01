@@ -10,7 +10,8 @@
         "./prisma": "./gen/prisma/client.ts"
     },
     "scripts": {
-        "seed": "bun run src/seed.ts"
+        "seed": "bun run src/seed.ts",
+        "init": "bun install --frozen-lockfile && bunx prisma generate && bunx prisma migrate deploy && bun link"
     },
     "private": true,
     "devDependencies": {

@@ -55,8 +55,8 @@ const competitionMetadata = {
     title: "(V04) Web Application Team",
     chapter: "Tulsa Technology Center - Riverside Campus",
     members: team.map((member) => {
-        const name = member.profile.displayName;
-        return member.user.handle == "nicholas.h" ? `${name} (Captain)` : name;
+        const name = member.profile?.displayName ?? member.user?.handle ?? "Unknown";
+        return member.user?.handle == "nicholas.h" ? `${name} (Captain)` : name;
     }),
     theme: "Personalized Learning and Skill Development",
     school: "Tulsa Technology Center - IT System Administration, Cyber Security/Forensics",
@@ -85,13 +85,16 @@ const competitionMetadata = {
         <h2 class="section-title">Meet the Team</h2>
         <div class="team-grid">
             {
-                team.map((member) => (
+                team.map((member) => {
+                    const name = member.profile?.displayName ?? "Team Member";
+                    const nameParts = name.split(" ");
+                    return (
                     <Card class="team-card">
-                        <img src={member.profile.avatarUrl} alt={member.profile.displayName} aria-label={member.profile.displayName} class="avatar" />
+                        <img src={member.profile?.avatarUrl ?? "/images/avatar/default.png"} alt={name} aria-label={name} class="avatar" onerror="this.onerror=null;this.src='/images/avatar/default.png'" />
                         <h3>
-                            {member.profile.displayName.split(" ")[0] /* todo: lol this is hacky */}
+                            {nameParts[0]}
                             <br />
-                            {member.profile.displayName.split(" ")[1]}
+                            {nameParts[1]}
                         </h3>
                         <span class="role">{member.role}</span>
                         <p>{member.desc}</p>
@@ -104,7 +107,8 @@ const competitionMetadata = {
                             Email
                         </Button>
                     </Card>
-                ))
+                    );
+                })
             }
         </div>
     </section>

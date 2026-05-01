@@ -1,0 +1,183 @@
+---
+import Layout from "@layouts/global.astro";
+
+const title = "Notifications";
+---
+
+<Layout title={title}>
+    <div class="notifications-page">
+        <h1>Notifications</h1>
+        <div id="notifications-container">
+            <p class="loading-text">Loading notifications...</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadNotifications() {
+            const container = document.getElementById("notifications-container");
+            if (!container) return;
+
+            try {
+                const res = await fetch("/api/v1/notifications?limit=50");
+                const data = await res.json();
+
+                if (!data.success || !data.notifications || data.notifications.length === 0) {
+                    container.innerHTML = '<p class="empty-text">No notifications yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.notifications.map((n: any) => `
+                    <div class="notification-card ${n.read ? '' : 'unread'}" data-id="${n.id}">
+                        <div class="notification-icon">
+                            ${getIcon(n.type)}
+                        </div>
+                        <div class="notification-body">
+                            <strong>${escapeHtml(n.title)}</strong>
+                            <p>${escapeHtml(n.body)}</p>
+                            <span class="time">${timeAgo(n.createdAt)}</span>
+                        </div>
+                        ${!n.read ? '<button class="mark-read-btn" data-id="' + n.id + '">Mark read</button>' : ''}
+                    </div>
+                `).join("");
+
+                container.querySelectorAll(".mark-read-btn").forEach((btn) => {
+                    btn.addEventListener("click", async (e) => {
+                        const id = (e.currentTarget as HTMLElement).dataset.id;
+                        if (!id) return;
+                        await fetch(`/api/v1/notifications/${id}`, { method: "PATCH" });
+                        loadNotifications();
+                    });
+                });
+            } catch {
+                container.innerHTML = '<p class="error-text">Failed to load notifications.</p>';
+            }
+        }
+
+        function getIcon(type: string): string {
+            const icons: Record<string, string> = {
+                MESSAGE: "💬",
+                SESSION_JOIN: "👋",
+                SESSION_REMINDER: "⏰",
+                SESSION_CANCEL: "❌",
+                NEW_REVIEW: "⭐",
+                ACHIEVEMENT_UNLOCKED: "🏆",
+                SYSTEM: "🔔",
+                FOLLOW: "👤",
+            };
+            return icons[type] || "🔔";
+        }
+
+        function escapeHtml(text: string): string {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function timeAgo(dateStr: string): string {
+            const now = Date.now();
+            const diff = now - new Date(dateStr).getTime();
+            const mins = Math.floor(diff / 60000);
+            const hrs = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            if (mins < 1) return "Just now";
+            if (mins < 60) return `${mins}m ago`;
+            if (hrs < 24) return `${hrs}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return new Date(dateStr).toLocaleDateString();
+        }
+
+        loadNotifications();
+    </script>
+
+    <style lang="scss">
+        .notifications-page {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+
+            h1 {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .notification-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--accent-3);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            background: var(--card-bg);
+            transition: background 0.2s;
+
+            &.unread {
+                background: color-mix(in srgb, var(--accent-1) 5%, var(--card-bg));
+                border-left: 3px solid var(--accent-1);
+            }
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .notification-body {
+            flex: 1;
+            min-width: 0;
+
+            strong {
+                display: block;
+                margin-bottom: 0.25rem;
+            }
+
+            p {
+                margin: 0;
+                color: var(--text-muted);
+                font-size: 0.9rem;
+            }
+
+            .time {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+            }
+        }
+
+        .mark-read-btn {
+            background: none;
+            border: 1px solid var(--accent-3);
+            border-radius: 4px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--accent-1);
+            flex-shrink: 0;
+
+            &:hover {
+                background: var(--accent-1);
+                color: white;
+            }
+        }
+
+        .loading-text, .empty-text, .error-text {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .error-text {
+            color: var(--base-red);
+        }
+
+        @media (max-width: 600px) {
+            .notifications-page {
+                margin: 1rem auto;
+            }
+
+            .notification-card {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</Layout>

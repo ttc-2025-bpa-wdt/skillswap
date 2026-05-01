@@ -1,8 +1,0 @@
-FROM oven/bun:alpine
-
-WORKDIR /shared
-
-COPY entrypoint.migrate.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]

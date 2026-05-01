@@ -1,0 +1,258 @@
+// SkillSwap Responsive Breakpoint System
+// Mobile-first approach
+
+// Breakpoint definitions
+$breakpoints: (
+    'xs': 320px,
+    'sm': 640px,
+    'md': 768px,
+    'lg': 1024px,
+    'xl': 1280px,
+    '2xl': 1536px
+);
+
+// Container max-widths
+$container-max-widths: (
+    'sm': 640px,
+    'md': 768px,
+    'lg': 1024px,
+    'xl': 1280px,
+    '2xl': 1536px
+);
+
+// Responsive mixin - mobile first (min-width)
+@mixin respond-to($breakpoint) {
+    @if map-has-key($breakpoints, $breakpoint) {
+        $value: map-get($breakpoints, $breakpoint);
+        @media (min-width: $value) {
+            @content;
+        }
+    } @else {
+        @warn "Breakpoint '#{$breakpoint}' not found in $breakpoints map.";
+    }
+}
+
+// Max-width breakpoint mixin
+@mixin respond-below($breakpoint) {
+    @if map-has-key($breakpoints, $breakpoint) {
+        $value: map-get($breakpoints, $breakpoint) - 1px;
+        @media (max-width: $value) {
+            @content;
+        }
+    } @else {
+        @warn "Breakpoint '#{$breakpoint}' not found in $breakpoints map.";
+    }
+}
+
+// Common breakpoint mixins
+@mixin mobile {
+    @include respond-below('md') {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @include respond-to('md') {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @include respond-to('lg') {
+        @content;
+    }
+}
+
+@mixin large-desktop {
+    @include respond-to('xl') {
+        @content;
+    }
+}
+
+// Touch-friendly target sizing (minimum 44x44px)
+@mixin touch-target($width: 44px, $height: 44px) {
+    min-width: $width;
+    min-height: $height;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Responsive typography scale
+@mixin typography-scale {
+    font-size: 1rem;
+    
+    @include respond-to('md') {
+        font-size: 1.0625rem;
+    }
+    
+    @include respond-to('lg') {
+        font-size: 1.125rem;
+    }
+}
+
+// Heading scales
+@mixin heading-scale($base-size) {
+    font-size: $base-size * 0.85;
+    
+    @include respond-to('md') {
+        font-size: $base-size * 0.92;
+    }
+    
+    @include respond-to('lg') {
+        font-size: $base-size;
+    }
+}
+
+// Container with responsive max-width
+@mixin container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    
+    @include respond-to('sm') {
+        max-width: map-get($container-max-widths, 'sm');
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    @include respond-to('md') {
+        max-width: map-get($container-max-widths, 'md');
+    }
+    
+    @include respond-to('lg') {
+        max-width: map-get($container-max-widths, 'lg');
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    
+    @include respond-to('xl') {
+        max-width: map-get($container-max-widths, 'xl');
+    }
+}
+
+// Flex gap with fallback for older browsers
+@mixin flex-gap($gap) {
+    gap: $gap;
+    
+    @supports not (gap: $gap) {
+        margin: -#{$gap / 2};
+        
+        > * {
+            margin: #{$gap / 2};
+        }
+    }
+}
+
+// Hide on specific breakpoints
+@mixin hide-on-mobile {
+    @include respond-below('md') {
+        display: none !important;
+    }
+}
+
+@mixin hide-on-tablet {
+    @include respond-to('md') {
+        @include respond-below('lg') {
+            display: none !important;
+        }
+    }
+}
+
+@mixin hide-on-desktop {
+    @include respond-to('lg') {
+        display: none !important;
+    }
+}
+
+// Show only on specific breakpoints
+@mixin show-only-mobile {
+    display: none !important;
+    
+    @include respond-below('md') {
+        display: block !important;
+    }
+}
+
+@mixin show-only-tablet {
+    display: none !important;
+    
+    @include respond-to('md') {
+        @include respond-below('lg') {
+            display: block !important;
+        }
+    }
+}
+
+@mixin show-only-desktop {
+    display: none !important;
+    
+    @include respond-to('lg') {
+        display: block !important;
+    }
+}
+
+// Responsive grid
+@mixin responsive-grid($mobile-cols: 1, $tablet-cols: 2, $desktop-cols: 3, $gap: 1rem) {
+    display: grid;
+    grid-template-columns: repeat($mobile-cols, 1fr);
+    @include flex-gap($gap);
+    
+    @include respond-to('md') {
+        grid-template-columns: repeat($tablet-cols, 1fr);
+    }
+    
+    @include respond-to('lg') {
+        grid-template-columns: repeat($desktop-cols, 1fr);
+    }
+}
+
+// Safe area inset for iOS notch
+@mixin safe-area-inset($position: bottom) {
+    padding-#{$position}: env(safe-area-inset-#{$position}, 0);
+}
+
+// Smooth scroll with fallback
+@mixin smooth-scroll {
+    scroll-behavior: smooth;
+    
+    @media (prefers-reduced-motion: reduce) {
+        scroll-behavior: auto;
+    }
+}
+
+// Aspect ratio with fallback
+@mixin aspect-ratio($width, $height) {
+    aspect-ratio: #{$width} / #{$height};
+    
+    @supports not (aspect-ratio: #{$width} / #{$height}) {
+        &::before {
+            content: "";
+            display: block;
+            padding-top: ($height / $width) * 100%;
+        }
+    }
+}
+
+// Truncate text with ellipsis
+@mixin truncate($lines: 1) {
+    @if $lines == 1 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    } @else {
+        display: -webkit-box;
+        -webkit-line-clamp: $lines;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+// Print styles
+@mixin print-styles {
+    @media print {
+        @content;
+    }
+}

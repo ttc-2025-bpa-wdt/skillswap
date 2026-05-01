@@ -1,0 +1,52 @@
+services:
+  ingress:
+    build:
+      context: ${PROJECT_ROOT?}
+      dockerfile: ingress/Dockerfile
+    environment:
+      - HOSTNAME=${HOSTNAME?}
+    ports:
+      - "${HOST_PORT:-8080}:80"
+
+  postgres:
+    image: postgres:18.3-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USER?}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD?}
+      POSTGRES_DB: skillswap
+    volumes:
+      - postgres:/var/lib/postgresql
+
+  backend:
+    build:
+      context: ${PROJECT_ROOT?}
+      dockerfile: backend/Dockerfile
+      target: ${COMPOSE_TARGET?}
+    environment:
+      - HOSTNAME=${HOSTNAME?}
+      - DATABASE_URL=postgresql://${DATABASE_USER?}:${DATABASE_PASSWORD?}@postgres:5432/skillswap
+    volumes:
+      - ${PROJECT_ROOT?}backend:/app
+      - ${PROJECT_ROOT?}shared:/shared
+      - /app/node_modules/
+    depends_on:
+      - ingress
+
+  frontend:
+    build:
+      context: ${PROJECT_ROOT?}
+      dockerfile: frontend/Dockerfile
+      target: ${COMPOSE_TARGET?}
+    environment:
+      - HOSTNAME=${HOSTNAME?}
+      - VITE_API_URL=http://${HOSTNAME?}:4000
+      - DATABASE_URL=postgresql://${DATABASE_USER?}:${DATABASE_PASSWORD?}@postgres:5432/skillswap
+    volumes:
+      - ${PROJECT_ROOT?}frontend:/app
+      - ${PROJECT_ROOT?}shared:/shared
+      - /app/node_modules/
+    depends_on:
+      - ingress
+
+volumes:
+  postgres:

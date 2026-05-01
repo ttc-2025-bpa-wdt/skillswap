@@ -1,0 +1,46 @@
+services:
+  postgres-test:
+    image: postgres:18.3-alpine
+    environment:
+      POSTGRES_USER: skillswap_test
+      POSTGRES_PASSWORD: skillswap_test_password
+      POSTGRES_DB: skillswap_test_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillswap_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend-test:
+    build:
+      context: ..
+      dockerfile: test-runner/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://skillswap_test:skillswap_test_password@postgres-test:5432/skillswap_test_db
+      JWT_SECRET: vR02wf1l79d78fvrcWMctd7AF8xOR/hHadqw0pxFq3CGkjX6XX8XXl9i3nUtz2NZjgmNNikcvaH0nZKUMe90CQ==
+      PASSWORD_PEPPER: c3RvcHBlZGZhbGx1cw==
+      REGISTRATION_KEY: BPA2026JudgePreview
+      NODE_ENV: test
+      PORT: "3001"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    volumes:
+      - test-results:/results
+
+  frontend-test:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://skillswap_test:skillswap_test_password@postgres-test:5432/skillswap_test_db
+      BACKEND_URL: http://backend-test:3001
+      HOSTNAME: localhost
+    depends_on:
+      - backend-test
+    volumes:
+      - ../frontend:/app
+      - ../shared:/shared
+
+volumes:
+  test-results:

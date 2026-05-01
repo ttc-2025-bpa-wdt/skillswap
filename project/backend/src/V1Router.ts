@@ -15,12 +15,18 @@ import {
     type IEmailVerificationToken,
     difficultyTags,
     type IAuthToken,
+    NotificationType,
+    MessageStatus,
 } from "shared/schema";
 import validator from "validator";
 
 import { Authentication } from "shared/models";
 import { AUTH_COOKIE_EXPIRY, AUTH_COOKIE_NAME, DEVELOPMENT_MODE, LIMITS } from "shared/config";
 import { Security } from "shared/helpers";
+import NotificationService from "./services/notification";
+import AchievementService from "./services/achievement";
+import PushService from "./services/push";
+import MessageService from "./services/message";
 
 // TODO (optimization): Currently using synchronous filesystem APIs. This really isn't a problem unless we have
 // thousands of concurrent users, but it's something to keep in mind for future impl.
@@ -84,6 +90,7 @@ class ApiV1Endpoints {
         /* Session management endpoints */
 
         router.get("/session", this.expressExceptionWrap(this.getSessionInfo.bind(this)));
+        router.get("/session/search", this.expressExceptionWrap(this.searchSessions.bind(this)));
         router.post("/session", this.expressExceptionWrap(this.createSession.bind(this)));
         router.post("/session/register", this.expressExceptionWrap(this.registerForSession.bind(this)));
         router.delete("/session/register", this.expressExceptionWrap(this.unregisterFromSession.bind(this)));
@@ -95,7 +102,43 @@ class ApiV1Endpoints {
 
         router.post("/contact/host", this.expressExceptionWrap(this.contactHost.bind(this)));
 
+        /* Notification endpoints */
+        router.get("/notifications", this.expressExceptionWrap(this.getNotifications.bind(this)));
+        router.patch("/notifications/:id", this.expressExceptionWrap(this.markNotificationRead.bind(this)));
+        router.patch("/notifications/read-all", this.expressExceptionWrap(this.markAllNotificationsRead.bind(this)));
+        router.delete("/notifications/:id", this.expressExceptionWrap(this.deleteNotification.bind(this)));
+        router.get("/notifications/unread-count", this.expressExceptionWrap(this.getUnreadNotificationCount.bind(this)));
+
+        /* Achievement endpoints */
+        router.get("/achievements", this.expressExceptionWrap(this.getAchievements.bind(this)));
+        router.get("/user/achievements", this.expressExceptionWrap(this.getUserAchievements.bind(this)));
+        router.get("/user/achievements/progress", this.expressExceptionWrap(this.getAchievementProgress.bind(this)));
+        router.get("/leaderboard", this.expressExceptionWrap(this.getLeaderboard.bind(this)));
+
+        /* Push notification endpoints */
+        router.get("/push/vapid-key", this.expressExceptionWrap(this.getVapidKey.bind(this)));
+        router.post("/push/subscribe", this.expressExceptionWrap(this.subscribeToPush.bind(this)));
+        router.post("/push/unsubscribe", this.expressExceptionWrap(this.unsubscribeFromPush.bind(this)));
+
+        /* Message endpoints */
+        router.get("/messages", this.expressExceptionWrap(this.getMessages.bind(this)));
+        router.get("/messages/unread", this.expressExceptionWrap(this.getUnreadMessages.bind(this)));
+
         this.startCleanupTask();
+        this.initializeServices();
+    }
+
+    /** Initialize backend services */
+    protected async initializeServices() {
+        try {
+            // Initialize achievements in database
+            await AchievementService.initializeAchievements();
+            // Initialize push notification service
+            PushService.initializePush();
+            console.log("Services initialized successfully");
+        } catch (err) {
+            console.error("Error initializing services:", err);
+        }
     }
 
     /** Starts a periodic task to remove expired sessions from the database. */
@@ -105,11 +148,12 @@ class ApiV1Endpoints {
                 const oneDayAgo = new Date();
                 oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
+                // Only delete expired sessions that have no registrations
+                // Sessions with registrations/reviews should be preserved
                 const result = await db.session.deleteMany({
                     where: {
-                        eventDate: {
-                            lt: oneDayAgo,
-                        },
+                        eventDate: { lt: oneDayAgo },
+                        registrations: { none: {} },
                     },
                 });
 
@@ -156,7 +200,7 @@ class ApiV1Endpoints {
 
     /** Determines the target user handle from the request query, body, or authenticated user. */
     protected getUserTargetHandle(req: ExpressRequest, res: ExpressResponse, reqUser: RequestUser): string | null {
-        let targetHandle = (req.query.handle as string) ?? req.body.handle ?? reqUser.handle;
+        let targetHandle = (req.query.handle as string) ?? req.body?.handle ?? reqUser.handle;
         if (!targetHandle) {
             // server error; shouldnt happen unless invalid tokens were generated
             res.status(500).json({ success: false, error: "Invalid token: no subject" });
@@ -173,7 +217,7 @@ class ApiV1Endpoints {
             select: { role: true },
         });
 
-        return user?.role === requiredRole;
+        return user?.role.toUpperCase() === requiredRole.toUpperCase();
     }
 
     /** Deletes a user's avatar file from the filesystem. */
@@ -228,6 +272,8 @@ class ApiV1Endpoints {
         const meetingUrl = validator.trim(String(body.meetingUrl || ""));
         const duration = parseInt(String(body.duration || "60"));
 
+        if (!name)
+            return { error: "Session name is required" };
         if (name.length > LIMITS.SESSION_NAME_MAX)
             return { error: `Session name cannot exceed ${LIMITS.SESSION_NAME_MAX} characters` };
         if (prereqs.length > LIMITS.SESSION_PREREQ_MAX)
@@ -478,6 +524,11 @@ class ApiV1Endpoints {
             this.deleteAvatarFile(currentProfile.avatarUrl);
         }
 
+        // Check profile achievements
+        AchievementService.checkProfileAchievements(userId).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
+
         return res.json({ success: true });
     }
 
@@ -598,7 +649,7 @@ class ApiV1Endpoints {
         res.cookie(AUTH_COOKIE_NAME, authToken, {
             path: "/",
             httpOnly: true,
-            secure: import.meta.env.NODE_ENV === "production",
+            secure: !DEVELOPMENT_MODE,
             sameSite: "lax",
             maxAge: req.query.remember ? AUTH_COOKIE_EXPIRY : undefined,
         });
@@ -659,6 +710,54 @@ class ApiV1Endpoints {
                 createdAt: session.createdAt,
                 eventDate: session.eventDate,
             },
+        });
+    }
+
+    /** Search sessions by name, description, or category. */
+    protected async searchSessions(req: ExpressRequest, res: ExpressResponse) {
+        const q = validator.trim(String(req.query.q || ""));
+        const limit = Math.min(parseInt(String(req.query.limit)) || 20, 100);
+        const offset = parseInt(String(req.query.offset)) || 0;
+
+        if (!q) return res.json({ success: true, sessions: [], total: 0 });
+
+        const sessions = await db.session.findMany({
+            where: {
+                OR: [
+                    { name: { contains: q, mode: "insensitive" } },
+                    { description: { contains: q, mode: "insensitive" } },
+                    { categories: { contains: q, mode: "insensitive" } },
+                ],
+            },
+            include: { user: { select: { handle: true, profile: true } } },
+            orderBy: { eventDate: "asc" },
+            take: limit,
+            skip: offset,
+        });
+
+        const total = await db.session.count({
+            where: {
+                OR: [
+                    { name: { contains: q, mode: "insensitive" } },
+                    { description: { contains: q, mode: "insensitive" } },
+                    { categories: { contains: q, mode: "insensitive" } },
+                ],
+            },
+        });
+
+        return res.json({
+            success: true,
+            sessions: sessions.map((s) => ({
+                id: s.id,
+                name: s.name,
+                categories: JSON.parse(s.categories),
+                difficulty: s.difficulty,
+                description: s.description,
+                duration: s.duration,
+                eventDate: s.eventDate,
+                host: s.user.handle,
+            })),
+            total,
         });
     }
 
@@ -723,6 +822,11 @@ class ApiV1Endpoints {
             },
         });
 
+        // Check session-hosting achievements
+        AchievementService.checkSessionAchievements(user.id).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
+
         return res.json({ success: true, data: { id: session.id } });
     }
 
@@ -751,9 +855,22 @@ class ApiV1Endpoints {
                 return res.status(403).json({ success: false, error: "Forbidden" });
         }
 
+        // Notify registered users about cancellation before deleting
+        const registrations = await db.sessionRegistration.findMany({
+            where: { sessionId: id },
+            select: { userId: true },
+        });
+
         await db.session.delete({
             where: { id },
         });
+
+        // Send cancellation notifications to all registered users
+        for (const reg of registrations) {
+            await NotificationService.notifySessionCancel(
+                reg.userId, id, session.name, session.user.handle
+            );
+        }
 
         return res.json({ success: true });
     }
@@ -803,6 +920,26 @@ class ApiV1Endpoints {
             },
         });
 
+        // Increment the host's student count
+        await db.profile.update({
+            where: { userId: session.userId },
+            data: { studentCount: { increment: 1 } },
+        });
+
+        // Notify the host about the new registration
+        const joiner = await db.user.findUnique({
+            where: { id: token.sub },
+            select: { handle: true },
+        });
+        if (joiner) {
+            await NotificationService.notifySessionJoin(session.userId, sessionId, session.name, joiner.handle);
+        }
+
+        // Check achievements for both host and student
+        AchievementService.checkStudentAchievements(session.userId, token.sub).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
+
         res.json({ success: true });
     }
 
@@ -819,6 +956,8 @@ class ApiV1Endpoints {
             return;
         }
 
+        const session = await db.session.findUnique({ where: { id: sessionId } });
+
         try {
             await db.sessionRegistration.delete({
                 where: {
@@ -831,6 +970,14 @@ class ApiV1Endpoints {
         } catch (e) {
             res.status(404).json({ success: false, error: "Not registered for this session" });
             return;
+        }
+
+        // Decrement the host's student count
+        if (session) {
+            await db.profile.update({
+                where: { userId: session.userId },
+                data: { studentCount: { decrement: 1 } },
+            });
         }
 
         res.json({ success: true });
@@ -850,8 +997,10 @@ class ApiV1Endpoints {
             return;
         }
 
-        // Basic sanitization for message content
-        if (message.length > LIMITS.MESSAGE_MAX) {
+        // Sanitize message content
+        const sanitizedMessage = validator.escape(validator.trim(String(message)));
+
+        if (sanitizedMessage.length > LIMITS.MESSAGE_MAX) {
             res.status(400).json({ success: false, error: `Message cannot exceed ${LIMITS.MESSAGE_MAX} characters` });
             return;
         }
@@ -880,15 +1029,40 @@ class ApiV1Endpoints {
         // Create Message
         await db.message.create({
             data: {
-                content: message,
+                content: sanitizedMessage,
                 senderId: token.sub,
                 recipientId: targetHostId,
                 sessionName: session ? session.name : null,
             },
         });
 
-        // Optionally emit to socket?
-        // this.emitMessage(...) // TODO if we want real-time
+        // Notify the host about the new message
+        const sender = await db.user.findUnique({
+            where: { id: token.sub },
+            select: { handle: true },
+        });
+        if (sender) {
+            await NotificationService.notifyNewMessage(targetHostId, token.sub, sender.handle, sanitizedMessage);
+            // Send push notification if available
+            PushService.pushNewMessage(targetHostId, sender.handle, sanitizedMessage).catch(() => {});
+        }
+
+        // Emit to socket if host is online
+        const hostHandle = (await db.user.findUnique({ where: { id: targetHostId }, select: { handle: true } }))?.handle;
+        if (hostHandle) {
+            const hostSocket = this.userSockets.get(hostHandle);
+            if (hostSocket) {
+                hostSocket.emit("message", {
+                    handle: sender?.handle ?? "unknown",
+                    content: sanitizedMessage,
+                });
+            }
+        }
+
+        // Check message achievements for sender
+        AchievementService.checkMessageAchievements(token.sub).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
 
         res.json({ success: true });
     }
@@ -936,7 +1110,7 @@ class ApiV1Endpoints {
                 where: { id: existingReview.id },
                 data: {
                     rating: parseInt(rating),
-                    comment: comment !== undefined ? comment : undefined,
+                    comment: comment !== undefined ? validator.escape(String(comment)) : undefined,
                 },
             });
         } else {
@@ -946,14 +1120,14 @@ class ApiV1Endpoints {
                     authorId: token.sub,
                     recipientId: session.userId,
                     rating: parseInt(rating),
-                    comment: comment || "",
+                    comment: comment ? validator.escape(String(comment)) : "",
                 },
             });
         }
 
-        // Update average rating
+        // Update average rating (exclude hidden reviews)
         const ratings = await db.review.findMany({
-            where: { recipientId: session.userId, rating: { gt: 0 } },
+            where: { recipientId: session.userId, rating: { gt: 0 }, hidden: false },
             select: { rating: true },
         });
 
@@ -967,6 +1141,25 @@ class ApiV1Endpoints {
             });
         }
 
+        // Notify the session host about the new review
+        const reviewer = await db.user.findUnique({
+            where: { id: token.sub },
+            select: { handle: true },
+        });
+        if (reviewer) {
+            await NotificationService.notifyNewReview(
+                session.userId, session.id, session.name, parseInt(rating), reviewer.handle
+            );
+        }
+
+        // Check achievements for reviewer (reviews_given) and recipient (rating)
+        AchievementService.checkAndUnlockAchievements(token.sub).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
+        AchievementService.checkRatingAchievements(session.userId).catch((err) =>
+            console.error("Achievement check failed:", err)
+        );
+
         res.json({ success: true });
     }
 
@@ -974,8 +1167,10 @@ class ApiV1Endpoints {
     protected async deleteRating(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+        const token = this.getAuthToken(req)!;
 
         const { id } = req.body;
         if (!id) {
@@ -992,10 +1187,17 @@ class ApiV1Endpoints {
             return;
         }
 
-        // Allow deletion if user is the author OR the recipient
-        if (review.authorId !== token.sub && review.recipientId !== token.sub) {
+        // Allow deletion if user is the author, the recipient, or an admin
+        const isAdmin = await this.checkUserRole(reqUser.handle, "admin");
+        if (review.authorId !== token.sub && review.recipientId !== token.sub && !isAdmin) {
             res.status(403).json({ success: false, error: "Forbidden" });
             return;
+        }
+
+        // Admin can fully delete any review
+        if (isAdmin) {
+            await db.review.delete({ where: { id } });
+            return res.json({ success: true });
         }
 
         // If the recipient is deleting, just hide it
@@ -1011,9 +1213,9 @@ class ApiV1Endpoints {
             where: { id },
         });
 
-        // Recalculate average rating for recipient
+        // Recalculate average rating for recipient (exclude hidden reviews)
         const ratings = await db.review.findMany({
-            where: { recipientId: review.recipientId, rating: { gt: 0 } },
+            where: { recipientId: review.recipientId, rating: { gt: 0 }, hidden: false },
             select: { rating: true },
         });
 
@@ -1060,6 +1262,332 @@ class ApiV1Endpoints {
         });
 
         res.json({ success: true });
+    }
+
+    /* Notification endpoints */
+
+    /** Get notifications for the authenticated user */
+    protected async getNotifications(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const limit = parseInt(req.query.limit as string) || 20;
+        const offset = parseInt(req.query.offset as string) || 0;
+        const unreadOnly = req.query.unread === "true";
+
+        const result = await NotificationService.getNotifications(userData.id, {
+            limit,
+            offset,
+            unreadOnly,
+        });
+
+        res.json({ success: true, ...result });
+    }
+
+    /** Mark a notification as read */
+    protected async markNotificationRead(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const { id } = req.params;
+        await NotificationService.markAsRead(id, userData.id);
+
+        res.json({ success: true });
+    }
+
+    /** Mark all notifications as read */
+    protected async markAllNotificationsRead(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const count = await NotificationService.markAllAsRead(userData.id);
+
+        res.json({ success: true, count });
+    }
+
+    /** Delete a notification */
+    protected async deleteNotification(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const { id } = req.params;
+        await NotificationService.deleteNotification(id, userData.id);
+
+        res.json({ success: true });
+    }
+
+    /** Get unread notification count */
+    protected async getUnreadNotificationCount(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const count = await NotificationService.getUnreadCount(userData.id);
+        res.json({ success: true, count });
+    }
+
+    /* Achievement endpoints */
+
+    /** Get all achievements */
+    protected async getAchievements(req: ExpressRequest, res: ExpressResponse) {
+        const achievements = await db.achievement.findMany({
+            orderBy: [{ category: "asc" }, { points: "asc" }],
+        });
+
+        res.json({
+            success: true,
+            achievements: achievements.map((a) => ({
+                ...a,
+                criteria: JSON.parse(a.criteria),
+            })),
+        });
+    }
+
+    /** Get user's unlocked achievements */
+    protected async getUserAchievements(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const achievements = await AchievementService.getUserAchievements(userData.id);
+
+        res.json({ success: true, achievements });
+    }
+
+    /** Get achievement progress for the user */
+    protected async getAchievementProgress(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const progress = await AchievementService.getAchievementProgress(userData.id);
+
+        res.json({ success: true, progress });
+    }
+
+    /** Get leaderboard */
+    protected async getLeaderboard(req: ExpressRequest, res: ExpressResponse) {
+        const limit = parseInt(req.query.limit as string) || 10;
+        const leaderboard = await AchievementService.getLeaderboard(limit);
+
+        res.json({ success: true, leaderboard });
+    }
+
+    /* Push notification endpoints */
+
+    /** Get VAPID public key for client subscription */
+    protected getVapidKey(req: ExpressRequest, res: ExpressResponse) {
+        const publicKey = PushService.getVapidPublicKey();
+        res.json({ success: true, publicKey });
+    }
+
+    /** Subscribe to push notifications */
+    protected async subscribeToPush(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const { endpoint, keys } = req.body;
+        if (!endpoint || !keys?.p256dh || !keys?.auth) {
+            res.status(400).json({ success: false, error: "Invalid subscription data" });
+            return;
+        }
+
+        await PushService.subscribeToPush(userData.id, {
+            endpoint,
+            keys,
+        });
+
+        res.json({ success: true });
+    }
+
+    /** Unsubscribe from push notifications */
+    protected async unsubscribeFromPush(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const { endpoint } = req.body;
+        if (!endpoint) {
+            res.status(400).json({ success: false, error: "Endpoint required" });
+            return;
+        }
+
+        await PushService.unsubscribeFromPush(userData.id, endpoint);
+
+        res.json({ success: true });
+    }
+
+    /* Message endpoints */
+
+    /** Get messages (conversations or conversation with specific user) */
+    protected async getMessages(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const otherUserId = req.query.user as string;
+        const limit = parseInt(req.query.limit as string) || 50;
+        const before = req.query.before as string;
+
+        if (otherUserId) {
+            // Get conversation with specific user
+            const messages = await MessageService.getConversation(userData.id, otherUserId, {
+                limit,
+                before,
+            });
+            res.json({ success: true, messages });
+        } else {
+            // Get all conversations
+            const conversations = await MessageService.getConversations(userData.id);
+            res.json({ success: true, conversations });
+        }
+    }
+
+    /** Get unread message count */
+    protected async getUnreadMessages(req: ExpressRequest, res: ExpressResponse) {
+        const user = await this.authUser(req);
+        if (!user) {
+            res.status(401).json({ success: false, error: "Unauthorized" });
+            return;
+        }
+
+        const userData = await db.user.findUnique({
+            where: { handle: user.handle },
+            select: { id: true },
+        });
+
+        if (!userData) {
+            res.status(404).json({ success: false, error: "User not found" });
+            return;
+        }
+
+        const count = await MessageService.getTotalUnreadCount(userData.id);
+        res.json({ success: true, count });
     }
 
     /* Socket endpoints */
@@ -1112,21 +1640,34 @@ class ApiV1Endpoints {
     }
 
     /** Processes and routes a chat message to the target user. */
-    public chatMessage(socket: SocketIO.Socket, message: ChatMessage, senderHandle: string) {
+    public async chatMessage(socket: SocketIO.Socket, message: ChatMessage, senderHandle: string) {
         if (!message.content || message.content.length > LIMITS.CHAT_MSG_MAX) {
             return;
         }
 
+        const sanitizedContent = validator.escape(message.content);
         const targetSocket = this.userSockets.get(message.handle);
 
         if (targetSocket) {
             targetSocket.emit("message", {
                 handle: senderHandle,
-                content: message.content,
+                content: sanitizedContent,
             });
         } else {
-            // TODO: Store offline messages
-            socket.emit("error", { error: "User is offline" });
+            // Queue message for offline delivery — look up recipient ID by handle
+            const recipient = await db.user.findUnique({
+                where: { handle: message.handle },
+                select: { id: true },
+            });
+
+            const senderId = (Security.decodeToken<IAuthToken>(
+                parse(socket.handshake.headers.cookie || "")[AUTH_COOKIE_NAME]
+            ))?.sub;
+
+            if (senderId && recipient) {
+                await MessageService.queueMessage(senderId, recipient.id, sanitizedContent);
+            }
+            socket.emit("message_queued", { handle: message.handle });
         }
     }
 

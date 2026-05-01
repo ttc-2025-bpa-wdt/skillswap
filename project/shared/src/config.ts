@@ -24,7 +24,7 @@ export const DEVELOPMENT_MODE = resolveEnv("NODE_ENV", "development") !== "produ
 export const CORS_ORIGIN = DEVELOPMENT_MODE ? "*" : "skillswap.bpariverside.org";
 
 export const AUTH_COOKIE_NAME = "__sstk";
-export const AUTH_COOKIE_EXPIRY = ms("7d") / 1000;
+export const AUTH_COOKIE_EXPIRY = ms("7d");
 
 export const LIMITS = {
     HANDLE_MIN: 3,
@@ -45,7 +45,7 @@ export const LIMITS = {
 // Verify that critical environment variables are set at startup
 
 if (!resolveEnv("DATABASE_URL")) {
-    console.error("DATABASE_URL environment variable is not set. Please set it to the path of your SQLite database.");
+    console.error("DATABASE_URL environment variable is not set. Please set it to your PostgreSQL connection string.");
     process.exit(1);
 }
 

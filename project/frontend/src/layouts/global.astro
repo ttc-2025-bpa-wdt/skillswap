@@ -1,10 +1,13 @@
 ---
-import { SITE_TITLE } from "shared/config";
+import { SITE_TITLE, DEVELOPMENT_MODE } from "shared/config";
 
 import Metadata from "@components/global/Metadata.astro";
 import Topbar from "@components/global/TopBar.svelte";
 import Footer from "@components/global/Footer.svelte";
+import MobileNavBar from "@components/global/MobileNavBar.svelte";
 import AlertModal from "@components/base/AlertModal.svelte";
+import NotificationToast from "@components/notifications/NotificationToast.svelte";
+import ChatOverlay from "@components/global/ChatOverlay.svelte";
 
 interface Props {
     title: string;
@@ -15,26 +18,48 @@ interface Props {
 const { title, desc } = Astro.props;
 
 const rootAttributes = {
-    "data-theme": "light",
+    "data-theme": "light", // overridden by ThemeToggle on client
 };
 
 import "@styles/global.scss";
 
 import { Authentication, User, UserFilter } from "shared/models";
 import { IUser, UserRole } from "shared/schema";
-
-// import ChatWidget from "@components/global/ChatOverlay.svelte";
-// import MenuStrip from "@components/global/MenuStrip.svelte";
+import { db } from "shared/helpers";
 
 const token = Authentication.validateToken(Astro.request);
 const user = token ? await User.read(token.sub, UserFilter.Id) : null;
 const isAdmin = user?.role === UserRole.Admin;
+
+// Fetch unread counts for authenticated user
+let notificationCount = 0;
+let chatCount = 0;
+if (token) {
+    try {
+        const [notifResult, msgResult] = await Promise.all([
+            db.notification.count({ where: { userId: token.sub, read: false } }),
+            db.message.count({ where: { recipientId: token.sub, status: { not: "READ" } } }),
+        ]);
+        notificationCount = notifResult;
+        chatCount = msgResult;
+    } catch {}
+}
 ---
 
 <!doctype html>
 <html {...rootAttributes} lang="en">
     <head>
         <Metadata title={`${title} | ${SITE_TITLE}`} desc={desc || `"${title}" on ${SITE_TITLE}`} />
+        
+        <!-- PWA Meta Tags -->
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#4F46E5" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="SkillSwap" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        
+        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -44,19 +69,60 @@ const isAdmin = user?.role === UserRole.Admin;
     </head>
     <body>
         <header>
-            <Topbar user={user} isAdmin={isAdmin} client:load />
+            <Topbar user={user} isAdmin={isAdmin} notificationCount={notificationCount} client:load />
         </header>
         <main>
             <slot />
         </main>
-        <footer>
+        <footer class="desktop-footer">
             <Footer />
-            <!-- <MenuStrip /> -->
         </footer>
+
+        <!-- Mobile Navigation (shown on small screens) -->
+        <MobileNavBar user={user} notificationCount={notificationCount} chatCount={chatCount} client:load />
+
         <span data-overlay></span>
         <AlertModal client:load />
+        {user ? <ChatOverlay user={user} client:load /> : null}
+        {user && <NotificationToast client:load />}
 
-        <!-- {user ? <ChatWidget user={user} /> : null} -->
+        <!-- Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', async () => {
+                    try {
+                        const registration = await navigator.serviceWorker.register('/sw.js');
+                        console.log('SW registered:', registration.scope);
+
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker?.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('New content available, refresh to update.');
+                                }
+                            });
+                        });
+
+                        // Initialize push notifications after SW is ready
+                        const swReady = await navigator.serviceWorker.ready;
+                        if (swReady && 'PushManager' in window) {
+                            try {
+                                const { initializePushNotifications } = await import('/src/lib/push.ts');
+                                await initializePushNotifications();
+                            } catch {}
+                        }
+
+                        // Initialize offline support
+                        try {
+                            const { initializeOfflineSupport } = await import('/src/lib/offline.ts');
+                            await initializeOfflineSupport();
+                        } catch {}
+                    } catch (error) {
+                        console.error('SW registration failed:', error);
+                    }
+                });
+            }
+        </script>
 
         <!-- Iconify for icons used in various components. Svelte made this more difficult than it had to be. -->
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.0/dist/iconify-icon.min.js"></script>
@@ -64,12 +130,24 @@ const isAdmin = user?.role === UserRole.Admin;
 </html>
 
 <style lang="scss" is:global>
+    // Add bottom padding on mobile for the bottom nav bar
+    body {
+        @media (max-width: 768px) {
+            padding-bottom: 80px; // Height of mobile nav + padding
+        }
+    }
+
     footer {
         width: 100%;
         background-color: var(--background);
-        border-top: 1px solid var(--accent-3); /* Fallback/Simpler color */
+        border-top: 1px solid var(--accent-3);
         padding: 4rem 2rem 2rem;
-        margin-top: auto; /* Push to bottom if flex column parent */
+        margin-top: auto;
         box-sizing: border-box;
+
+        // Hide footer on mobile since we have bottom nav
+        @media (max-width: 768px) {
+            display: none;
+        }
     }
 </style>

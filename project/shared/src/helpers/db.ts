@@ -1,3 +1,4 @@
+import "shared/config"; // load dotenv before creating pool
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { PrismaClient } from "shared/prisma";

@@ -1,5 +1,6 @@
 import { DEVELOPMENT_MODE, resolveEnv } from "shared/config"; // load config
 
+
 // @ts-check
 import { defineConfig } from "astro/config";
 import svelte, { vitePreprocess } from "@astrojs/svelte";
@@ -35,4 +36,7 @@ export default defineConfig({
         }),
     ],
     scopedStyleStrategy: "attribute",
+    // PWA Configuration - site URL for manifest generation
+    // In production, nginx handles SSL termination so internal traffic is HTTP
+    site: DEVELOPMENT_MODE ? "http://localhost:3000" : "http://skillswap.bpariverside.org",
 });

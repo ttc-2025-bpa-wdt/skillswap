@@ -1,10 +1,13 @@
 <script lang="ts">
     import Button from "../base/Button.svelte";
     import SearchBar from "../base/SearchBar.svelte";
+    import NotificationBell from "../notifications/NotificationBell.svelte";
+    import ThemeToggle from "./ThemeToggle.svelte";
     import { type IUser, UserRole } from "shared/schema";
 
     export let user: IUser | null = null;
     export let isAdmin: boolean = false;
+    export let notificationCount: number = 0;
     $: isLoggedIn = user !== null;
 
     let flyoutActive = false;
@@ -33,7 +36,9 @@
             {#if isAdmin}
                 <Button href="/admin" variant="secondary" size="sm">Admin</Button>
             {/if}
+            <ThemeToggle />
             {#if isLoggedIn}
+                <NotificationBell {notificationCount} />
                 <Button href="/settings" variant="secondary" size="sm">Settings</Button>
                 <Button href="/profile" variant="primary" size="sm">Profile</Button>
             {:else}
@@ -55,7 +60,9 @@
         <a href="/admin">Admin</a>
     {/if}
     <a href="/about#contact">Contact</a>
+    <div class="flyout-theme"><ThemeToggle /></div>
     {#if isLoggedIn}
+        <NotificationBell {notificationCount} />
         <a href="/settings">Settings</a>
         <a href="/profile">Profile</a>
     {:else}
@@ -131,6 +138,13 @@
                 display: block;
             }
         }
+    }
+
+    .flyout-theme {
+        display: flex;
+        justify-content: center;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--accent-3);
     }
 
     .flyout {
