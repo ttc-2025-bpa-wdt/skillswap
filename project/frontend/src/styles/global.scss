@@ -45,6 +45,22 @@ body {
     scroll-behavior: smooth;
 }
 
+// Page transition animation
+main {
+    animation: page-enter 0.25s ease-out;
+}
+
+@keyframes page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 section,
 article {
     display: flex;

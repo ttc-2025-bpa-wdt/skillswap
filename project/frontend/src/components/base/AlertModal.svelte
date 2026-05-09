@@ -47,7 +47,7 @@
     }
 
     .modal-content {
-        background: white;
+        background: var(--card-bg, white);
         padding: 2rem;
         border-radius: 8px;
         min-width: 300px;

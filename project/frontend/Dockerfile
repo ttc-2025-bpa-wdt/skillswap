@@ -21,8 +21,9 @@ VOLUME /shared
 
 # Set environment variables
 ENV NODE_ENV=development
+ENV HOST=0.0.0.0
 
-CMD ["ash", "-c", "cd /shared && bun run init && cd /app && bun run init && bun run dev"]
+CMD ["ash", "-c", "cd /shared && bun run init && cd /app && bun run init && bun run dev:docker"]
 
 FROM build as prod
 

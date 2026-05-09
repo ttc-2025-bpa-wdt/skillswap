@@ -7,9 +7,13 @@ import SearchBar from "@components/base/SearchBar.svelte";
 
 import { Authentication } from "shared/models";
 import { db } from "shared/helpers";
+import { categories } from "@lib/categories";
 
 const token = Authentication.validateToken(Astro.request);
 if (!token) return Astro.redirect("/auth/login");
+
+const currentUser = await db.user.findUnique({ where: { id: token.sub }, select: { role: true } });
+const isDemo = currentUser?.role === "DEMO";
 
 const sessions = await db.session.findMany({
     where: {
@@ -64,20 +68,14 @@ const messages = await db.message.findMany({
     orderBy: { createdAt: "desc" },
 });
 
-const allTopics = [
-    { icon: "💻", title: "Technology", description: "Programming, Design, Data" },
-    { icon: "🎨", title: "Arts & Creative", description: "Drawing, Painting, Music" },
-    { icon: "🍳", title: "Lifestyle", description: "Cooking, Gardening, DIY" },
-    { icon: "🗣️", title: "Languages", description: "Spanish, French, ESL" },
-    { icon: "🎸", title: "Music", description: "Guitar, Piano, Theory" },
-    { icon: "📸", title: "Photography", description: "Digital, Film, Editing" },
-    { icon: "🧘", title: "Wellness", description: "Yoga, Meditation, Fitness" },
-    { icon: "💰", title: "Finance", description: "Investing, Budgeting, Taxes" },
-    { icon: "📢", title: "Marketing", description: "Social Media, SEO, Branding" },
-    { icon: "✍️", title: "Writing", description: "Creative, Technical, Copy" },
-];
-
-const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
+const allTopics = categories;
+// Deterministic shuffle seeded by day so it changes daily but not per-request
+const daySeed = new Date().toISOString().slice(0, 10);
+const suggestedTopics = [...allTopics].sort((a, b) => {
+    const ha = (daySeed + a.title).split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+    const hb = (daySeed + b.title).split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+    return ha - hb;
+}).slice(0, 4);
 ---
 
 <Layout title="Dashboard">
@@ -91,7 +89,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
             <Card class="dashboard-card full-width">
                 <div class="card-header">
                     <h2>Your Sessions</h2>
-                    <Button size="sm" href="/session/create"> Create New Session </Button>
+                    {!isDemo && <Button size="sm" href="/session/create"> Create New Session </Button>}
                 </div>
                 <div class="teaching-list">
                     {
@@ -119,11 +117,12 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                     <p class="notes">{session.details}</p>
                                 </div>
                                 <div class="session-actions">
-                                    {session.isHost && (
+                                    {!isDemo && session.isHost && (
                                         <Button size="sm" variant="outline" href={`/session/${session.id}/edit`}>
                                             Edit
                                         </Button>
                                     )}
+                                    {!isDemo && (
                                     <Button
                                         size="sm"
                                         variant="ghost"
@@ -133,6 +132,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                                     >
                                         {session.isHost ? "Cancel" : "Leave"}
                                     </Button>
+                                    )}
                                 </div>
                             </div>
                         ))
@@ -308,6 +308,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                         </div>
                     </div>
 
+                    {!isDemo && (
                     <div class="promo-banner">
                         <div class="banner-content">
                             <h3>Ready to share your skills?</h3>
@@ -315,6 +316,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
                         </div>
                         <Button href="/session/create" variant="primary">Start Teaching</Button>
                     </div>
+                    )}
                 </div>
             </div>
         </section>
@@ -322,7 +324,9 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 </Layout>
 
 <script>
-    // Placeholder for search functionality
+    // SearchBar form already has action="/search" and name="q",
+    // so native form submission works. This handler ensures the
+    // search navigates even if JS interception is needed.
 </script>
 
 <style lang="scss">
@@ -726,11 +730,11 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
 
                 &.upcoming {
                     background: rgba(52, 152, 219, 0.15);
-                    color: #3498db;
+                    color: var(--accent-1);
                 }
                 &.pending {
-                    background: rgba(243, 156, 18, 0.15);
-                    color: #f39c12;
+                    background: rgba(230, 126, 34, 0.15);
+                    color: #e67e22;
                 }
             }
 
@@ -779,7 +783,7 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
         }
 
         .text-danger {
-            color: #e74c3c !important;
+            color: var(--base-red, #e74c3c) !important;
             &:hover {
                 background: rgba(231, 76, 60, 0.1);
             }
@@ -959,20 +963,20 @@ const suggestedTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 4);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         white-space: nowrap;
-        background-color: rgba(0, 0, 0, 0.05); /* Default badge background */
+        background-color: var(--accent-3); /* Default badge background */
         color: var(--foreground);
 
         &.beginner {
-            background-color: rgba(46, 204, 113, 0.15);
+            background-color: color-mix(in srgb, #2ecc71 15%, var(--card-bg));
             color: #2ecc71;
         }
         &.intermediate {
-            background-color: rgba(241, 196, 15, 0.15);
+            background-color: color-mix(in srgb, #d4ac0d 15%, var(--card-bg));
             color: #d4ac0d;
         }
         &.advanced {
-            background-color: rgba(231, 76, 60, 0.15);
-            color: #e74c3c;
+            background-color: color-mix(in srgb, #e74c3c 15%, var(--card-bg));
+            color: var(--base-red, #e74c3c);
         }
     }
 

@@ -139,20 +139,21 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
                 <Card class="settings-card">
                     <form id="account-form">
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" value={user.email} />
+                            <label for="email">Email Address <span class="badge-soon">Coming Soon</span></label>
+                            <input type="email" id="email" name="email" value={user.email} disabled class="disabled-input" />
+                            <p class="helper-text">Email changes are not yet available.</p>
                         </div>
 
                         <div class="form-group">
-                            <label>Password</label>
+                            <label>Password <span class="badge-soon">Coming Soon</span></label>
                             <div class="password-actions">
                                 <div class="password-boxes">
-                                    <input type="password" placeholder="New Password" />
-                                    <input type="password" placeholder="Current Password" />
+                                    <input type="password" placeholder="New Password" disabled class="disabled-input" />
+                                    <input type="password" placeholder="Current Password" disabled class="disabled-input" />
                                 </div>
                                 <div class="password-buttons">
-                                    <Button variant="secondary">Change Password</Button>
-                                    <Button variant="outline">Forgot Password?</Button>
+                                    <Button variant="secondary" disabled>Change Password</Button>
+                                    <Button variant="outline" disabled>Forgot Password?</Button>
                                 </div>
                             </div>
                         </div>
@@ -252,8 +253,8 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             border-radius: 6px;
 
             &.disabled-input {
-                background-color: rgba(0, 0, 0, 0.05);
-                color: rgba(0, 0, 0, 0.6);
+                background-color: var(--accent-3);
+                color: var(--text-muted);
                 cursor: not-allowed;
             }
         }
@@ -278,6 +279,20 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
         margin-top: 2rem;
         display: flex;
         justify-content: flex-end;
+    }
+
+    .badge-soon {
+        display: inline-block;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: var(--accent-1, #2c74c4);
+        color: white;
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+        vertical-align: middle;
     }
 
     /* Avatar Section */
@@ -332,7 +347,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
         border-color: #d32f2f !important;
 
         &:hover {
-            background-color: rgba(211, 47, 47, 0.05);
+            background-color: rgba(211, 47, 47, 0.1);
         }
     }
 
@@ -409,6 +424,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             background-color: #d32f2f !important;
             color: white !important;
         }
+    }
     }
 </style>
 
@@ -519,7 +535,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
 
     accountForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        await showAlert("Email update functionality to be implemented.", "Info");
+        await showAlert("Email updates are not yet available.", "Coming Soon");
     });
 
     // Delete Account

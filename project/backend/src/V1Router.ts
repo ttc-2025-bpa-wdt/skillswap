@@ -38,6 +38,7 @@ interface ChatMessage {
 
 interface RequestUser {
     handle: string;
+    role?: string;
 }
 
 class ApiV1Endpoints {
@@ -184,18 +185,27 @@ class ApiV1Endpoints {
         return true;
     }
 
-    /** Authenticates the user from the request cookies and returns the user handle. */
+    /** Authenticates the user from the request cookies and returns the user handle and role. */
     protected async authUser(req: ExpressRequest): Promise<RequestUser | null> {
         const token = this.getAuthToken(req);
         if (!token) return null;
 
         const user = await db.user.findUnique({
             where: { id: token.sub },
-            select: { handle: true },
+            select: { handle: true, role: true },
         });
 
         if (!user) return null;
-        return { handle: user.handle };
+        return { handle: user.handle, role: user.role };
+    }
+
+    /** Rejects demo user write attempts. Returns true if rejected. */
+    protected rejectDemoUser(reqUser: RequestUser, res: ExpressResponse): boolean {
+        if (reqUser.role === "DEMO") {
+            res.status(403).json({ success: false, error: "Demo accounts are read-only" });
+            return true;
+        }
+        return false;
     }
 
     /** Determines the target user handle from the request query, body, or authenticated user. */
@@ -281,8 +291,8 @@ class ApiV1Endpoints {
         if (description.length > LIMITS.SESSION_DESC_MAX)
             return { error: `Description cannot exceed ${LIMITS.SESSION_DESC_MAX} characters` };
 
-        if (!validator.isURL(meetingUrl) || !meetingUrl.includes("zoom.us"))
-            return { error: "Invalid meeting URL. Must be a valid Zoom link." };
+        if (!validator.isURL(meetingUrl))
+            return { error: "Invalid meeting URL" };
 
         if (!difficultyTags[difficulty]) return { error: "Invalid difficulty level" };
 
@@ -316,6 +326,7 @@ class ApiV1Endpoints {
             where: { handle: targetHandle },
             select: {
                 handle: true,
+                role: true,
                 profile: {
                     select: {
                         displayName: true,
@@ -336,6 +347,7 @@ class ApiV1Endpoints {
         return res.json({
             success: true,
             data: {
+                isDemo: dbRes.role === "DEMO",
                 profile: {
                     displayName: dbRes.profile?.displayName,
                     avatarUrl: dbRes.profile?.avatarUrl,
@@ -356,6 +368,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         const targetHandle = this.getUserTargetHandle(req, res, reqUser);
         if (!targetHandle) return;
@@ -403,6 +416,7 @@ class ApiV1Endpoints {
     public async uploadAvatar(req: ExpressRequest, res: ExpressResponse) {
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         // Limit file size to 5MB
         const contentLength = parseInt(req.headers["content-length"] || "0");
@@ -428,17 +442,17 @@ class ApiV1Endpoints {
 
         // Generate a unique filename using the user's handle and a random suffix
         const filename = `${reqUser.handle}.${ext}`;
-        const frontendPath = path.resolve(process.cwd(), "../frontend/public/images/avatar");
-        const filePath = path.join(frontendPath, filename);
+        const avatarDir = path.resolve(process.cwd(), "public/avatars");
+        const filePath = path.join(avatarDir, filename);
 
         // Directory check
-        if (!fs.existsSync(frontendPath)) {
-            fs.mkdirSync(frontendPath, { recursive: true });
+        if (!fs.existsSync(avatarDir)) {
+            fs.mkdirSync(avatarDir, { recursive: true });
         }
 
         // Cleanup other extension if exists (e.g. uploading jpg when png exists)
         const otherExt = ext === "png" ? "jpg" : "png";
-        const otherFile = path.join(frontendPath, `${reqUser.handle}.${otherExt}`);
+        const otherFile = path.join(avatarDir, `${reqUser.handle}.${otherExt}`);
         if (fs.existsSync(otherFile)) {
             try {
                 fs.unlinkSync(otherFile);
@@ -465,6 +479,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         const targetHandle = this.getUserTargetHandle(req, res, reqUser);
         if (!targetHandle) return;
@@ -560,7 +575,7 @@ class ApiV1Endpoints {
             maxAge: remember ? AUTH_COOKIE_EXPIRY : undefined,
         });
 
-        return res.json({ success: true });
+        return res.json({ success: true, isDemo: user.role === "DEMO" });
     }
 
     /** Creates a new user account with the provided details. */
@@ -589,7 +604,9 @@ class ApiV1Endpoints {
                 error: `Handle must be between ${LIMITS.HANDLE_MIN} and ${LIMITS.HANDLE_MAX} characters`,
             });
 
-        // Check for invalid characters in handle
+        if (!/^[a-zA-Z0-9._-]+$/.test(sHandle))
+            return res.status(400).json({ success: false, error: "Handle can only contain letters, numbers, dots, dashes, and underscores" });
+
         if (sFirstName.length > LIMITS.NAME_MAX || sLastName.length > LIMITS.NAME_MAX)
             return res.status(400).json({ success: false, error: `Name cannot exceed ${LIMITS.NAME_MAX} characters` });
 
@@ -767,6 +784,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         let { id } = req.body;
         if (!id || typeof id !== "string")
@@ -804,6 +822,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         const user = await db.user.findUnique({
             where: { handle: reqUser.handle },
@@ -836,6 +855,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         let { id } = req.body;
         if (!id || typeof id !== "string")
@@ -879,8 +899,11 @@ class ApiV1Endpoints {
     protected async registerForSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
+
+        const token = this.getAuthToken(req)!;
 
         const { sessionId } = req.body;
         if (!sessionId) {
@@ -947,8 +970,11 @@ class ApiV1Endpoints {
     protected async unregisterFromSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
+
+        const token = this.getAuthToken(req)!;
 
         const { sessionId } = req.body;
         if (!sessionId) {
@@ -987,8 +1013,11 @@ class ApiV1Endpoints {
     protected async contactHost(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
+
+        const token = this.getAuthToken(req)!;
 
         const { sessionId, hostId, message } = req.body;
 
@@ -1071,8 +1100,11 @@ class ApiV1Endpoints {
     protected async rateSession(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
+
+        const token = this.getAuthToken(req)!;
 
         const { sessionId, rating, comment } = req.body;
 
@@ -1169,6 +1201,7 @@ class ApiV1Endpoints {
 
         const reqUser = await this.authUser(req);
         if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
 
         const token = this.getAuthToken(req)!;
 
@@ -1196,7 +1229,20 @@ class ApiV1Endpoints {
 
         // Admin can fully delete any review
         if (isAdmin) {
+            const recipientId = review.recipientId;
             await db.review.delete({ where: { id } });
+
+            // Recalculate average rating after admin deletion
+            const ratings = await db.review.findMany({
+                where: { recipientId, rating: { gt: 0 }, hidden: false },
+                select: { rating: true },
+            });
+            const avg = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : 0;
+            await db.profile.update({
+                where: { userId: recipientId },
+                data: { rating: avg },
+            });
+
             return res.json({ success: true });
         }
 
@@ -1233,8 +1279,11 @@ class ApiV1Endpoints {
     protected async deleteMessage(req: ExpressRequest, res: ExpressResponse) {
         if (!this.ensureJson(req, res)) return;
 
-        const token = this.getAuthToken(req);
-        if (!token) return res.status(401).json({ success: false, error: "Unauthorized" });
+        const reqUser = await this.authUser(req);
+        if (!reqUser) return res.status(401).json({ success: false, error: "Unauthorized" });
+        if (this.rejectDemoUser(reqUser, res)) return;
+
+        const token = this.getAuthToken(req)!;
 
         const { id } = req.body;
         if (!id) {
@@ -1304,6 +1353,7 @@ class ApiV1Endpoints {
             res.status(401).json({ success: false, error: "Unauthorized" });
             return;
         }
+        if (this.rejectDemoUser(user, res)) return;
 
         const userData = await db.user.findUnique({
             where: { handle: user.handle },
@@ -1328,6 +1378,7 @@ class ApiV1Endpoints {
             res.status(401).json({ success: false, error: "Unauthorized" });
             return;
         }
+        if (this.rejectDemoUser(user, res)) return;
 
         const userData = await db.user.findUnique({
             where: { handle: user.handle },
@@ -1351,6 +1402,7 @@ class ApiV1Endpoints {
             res.status(401).json({ success: false, error: "Unauthorized" });
             return;
         }
+        if (this.rejectDemoUser(user, res)) return;
 
         const userData = await db.user.findUnique({
             where: { handle: user.handle },
@@ -1476,6 +1528,7 @@ class ApiV1Endpoints {
             res.status(401).json({ success: false, error: "Unauthorized" });
             return;
         }
+        if (this.rejectDemoUser(user, res)) return;
 
         const userData = await db.user.findUnique({
             where: { handle: user.handle },
@@ -1508,6 +1561,7 @@ class ApiV1Endpoints {
             res.status(401).json({ success: false, error: "Unauthorized" });
             return;
         }
+        if (this.rejectDemoUser(user, res)) return;
 
         const userData = await db.user.findUnique({
             where: { handle: user.handle },
@@ -1610,10 +1664,16 @@ class ApiV1Endpoints {
 
         const user = await db.user.findUnique({
             where: { id: token.sub },
-            select: { handle: true },
+            select: { handle: true, role: true },
         });
 
         if (!user) {
+            socket.disconnect(true);
+            return;
+        }
+
+        if (user.role === "DEMO") {
+            socket.emit("error", "Demo accounts cannot send messages");
             socket.disconnect(true);
             return;
         }

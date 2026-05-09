@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 
 import express from "express";
+import path from "path";
 
 import ApiV1Router, { ApiV1Singleton } from "./V1Router";
 
@@ -27,6 +28,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/v1", ApiV1Router);
+app.use("/images/avatar", express.static(path.resolve(process.cwd(), "public/avatars")));
 
 export function createAppServer() {
     const server = createServer(app);

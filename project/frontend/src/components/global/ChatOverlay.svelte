@@ -199,12 +199,12 @@
 <style lang="scss">
     .chat-widget {
         position: fixed;
-        bottom: 5.5rem;
+        bottom: 4.5rem;
         right: 1.5rem;
         z-index: 1000;
 
         @media (max-width: 768px) {
-            bottom: 5rem;
+            bottom: 4.25rem;
             right: 1rem;
         }
     }

@@ -6,18 +6,22 @@ test.describe("Footer component", () => {
         await page.goto("/");
         await page.waitForTimeout(1000);
 
-        const footer = page.locator("footer").first();
-        if (await footer.count() > 0) {
-            await expect(footer).toBeVisible();
-        }
+        const footer = page.locator("footer.desktop-footer").first();
+        await expect(footer).toBeVisible();
     });
 
     test("hidden on mobile", async ({ mobilePage }) => {
         await mobilePage.goto("/");
         await mobilePage.waitForTimeout(1000);
 
-        // On mobile, the desktop footer should be hidden
-        // The body padding should account for the mobile nav
+        const footer = mobilePage.locator("footer.desktop-footer").first();
+        await expect(footer).toBeHidden();
+    });
+
+    test("body has bottom padding on mobile for nav bar", async ({ mobilePage }) => {
+        await mobilePage.goto("/");
+        await mobilePage.waitForTimeout(1000);
+
         const bodyPadding = await mobilePage.evaluate(() => {
             return window.getComputedStyle(document.body).paddingBottom;
         });

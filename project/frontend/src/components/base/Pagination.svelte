@@ -9,13 +9,43 @@
     export { classes as class };
 
     classes = `pagination ${classes}`.trim();
+
+    function handlePrev() {
+        if (currentPage > 1) {
+            currentPage -= 1;
+        }
+    }
+
+    function handleNext() {
+        if (totalPages === undefined || currentPage < totalPages) {
+            currentPage += 1;
+        }
+    }
+
+    function handlePageInput(e: Event) {
+        const target = e.target as HTMLInputElement;
+        const page = parseInt(target.value, 10);
+        if (!isNaN(page) && page >= 1) {
+            if (totalPages === undefined || page <= totalPages) {
+                currentPage = page;
+            }
+        }
+    }
+
+    function handlePerPageChange(e: Event) {
+        const target = e.target as HTMLSelectElement;
+        currentPage = 1;
+        // Per-page change is handled by parent via re-fetch
+        const event = new CustomEvent("perpagechange", { detail: parseInt(target.value, 10) });
+        dispatchEvent(event);
+    }
 </script>
 
 <div class={classes}>
     {#if showSelector}
         <div class="page-info">
             <label for="per-page">Show</label>
-            <select id="per-page">
+            <select id="per-page" onchange={handlePerPageChange}>
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -24,12 +54,12 @@
     {/if}
 
     <div class="nav-controls">
-        <Button variant="outline" class="page-btn">&lt;</Button>
+        <Button variant="outline" class="page-btn" onclick={handlePrev} disabled={currentPage <= 1}>&lt;</Button>
         <div class="page-info">
             <span>Page</span>
-            <input type="number" value={currentPage} min="1" aria-label="Page number" />
+            <input type="number" value={currentPage} min="1" max={totalPages} aria-label="Page number" onchange={handlePageInput} />
         </div>
-        <Button variant="outline" class="page-btn">&gt;</Button>
+        <Button variant="outline" class="page-btn" onclick={handleNext} disabled={totalPages !== undefined && currentPage >= totalPages}>&gt;</Button>
     </div>
 </div>
 
@@ -44,7 +74,7 @@
         max-width: 100%;
 
         @media (max-width: 600px) {
-            justify-content: flex-start; /* Default to left align on mobile */
+            justify-content: flex-start;
             gap: 0.5rem;
         }
     }
@@ -91,9 +121,8 @@
     }
 
     @media (max-width: 600px) {
-        /* Allow flexible layout on mobile */
         .page-info {
-            white-space: nowrap; /* Keep label and input together */
+            white-space: nowrap;
         }
     }
 </style>

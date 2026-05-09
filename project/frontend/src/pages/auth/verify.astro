@@ -18,16 +18,39 @@ import Layout from "@layouts/global.astro";
         const statusEl = document.getElementById("verify-status");
 
         if (token) {
-            // The backend handles verification and redirects automatically via GET /api/v1/auth/verify-email
-            // If we're still on this page, the redirect already happened or we arrived directly
-            if (statusEl) {
-                statusEl.innerHTML = `
-                    <iconify-icon icon="mdi:check-circle" width="48" height="48" style="color: #10b981;"></iconify-icon>
-                    <h2>Email Verified!</h2>
-                    <p>Your email has been verified successfully.</p>
-                    <a href="/dashboard" class="btn">Go to Dashboard</a>
-                `;
-            }
+            // Attempt to verify the token with the backend
+            fetch(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`)
+                .then(async (res) => {
+                    if (res.ok) {
+                        if (statusEl) {
+                            statusEl.innerHTML = `
+                                <iconify-icon icon="mdi:check-circle" width="48" height="48" style="color: #10b981;"></iconify-icon>
+                                <h2>Email Verified!</h2>
+                                <p>Your email has been verified successfully.</p>
+                                <a href="/dashboard" class="btn">Go to Dashboard</a>
+                            `;
+                        }
+                    } else {
+                        if (statusEl) {
+                            statusEl.innerHTML = `
+                                <iconify-icon icon="mdi:alert-circle" width="48" height="48" style="color: var(--base-red);"></iconify-icon>
+                                <h2>Verification Failed</h2>
+                                <p>This link may have expired. Please request a new one.</p>
+                                <a href="/auth/login" class="btn">Back to Login</a>
+                            `;
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (statusEl) {
+                        statusEl.innerHTML = `
+                            <iconify-icon icon="mdi:alert-circle" width="48" height="48" style="color: var(--base-red);"></iconify-icon>
+                            <h2>Verification Failed</h2>
+                            <p>Something went wrong. Please try again later.</p>
+                            <a href="/auth/login" class="btn">Back to Login</a>
+                        `;
+                    }
+                });
         } else {
             if (statusEl) {
                 statusEl.innerHTML = `

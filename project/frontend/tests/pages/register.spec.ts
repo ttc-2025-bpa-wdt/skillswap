@@ -6,18 +6,18 @@ test.describe("Register page", () => {
     });
 
     test("displays registration form with all fields", async ({ page }) => {
-        await expect(page.locator('input[name="email"], input[placeholder*="mail"]').first()).toBeVisible();
+        await expect(page.locator('input[name="email"]')).toBeVisible();
         await expect(page.locator('input[type="password"]').first()).toBeVisible();
-        await expect(page.locator('input[name="handle"], input[placeholder*="handle"]').first()).toBeVisible();
+        await expect(page.locator('input[name="handle"]')).toBeVisible();
     });
 
     test("successful registration shows success message", async ({ page }) => {
         const timestamp = Date.now();
-        const emailInput = page.locator('input[name="email"], input[placeholder*="mail"]').first();
-        const handleInput = page.locator('input[name="handle"], input[placeholder*="handle"]').first();
+        const emailInput = page.locator('input[name="email"]');
+        const handleInput = page.locator('input[name="handle"]');
         const passwordInputs = page.locator('input[type="password"]');
-        const firstNameInput = page.locator('input[name="firstName"], input[placeholder*="First"]').first();
-        const lastNameInput = page.locator('input[name="lastName"], input[placeholder*="Last"]').first();
+        const firstNameInput = page.locator('input[name="firstname"]');
+        const lastNameInput = page.locator('input[name="lastname"]');
 
         await emailInput.fill(`e2ereg_${timestamp}@test.com`);
         await handleInput.fill(`e2ereg_${timestamp}`);
@@ -28,14 +28,14 @@ test.describe("Register page", () => {
         await firstNameInput.fill("E2E");
         await lastNameInput.fill("Reg");
 
-        // Fill DOB if present
-        const dobInput = page.locator('input[name="dob"], input[type="date"]').first();
+        // Fill DOB
+        const dobInput = page.locator('input[name="dob"]');
         if (await dobInput.count() > 0) {
             await dobInput.fill("1990-01-01");
         }
 
         // Fill registration key
-        const regKeyInput = page.locator('input[name="registrationKey"], input[placeholder*="key"]').first();
+        const regKeyInput = page.locator('input[name="register-key"]');
         if (await regKeyInput.count() > 0) {
             await regKeyInput.fill("BPA2026JudgePreview");
         }

@@ -2,7 +2,7 @@ import "shared/config";
 
 import { db } from "shared/helpers";
 import { Security } from "shared/helpers";
-import { users, profiles, sessions } from "shared/mock";
+import { users, profiles, sessions, registrations } from "shared/mock";
 
 const DEFAULT_PASSWORD = "password123";
 
@@ -73,9 +73,28 @@ async function seed() {
                 },
             });
         }
+
+        // Create session registrations for demo user
+        for (const reg of registrations) {
+            await tx.sessionRegistration.create({
+                data: {
+                    id: reg.id,
+                    sessionId: reg.sessionId,
+                    userId: reg.userId,
+                },
+            });
+        }
     });
 
-    console.log(`Seeded ${users.length} users, ${profiles.length} profiles, ${sessions.length} sessions.`);
+    // Seed achievements (module may not be available in shared context)
+    try {
+        const mod = await import("../../backend/src/services/achievement.js");
+        if (mod.initializeAchievements) await mod.initializeAchievements();
+    } catch {
+        console.log("Skipping achievement seeding (will be handled by backend startup)");
+    }
+
+    console.log(`Seeded ${users.length} users, ${profiles.length} profiles, ${sessions.length} sessions, ${registrations.length} registrations.`);
     process.exit(0);
 }
 

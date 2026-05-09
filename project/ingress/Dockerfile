@@ -7,9 +7,11 @@ RUN apk add --no-cache bash
 COPY ./ingress/nginx.conf /etc/nginx/nginx.conf
 COPY ./ingress/skillswap.conf /etc/nginx/conf.d/hosts/skillswap.conf.template
 
-# Run envsubst to finalize config
-RUN cd /etc/nginx/conf.d/hosts && \
-    envsubst < skillswap.conf.template > skillswap.conf && rm skillswap.conf.template
+# Run envsubst at startup to substitute runtime env vars
+# Use a custom entrypoint that processes the template before starting nginx
+COPY ./ingress/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Expose port 80
 EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]

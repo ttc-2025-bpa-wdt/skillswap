@@ -4,7 +4,7 @@ import { loginViaApi, registerViaApi, setAuthCookie } from "./auth";
 export const TEST_USER = {
     handle: "e2etestuser",
     email: "e2etest@test.com",
-    password: "TestPass123!",
+    password: "password123",
     firstName: "E2E",
     lastName: "Test",
     dob: "1990-01-01",
@@ -14,11 +14,17 @@ export const TEST_USER = {
 export const ADMIN_USER = {
     handle: "e2eadmin",
     email: "e2eadmin@test.com",
-    password: "AdminPass123!",
+    password: "password123",
     firstName: "Admin",
     lastName: "E2E",
     dob: "1985-06-15",
     registrationKey: "BPA2026JudgePreview",
+};
+
+export const DEMO_USER = {
+    handle: "demo.user",
+    email: "demo@skillswap.bpariverside.org",
+    password: "password123",
 };
 
 type TestFixtures = {

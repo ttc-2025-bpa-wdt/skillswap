@@ -4,6 +4,7 @@
     export let user: IUser | null = null;
     export let notificationCount: number = 0;
     export let chatCount: number = 0;
+    export let isDemo: boolean = false;
 
     $: isLoggedIn = user !== null;
 
@@ -13,23 +14,41 @@
         label: string;
         requiresAuth?: boolean;
         badge?: number;
+        center?: boolean;
     }
 
     const navItems: NavItem[] = [
         { href: "/dashboard", icon: "mdi:home", label: "Home", requiresAuth: true },
-        { href: "/search", icon: "mdi:magnify", label: "Search" },
-        { href: "/session/create", icon: "mdi:plus-circle", label: "Create", requiresAuth: true },
-        { href: "/chat", icon: "mdi:chat", label: "Chat", requiresAuth: true, badge: chatCount },
-        { href: "/profile", icon: "mdi:account", label: "Profile", requiresAuth: true },
+        { href: "/search", icon: "mdi:compass", label: "Explore" },
+        { href: "/session/create", icon: "mdi:plus", label: "Create", requiresAuth: true, center: true },
+        { href: "/notifications", icon: "mdi:bell", label: "Alerts", requiresAuth: true, badge: notificationCount },
+        { href: "/profile", icon: "mdi:account-circle", label: "Profile", requiresAuth: true },
     ];
 
-    $: filteredItems = navItems.filter(item => !item.requiresAuth || isLoggedIn);
+    const loggedOutItems: NavItem[] = [
+        { href: "/search", icon: "mdi:compass", label: "Explore" },
+        { href: "/auth/login", icon: "mdi:login", label: "Sign In" },
+    ];
 
-    // Active state tracking
-    let currentPath = "";
-    if (typeof window !== "undefined") {
+    $: items = isLoggedIn
+        ? navItems.filter(item => !(isDemo && item.href === "/session/create"))
+        : loggedOutItems;
+
+    let currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+
+    function updatePath() {
         currentPath = window.location.pathname;
     }
+
+    import { onMount } from "svelte";
+    onMount(() => {
+        window.addEventListener("popstate", updatePath);
+        document.addEventListener("astro:after-swap", updatePath);
+        return () => {
+            window.removeEventListener("popstate", updatePath);
+            document.removeEventListener("astro:after-swap", updatePath);
+        };
+    });
 
     function isActive(href: string): boolean {
         if (href === "/dashboard") {
@@ -38,49 +57,43 @@
         return currentPath.startsWith(href);
     }
 
-    // Handle navigation with haptic feedback
-    function handleNavClick(item: NavItem, event: MouseEvent) {
-        // Provide haptic feedback on supported devices
+    function handleClick(item: NavItem, event: MouseEvent) {
         if ("vibrate" in navigator) {
-            navigator.vibrate(10);
+            navigator.vibrate(item.center ? 20 : 10);
         }
-        
-        // Close any open menus/modals
-        // Navigation will happen naturally via href
-    }
 
-    // Handle create button with special action
-    function handleCreate(event: MouseEvent) {
-        if (!isLoggedIn) {
+        if (!isLoggedIn && item.requiresAuth) {
             event.preventDefault();
             window.location.href = "/auth/login";
-            return;
-        }
-        // Haptic feedback
-        if ("vibrate" in navigator) {
-            navigator.vibrate(20);
         }
     }
 </script>
 
 <nav class="mobile-nav" aria-label="Mobile navigation">
     <div class="nav-container">
-        {#each filteredItems as item}
+        {#each items as item}
             {@const active = isActive(item.href)}
-            <a 
-                href={item.href} 
-                class="nav-item" 
+            <a
+                href={item.href}
+                class="nav-item"
+                class:center={item.center}
                 class:active
-                on:click={(e) => item.label === "Create" ? handleCreate(e) : handleNavClick(item, e)}
+                on:click={(e) => handleClick(item, e)}
                 aria-current={active ? "page" : undefined}
             >
-                <div class="icon-wrapper" class:has-badge={item.badge && item.badge > 0}>
-                    <iconify-icon icon={item.icon} width="24" height="24"></iconify-icon>
-                    {#if item.badge && item.badge > 0}
-                        <span class="badge">{item.badge > 99 ? "99+" : item.badge}</span>
-                    {/if}
-                </div>
-                <span class="label">{item.label}</span>
+                {#if item.center}
+                    <div class="center-button">
+                        <iconify-icon icon={item.icon} width="28" height="28"></iconify-icon>
+                    </div>
+                {:else}
+                    <div class="icon-wrapper" class:has-badge={item.badge && item.badge > 0}>
+                        <iconify-icon icon={item.icon} width="22" height="22"></iconify-icon>
+                        {#if item.badge && item.badge > 0}
+                            <span class="badge">{item.badge > 99 ? "99+" : item.badge}</span>
+                        {/if}
+                    </div>
+                    <span class="label">{item.label}</span>
+                {/if}
             </a>
         {/each}
     </div>
@@ -97,8 +110,7 @@
         z-index: 100;
         padding-bottom: env(safe-area-inset-bottom, 0);
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        
-        // Hidden on larger screens
+
         @media (min-width: 769px) {
             display: none;
         }
@@ -107,29 +119,31 @@
     .nav-container {
         display: flex;
         justify-content: space-around;
-        align-items: center;
+        align-items: flex-end;
         max-width: 500px;
         margin: 0 auto;
-        padding: 0.5rem 0.25rem;
+        padding: 0.4rem 0.25rem 0;
     }
 
     .nav-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.25rem;
-        padding: 0.5rem 0.75rem;
+        gap: 0.2rem;
+        padding: 0.4rem 0.75rem 0.35rem;
         text-decoration: none;
         color: var(--text-muted);
         border-radius: 12px;
         transition: all 0.2s ease;
-        min-width: 60px;
-        min-height: 44px; // Touch target size
+        min-width: 56px;
         position: relative;
+
+        &:active {
+            transform: scale(0.95);
+        }
 
         &:hover {
             color: var(--accent-1);
-            background: rgba(44, 116, 196, 0.1);
         }
 
         &.active {
@@ -144,33 +158,56 @@
             }
         }
 
-        &:active {
-            transform: scale(0.95);
+        // Elevated center button
+        &.center {
+            .center-button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background: var(--accent-1);
+                color: white;
+                transform: translateY(-8px);
+                box-shadow: 0 2px 8px rgba(44, 116, 196, 0.35);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            &:hover .center-button {
+                box-shadow: 0 4px 12px rgba(44, 116, 196, 0.45);
+            }
+
+            &:active .center-button {
+                transform: translateY(-4px) scale(0.95);
+            }
+
+            &.active .center-button {
+                background: var(--accent-2);
+            }
         }
     }
 
     .icon-wrapper {
         position: relative;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
         transition: background 0.2s ease;
 
-        &.has-badge {
-            &::after {
-                content: "";
-                position: absolute;
-                top: -2px;
-                right: -2px;
-                width: 8px;
-                height: 8px;
-                background: var(--base-red);
-                border-radius: 50%;
-                border: 2px solid var(--card-bg);
-            }
+        &.has-badge::after {
+            content: "";
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--base-red);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
         }
     }
 
@@ -178,35 +215,24 @@
         position: absolute;
         top: -6px;
         right: -6px;
-        min-width: 18px;
-        height: 18px;
+        min-width: 16px;
+        height: 16px;
         padding: 0 4px;
         background: var(--base-red);
         color: white;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
-        border-radius: 9px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 2px solid var(--card-bg);
+        line-height: 1;
     }
 
     .label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 500;
         white-space: nowrap;
-    }
-
-    // Ripple effect animation
-    @keyframes ripple {
-        0% {
-            transform: scale(0);
-            opacity: 0.5;
-        }
-        100% {
-            transform: scale(4);
-            opacity: 0;
-        }
     }
 </style>

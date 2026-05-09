@@ -6,6 +6,7 @@ export interface IUserCredential {
 export enum UserRole {
     User = "USER",
     Admin = "ADMIN",
+    Demo = "DEMO",
 }
 
 export interface IUser extends IUserCredential {

@@ -14,6 +14,8 @@ services:
       POSTGRES_USER: ${DATABASE_USER?}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD?}
       POSTGRES_DB: skillswap
+    ports:
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres:/var/lib/postgresql
 
@@ -25,6 +27,9 @@ services:
     environment:
       - HOSTNAME=${HOSTNAME?}
       - DATABASE_URL=postgresql://${DATABASE_USER?}:${DATABASE_PASSWORD?}@postgres:5432/skillswap
+      - JWT_SECRET=${JWT_SECRET?}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER?}
+      - REGISTRATION_KEY=${REGISTRATION_KEY?}
     volumes:
       - ${PROJECT_ROOT?}backend:/app
       - ${PROJECT_ROOT?}shared:/shared
@@ -41,6 +46,9 @@ services:
       - HOSTNAME=${HOSTNAME?}
       - VITE_API_URL=http://${HOSTNAME?}:4000
       - DATABASE_URL=postgresql://${DATABASE_USER?}:${DATABASE_PASSWORD?}@postgres:5432/skillswap
+      - JWT_SECRET=${JWT_SECRET?}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER?}
+      - REGISTRATION_KEY=${REGISTRATION_KEY?}
     volumes:
       - ${PROJECT_ROOT?}frontend:/app
       - ${PROJECT_ROOT?}shared:/shared

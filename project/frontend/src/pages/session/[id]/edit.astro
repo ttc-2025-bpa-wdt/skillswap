@@ -43,8 +43,8 @@ if (id) {
         }
     }
 
-    if (session.date) {
-        const d = new Date(session.date);
+    if (session.eventDate) {
+        const d = new Date(session.eventDate);
         d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
         eventDateString = d.toISOString().slice(0, 16);
     }

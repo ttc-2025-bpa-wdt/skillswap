@@ -55,6 +55,45 @@ export const users: IUser[] = [
         passwordHash: "password",
         passwordSalt: "salt",
     },
+    {
+        id: (++uniqueId).toString(),
+        handle: "demo.user",
+        profileId: "5",
+        createdAt: new Date("2026-01-01"),
+        email: "demo@skillswap.bpariverside.org",
+        dob: new Date("2000-01-01"),
+        role: UserRole.Demo,
+        firstName: "Demo",
+        lastName: "User",
+        passwordHash: "password",
+        passwordSalt: "salt",
+    },
+    {
+        id: (++uniqueId).toString(),
+        handle: "e2etestuser",
+        profileId: "6",
+        createdAt: new Date("2026-01-01"),
+        email: "e2etest@test.com",
+        dob: new Date("1990-01-01"),
+        role: UserRole.User,
+        firstName: "E2E",
+        lastName: "Test",
+        passwordHash: "password",
+        passwordSalt: "salt",
+    },
+    {
+        id: (++uniqueId).toString(),
+        handle: "e2eadmin",
+        profileId: "7",
+        createdAt: new Date("2026-01-01"),
+        email: "e2eadmin@test.com",
+        dob: new Date("1985-06-15"),
+        role: UserRole.Admin,
+        firstName: "Admin",
+        lastName: "E2E",
+        passwordHash: "password",
+        passwordSalt: "salt",
+    },
 ];
 
 export const profiles: IProfile[] = [
@@ -97,6 +136,36 @@ export const profiles: IProfile[] = [
         skills: ["Marketing", "Social Media", "Branding"],
         bio: "My focus is on spreading the word about SkillSwap and growing our community. We believe in the power of mentorship and are dedicated to connecting people who want to learn with those who want to teach. When I'm not working on marketing strategies, I enjoy exploring new tech trends and engaging with our users.",
         stats: { sessionCount: 70, studentCount: 120, rating: 4.85 },
+    },
+    {
+        displayName: "Demo User",
+        id: "5",
+        userId: "5",
+        avatarUrl: "/images/avatar/default.png",
+        tags: ["student"],
+        skills: ["Exploring", "Learning"],
+        bio: "Welcome! I'm the demo account. Feel free to explore SkillSwap using this account — you can browse sessions, view profiles, and experience the platform, but you won't be able to make any changes.",
+        stats: { sessionCount: 3, studentCount: 0, rating: 0 },
+    },
+    {
+        displayName: "E2E Test",
+        id: "6",
+        userId: "6",
+        avatarUrl: "/images/avatar/default.png",
+        tags: [],
+        skills: [],
+        bio: "",
+        stats: { sessionCount: 0, studentCount: 0, rating: 0 },
+    },
+    {
+        displayName: "Admin E2E",
+        id: "7",
+        userId: "7",
+        avatarUrl: "/images/avatar/default.png",
+        tags: [],
+        skills: [],
+        bio: "",
+        stats: { sessionCount: 0, studentCount: 0, rating: 0 },
     },
 ];
 
@@ -270,4 +339,10 @@ export const sessions: ISession[] = [
         createdAt: new Date("2025-12-15T11:15:00Z"),
         eventDate: new Date("2025-12-30T19:00:00Z"),
     },
+];
+
+export const registrations: { id: string; sessionId: string; userId: string }[] = [
+    { id: "r1", sessionId: "1", userId: "5" },
+    { id: "r2", sessionId: "5", userId: "5" },
+    { id: "r3", sessionId: "9", userId: "5" },
 ];
