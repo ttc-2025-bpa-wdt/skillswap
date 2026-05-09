@@ -350,7 +350,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
 
     .categories-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.5rem;
 
         @media (max-width: 600px) {
@@ -364,6 +364,10 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
         padding: 2rem;
         transition: transform 0.2s ease;
         cursor: pointer;
+
+        @media (max-width: 600px) {
+            padding: 1.25rem;
+        }
 
         &:hover {
             transform: translateY(-5px);
@@ -434,6 +438,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
+        overflow-x: hidden;
 
         @media (max-width: 768px) {
             padding: 0.75rem;
@@ -585,7 +590,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
 
         .reviews-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
 
             @media (max-width: 600px) {
@@ -610,6 +615,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+
+            @media (max-width: 600px) {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
         }
 
         .reviewer-info {
@@ -736,6 +746,8 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
 
             @media (max-width: 768px) {
                 margin-bottom: 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
             }
         }
 
@@ -767,10 +779,15 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 align-items: center;
                 gap: 0.5rem;
                 margin-bottom: 0.5rem;
+                min-width: 0;
 
                 h3 {
                     margin: 0;
                     font-size: 1.1rem;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
 
                     @media (max-width: 768px) {
                         font-size: 0.95rem;
@@ -808,6 +825,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 opacity: 0.8;
                 font-size: 0.9rem;
 
+                @media (max-width: 600px) {
+                    flex-wrap: wrap;
+                    gap: 0.75rem;
+                }
+
                 .detail-item {
                     display: flex;
                     align-items: center;
@@ -840,7 +862,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
 
             @media (max-width: 600px) {
                 justify-content: flex-end;
-                margin-top: 1rem;
+                margin-top: 0.5rem;
             }
         }
 

@@ -130,11 +130,16 @@
         <div class="dropdown" role="menu" on:click|stopPropagation>
             <div class="dropdown-header">
                 <h3>Notifications</h3>
-                {#if notificationCount > 0}
-                    <button class="mark-all-read" on:click={markAllAsRead}>
-                        Mark all as read
+                <div class="dropdown-header-actions">
+                    {#if notificationCount > 0}
+                        <button class="mark-all-read" on:click={markAllAsRead}>
+                            Mark all as read
+                        </button>
+                    {/if}
+                    <button class="close-dropdown" on:click={closeDropdown} aria-label="Close">
+                        <Icon icon="mdi:close" width={20} height={20} />
                     </button>
-                {/if}
+                </div>
             </div>
 
             <div class="dropdown-content">
@@ -253,6 +258,12 @@
             font-weight: 600;
         }
 
+        .dropdown-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .mark-all-read {
             background: none;
             border: none;
@@ -262,6 +273,26 @@
 
             &:hover {
                 text-decoration: underline;
+            }
+        }
+
+        .close-dropdown {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--foreground);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.05);
+            }
+
+            @media (max-width: 768px) {
+                display: flex;
             }
         }
     }
