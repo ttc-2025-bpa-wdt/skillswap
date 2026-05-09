@@ -14,8 +14,6 @@ services:
       POSTGRES_USER: ${DATABASE_USER?}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD?}
       POSTGRES_DB: skillswap
-    ports:
-      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres:/var/lib/postgresql
 
@@ -34,6 +32,7 @@ services:
       - ${PROJECT_ROOT?}backend:/app
       - ${PROJECT_ROOT?}shared:/shared
       - /app/node_modules/
+      - /shared/gen/
     depends_on:
       - ingress
 
@@ -53,6 +52,7 @@ services:
       - ${PROJECT_ROOT?}frontend:/app
       - ${PROJECT_ROOT?}shared:/shared
       - /app/node_modules/
+      - /shared/gen/
     depends_on:
       - ingress
 

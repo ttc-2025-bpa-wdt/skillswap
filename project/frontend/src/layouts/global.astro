@@ -31,6 +31,7 @@ const token = Authentication.validateToken(Astro.request);
 const user = token ? await User.read(token.sub, UserFilter.Id) : null;
 const isAdmin = user?.role === UserRole.Admin;
 const isDemo = user?.role === UserRole.Demo;
+const isLoggedIn = user !== null;
 
 // Fetch unread counts for authenticated user
 let notificationCount = 0;
@@ -67,6 +68,7 @@ if (token) {
             href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
             rel="stylesheet"
         />
+
     </head>
     <body>
         <script is:inline>
@@ -88,8 +90,11 @@ if (token) {
             <Footer />
         </footer>
 
-        <!-- Mobile Navigation (shown on small screens) -->
-        <MobileNavBar user={user} notificationCount={notificationCount} chatCount={chatCount} isDemo={isDemo} client:load />
+        {isLoggedIn && (
+            <div>
+                <MobileNavBar user={user} notificationCount={notificationCount} chatCount={chatCount} isDemo={isDemo} client:load />
+            </div>
+        )}
 
         <span data-overlay></span>
         <AlertModal client:load />
@@ -134,8 +139,6 @@ if (token) {
             }
         </script>
 
-        <!-- Iconify icons -->
-        <script src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.0/dist/iconify-icon.min.js"></script>
     </body>
 </html>
 
@@ -143,7 +146,13 @@ if (token) {
     // Add bottom padding on mobile for the bottom nav bar
     body {
         @media (max-width: 768px) {
-            padding-bottom: 68px; // Height of mobile nav + padding
+            padding-bottom: 56px;
+        }
+    }
+
+    .mobile-hidden {
+        @media (max-width: 768px) {
+            display: none !important;
         }
     }
 

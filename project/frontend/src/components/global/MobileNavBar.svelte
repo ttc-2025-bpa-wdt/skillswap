@@ -1,5 +1,6 @@
 <script lang="ts">
     import { type IUser } from "shared/schema";
+    import Icon from '@lib/Icon.svelte';
 
     export let user: IUser | null = null;
     export let notificationCount: number = 0;
@@ -21,7 +22,6 @@
         { href: "/dashboard", icon: "mdi:home", label: "Home", requiresAuth: true },
         { href: "/search", icon: "mdi:compass", label: "Explore" },
         { href: "/session/create", icon: "mdi:plus", label: "Create", requiresAuth: true, center: true },
-        { href: "/notifications", icon: "mdi:bell", label: "Alerts", requiresAuth: true, badge: notificationCount },
         { href: "/profile", icon: "mdi:account-circle", label: "Profile", requiresAuth: true },
     ];
 
@@ -83,11 +83,11 @@
             >
                 {#if item.center}
                     <div class="center-button">
-                        <iconify-icon icon={item.icon} width="28" height="28"></iconify-icon>
+                        <Icon icon={item.icon} width={28} height={28} />
                     </div>
                 {:else}
                     <div class="icon-wrapper" class:has-badge={item.badge && item.badge > 0}>
-                        <iconify-icon icon={item.icon} width="22" height="22"></iconify-icon>
+                        <Icon icon={item.icon} width={22} height={22} />
                         {#if item.badge && item.badge > 0}
                             <span class="badge">{item.badge > 99 ? "99+" : item.badge}</span>
                         {/if}
@@ -122,7 +122,7 @@
         align-items: flex-end;
         max-width: 500px;
         margin: 0 auto;
-        padding: 0.4rem 0.25rem 0;
+        padding: 0.25rem 0.25rem 0;
     }
 
     .nav-item {
@@ -130,7 +130,7 @@
         flex-direction: column;
         align-items: center;
         gap: 0.2rem;
-        padding: 0.4rem 0.75rem 0.35rem;
+        padding: 0.3rem 0.5rem 0.25rem;
         text-decoration: none;
         color: var(--text-muted);
         border-radius: 12px;
@@ -164,12 +164,12 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 48px;
-                height: 48px;
+                width: 44px;
+                height: 44px;
                 border-radius: 50%;
                 background: var(--accent-1);
                 color: white;
-                transform: translateY(-8px);
+                transform: translateY(-6px);
                 box-shadow: 0 2px 8px rgba(44, 116, 196, 0.35);
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
@@ -231,7 +231,7 @@
     }
 
     .label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 500;
         white-space: nowrap;
     }

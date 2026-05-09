@@ -1,39 +1,59 @@
 import { writable } from "svelte/store";
 
-export const alertStore = writable({
+interface AlertState {
+    isOpen: boolean;
+    message: string;
+    title: string;
+    type: "alert" | "confirm";
+    confirmLabel?: string;
+    cancelLabel?: string;
+    resolve: (val?: any) => void;
+}
+
+const defaultState: AlertState = {
     isOpen: false,
     message: "",
     title: "Alert",
-    type: "alert" as "alert" | "confirm",
-    resolve: (val?: any) => {},
-});
+    type: "alert",
+    confirmLabel: undefined,
+    cancelLabel: undefined,
+    resolve: () => {},
+};
+
+export const alertStore = writable<AlertState>({ ...defaultState });
+
+function close() {
+    alertStore.set({ ...defaultState });
+}
 
 export function showAlert(message: string, title: string = "Alert"): Promise<void> {
     return new Promise((resolve) => {
-        alertStore.set({
-            isOpen: true,
-            message,
-            title,
-            type: "alert",
-            resolve: () => {
-                alertStore.set({ isOpen: false, message: "", title: "", type: "alert", resolve: () => {} });
-                resolve();
-            },
-        });
+        alertStore.set({ isOpen: true, message, title, type: "alert", resolve: () => { close(); resolve(); } });
     });
 }
 
-export function showConfirm(message: string, title: string = "Confirm"): Promise<boolean> {
+export function showConfirm(
+    message: string,
+    title: string = "Confirm",
+    options?: { confirmLabel?: string; cancelLabel?: string },
+): Promise<boolean> {
     return new Promise((resolve) => {
         alertStore.set({
             isOpen: true,
             message,
             title,
             type: "confirm",
-            resolve: (val: boolean) => {
-                alertStore.set({ isOpen: false, message: "", title: "", type: "alert", resolve: () => {} });
-                resolve(val);
-            },
+            confirmLabel: options?.confirmLabel,
+            cancelLabel: options?.cancelLabel,
+            resolve: (val: boolean) => { close(); resolve(val); },
         });
     });
+}
+
+export function showAuthPrompt(): Promise<boolean> {
+    return showConfirm(
+        "Sign in or create an account to continue.",
+        "Login Required",
+        { confirmLabel: "Log In", cancelLabel: "Maybe Later" },
+    );
 }

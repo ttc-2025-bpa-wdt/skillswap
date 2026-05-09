@@ -220,6 +220,7 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
 
 <script>
     import { showAlert } from "@lib/ui";
+    import { apiFetch } from "@lib/api";
     const form = document.getElementById("create-session-form") as HTMLFormElement;
 
     // Set default datetime to tomorrow at this time
@@ -245,7 +246,7 @@ const categories = ["Programming", "Music", "Language", "Art", "Cooking", "Garde
         const formData = new FormData(form);
 
         try {
-            const res = await fetch("/api/v1/session", {
+            const res = await apiFetch("/api/v1/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

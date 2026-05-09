@@ -2,6 +2,7 @@
 import Layout from "@layouts/global.astro";
 import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.svelte";
+import { Icon } from "astro-iconify";
 import "@styles/auth.scss";
 ---
 
@@ -76,8 +77,8 @@ import "@styles/auth.scss";
                                 data-target="password"
                                 aria-label="Toggle password visibility"
                             >
-                                <iconify-icon icon="mdi:eye" class="icon-eye" aria-label="Show Password"></iconify-icon>
-                                <iconify-icon icon="mdi:eye-off" class="icon-eye-slash hidden" aria-label="Hide Password"></iconify-icon>
+                                <Icon name="mdi:eye" class="icon-eye" aria-label="Show Password" />
+                                <Icon name="mdi:eye-off" class="icon-eye-slash hidden" aria-label="Hide Password" />
                             </button>
                         </div>
                         <span class="error-message" id="password-error"></span>
@@ -99,8 +100,8 @@ import "@styles/auth.scss";
                                 data-target="confirm-password"
                                 aria-label="Toggle password visibility"
                             >
-                                <iconify-icon icon="mdi:eye" class="icon-eye" aria-label="Show Password"></iconify-icon>
-                                <iconify-icon icon="mdi:eye-off" class="icon-eye-slash hidden" aria-label="Hide Password"></iconify-icon>
+                                <Icon name="mdi:eye" class="icon-eye" aria-label="Show Password" />
+                                <Icon name="mdi:eye-off" class="icon-eye-slash hidden" aria-label="Hide Password" />
                             </button>
                         </div>
                         <span class="error-message" id="confirm-password-error"></span>

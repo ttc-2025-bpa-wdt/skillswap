@@ -425,11 +425,11 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             color: white !important;
         }
     }
-    }
 </style>
 
 <script>
     import { showAlert, showConfirm } from "@lib/ui";
+    import { apiFetch } from "@lib/api";
     // Form handling
     const profileForm = document.getElementById("profile-form") as HTMLFormElement;
     const accountForm = document.getElementById("account-form");
@@ -464,7 +464,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
         if (uploadBtn) uploadBtn.textContent = "Uploading...";
 
         try {
-            const res = await fetch("/api/v1/user/avatar", {
+            const res = await apiFetch("/api/v1/user/avatar", {
                 method: "POST",
                 headers: { "Content-Type": file.type },
                 body: file,
@@ -497,7 +497,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             const formData = new FormData(profileForm);
 
             try {
-                const res = await fetch("/api/v1/user", {
+                const res = await apiFetch("/api/v1/user", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -550,7 +550,7 @@ const skillsValue = Array.isArray(skillsList) ? skillsList.join(", ") : "";
             const originalText = deleteAccountBtn.textContent;
             deleteAccountBtn.textContent = "Deleting...";
             try {
-                const res = await fetch("/api/v1/user", {
+                const res = await apiFetch("/api/v1/user", {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                 });

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { SITE_TITLE } from "shared/config";
+    import Icon from '@lib/Icon.svelte';
 
     const currentYear = new Date().getFullYear();
 </script>
@@ -18,18 +19,18 @@
     <div class="footer-section">
         <h4>Follow Us</h4>
         <div class="socials">
-            <a href="/about#contact" aria-label="Twitter"
-                ><iconify-icon icon="fa7-brands:x-twitter" width="24" height="24" aria-label="Twitter"></iconify-icon></a
-            >
-            <a href="/about#contact" aria-label="Facebook"
-                ><iconify-icon icon="fa7-brands:facebook" width="24" height="24" aria-label="Facebook"></iconify-icon></a
-            >
-            <a href="/about#contact" aria-label="Instagram"
-                ><iconify-icon icon="fa7-brands:instagram" width="24" height="24" aria-label="Instagram"></iconify-icon></a
-            >
-            <a href="/about#contact" aria-label="LinkedIn"
-                ><iconify-icon icon="fa7-brands:linkedin" width="24" height="24" aria-label="LinkedIn"></iconify-icon></a
-            >
+            <a href="/about#contact" aria-label="Twitter">
+                <Icon icon="fa7-brands:x-twitter" width={24} height={24} />
+            </a>
+            <a href="/about#contact" aria-label="Facebook">
+                <Icon icon="fa7-brands:facebook" width={24} height={24} />
+            </a>
+            <a href="/about#contact" aria-label="Instagram">
+                <Icon icon="fa7-brands:instagram" width={24} height={24} />
+            </a>
+            <a href="/about#contact" aria-label="LinkedIn">
+                <Icon icon="fa7-brands:linkedin" width={24} height={24} />
+            </a>
         </div>
     </div>
 </div>

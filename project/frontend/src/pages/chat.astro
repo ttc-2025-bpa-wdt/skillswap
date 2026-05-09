@@ -1,5 +1,6 @@
 ---
 import Layout from "@layouts/global.astro";
+import { Icon } from "astro-iconify";
 import { Authentication, User, UserFilter } from "shared/models";
 import { UserRole, type IUser } from "shared/schema";
 
@@ -20,19 +21,21 @@ if (!user) return Astro.redirect("/auth/login");
         </div>
         <div class="chat-main" id="chat-main">
             <div class="chat-empty">
-                <iconify-icon icon="mdi:message-text-outline" width="64" height="64"></iconify-icon>
+                <Icon name="mdi:message-text-outline" width={64} height={64} />
                 <p>Select a conversation to start messaging</p>
             </div>
         </div>
     </div>
 
     <script>
+        import { apiFetch } from "@lib/api";
+
         async function loadConversations() {
             const list = document.getElementById("conversation-list");
             if (!list) return;
 
             try {
-                const res = await fetch("/api/v1/messages");
+                const res = await apiFetch("/api/v1/messages");
                 const data = await res.json();
 
                 if (!data.success || !data.conversations || data.conversations.length === 0) {
@@ -64,10 +67,17 @@ if (!user) return Astro.redirect("/auth/login");
 
         async function loadConversation(partnerId: string, handle: string) {
             const main = document.getElementById("chat-main");
+            const sidebar = document.getElementById("chat-sidebar");
             if (!main) return;
 
+            // On mobile, hide sidebar and show conversation
+            if (window.innerWidth <= 768 && sidebar) {
+                sidebar.style.display = "none";
+                main.classList.add("active-mobile");
+            }
+
             try {
-                const res = await fetch(`/api/v1/messages?user=${partnerId}`);
+                const res = await apiFetch(`/api/v1/messages?user=${partnerId}`);
                 const data = await res.json();
 
                 if (!data.success) {
@@ -78,6 +88,10 @@ if (!user) return Astro.redirect("/auth/login");
                 const msgs = data.messages || [];
                 main.innerHTML = `
                     <div class="chat-header-bar">
+                        <button class="back-to-list" id="back-to-list" aria-label="Back to conversations">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20z"/></svg>
+                            Back
+                        </button>
                         <h3>@${escapeHtml(handle)}</h3>
                     </div>
                     <div class="message-list">
@@ -99,6 +113,15 @@ if (!user) return Astro.redirect("/auth/login");
                 const ml = main.querySelector(".message-list");
                 if (ml) ml.scrollTop = ml.scrollHeight;
 
+                // Back button for mobile
+                const backBtn = document.getElementById("back-to-list");
+                backBtn?.addEventListener("click", () => {
+                    main.innerHTML = `<div class="chat-empty"><p>Select a conversation to start messaging</p></div>`;
+                    main.classList.remove("active-mobile");
+                    const sidebar = document.getElementById("chat-sidebar");
+                    if (sidebar) sidebar.style.display = "";
+                });
+
                 // Wire up send
                 const form = document.getElementById("send-form");
                 form?.addEventListener("submit", async (e) => {
@@ -106,7 +129,7 @@ if (!user) return Astro.redirect("/auth/login");
                     const input = document.getElementById("msg-input") as HTMLInputElement;
                     if (!input?.value.trim()) return;
 
-                    await fetch("/api/v1/contact/host", {
+                    await apiFetch("/api/v1/contact/host", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ hostId: partnerId, message: input.value.trim() }),
@@ -185,10 +208,31 @@ if (!user) return Astro.redirect("/auth/login");
         }
 
         .chat-header-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--accent-3);
             background: var(--card-bg);
             h3 { margin: 0; }
+
+            .back-to-list {
+                display: none;
+                align-items: center;
+                gap: 0.25rem;
+                background: none;
+                border: none;
+                color: var(--accent-1);
+                font-size: 0.9rem;
+                font-weight: 500;
+                cursor: pointer;
+                padding: 0.25rem 0;
+                font-family: inherit;
+
+                @media (max-width: 768px) {
+                    display: flex;
+                }
+            }
         }
 
         .message-list {
@@ -259,12 +303,25 @@ if (!user) return Astro.redirect("/auth/login");
         .error { color: var(--base-red); }
 
         @media (max-width: 768px) {
-            .chat-page { flex-direction: column; }
+            .chat-page {
+                flex-direction: column;
+                height: calc(100vh - 104px);
+            }
             .chat-sidebar {
                 width: 100%;
                 border-right: none;
                 border-bottom: 1px solid var(--accent-3);
-                max-height: 40vh;
+                max-height: 100%;
+                flex: 1;
+
+                &.hidden-mobile {
+                    display: none;
+                }
+            }
+            .chat-main {
+                &.active-mobile {
+                    flex: 1;
+                }
             }
         }
     </style>

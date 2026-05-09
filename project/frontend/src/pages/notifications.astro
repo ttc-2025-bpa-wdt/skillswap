@@ -13,12 +13,14 @@ const title = "Notifications";
     </div>
 
     <script>
+        import { apiFetch } from "@lib/api";
+
         async function loadNotifications() {
             const container = document.getElementById("notifications-container");
             if (!container) return;
 
             try {
-                const res = await fetch("/api/v1/notifications?limit=50");
+                const res = await apiFetch("/api/v1/notifications?limit=50");
                 const data = await res.json();
 
                 if (!data.success || !data.notifications || data.notifications.length === 0) {
@@ -44,7 +46,7 @@ const title = "Notifications";
                     btn.addEventListener("click", async (e) => {
                         const id = (e.currentTarget as HTMLElement).dataset.id;
                         if (!id) return;
-                        await fetch(`/api/v1/notifications/${id}`, { method: "PATCH" });
+                        await apiFetch(`/api/v1/notifications/${id}`, { method: "PATCH" });
                         loadNotifications();
                     });
                 });

@@ -26,6 +26,10 @@
             transform 0.2s ease,
             box-shadow 0.2s ease;
         box-sizing: border-box;
+
+        @media (max-width: 768px) {
+            padding: 1.25rem;
+        }
     }
 
     :global(a.card) {

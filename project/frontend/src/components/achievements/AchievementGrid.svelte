@@ -1,6 +1,8 @@
 <script lang="ts">
     import AchievementBadge from "./AchievementBadge.svelte";
     import { onMount } from "svelte";
+    import Icon from '@lib/Icon.svelte';
+    import { apiFetch } from "@lib/api";
 
     export let userId: string;
 
@@ -34,7 +36,7 @@
     async function fetchAchievements() {
         loading = true;
         try {
-            const response = await fetch("/api/v1/user/achievements/progress");
+            const response = await apiFetch("/api/v1/user/achievements/progress");
             const data = await response.json();
             if (data.success) {
                 achievements = data.progress;
@@ -52,12 +54,12 @@
     <div class="grid-header">
         <div class="stats">
             <div class="stat">
-                <iconify-icon icon="mdi:trophy" width="24" height="24"></iconify-icon>
+                <Icon icon="mdi:trophy" width={24} height={24} />
                 <span class="stat-value">{unlockedCount}/{achievements.length}</span>
                 <span class="stat-label">Unlocked</span>
             </div>
             <div class="stat">
-                <iconify-icon icon="mdi:star" width="24" height="24"></iconify-icon>
+                <Icon icon="mdi:star" width={24} height={24} />
                 <span class="stat-value">{totalPoints}</span>
                 <span class="stat-label">Points</span>
             </div>
@@ -86,12 +88,12 @@
 
     {#if loading}
         <div class="loading-state">
-            <iconify-icon icon="mdi:loading" width="48" height="48" class="spin"></iconify-icon>
+            <Icon icon="mdi:loading" width={48} height={48} class="spin" />
             <p>Loading achievements...</p>
         </div>
     {:else if filteredAchievements.length === 0}
         <div class="empty-state">
-            <iconify-icon icon="mdi:trophy-outline" width="64" height="64"></iconify-icon>
+            <Icon icon="mdi:trophy-outline" width={64} height={64} />
             <p>No achievements found</p>
         </div>
     {:else}

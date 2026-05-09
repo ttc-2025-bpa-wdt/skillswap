@@ -4,6 +4,7 @@
     import NotificationBell from "../notifications/NotificationBell.svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
     import { type IUser, UserRole } from "shared/schema";
+    import Icon from '@lib/Icon.svelte';
 
     export let user: IUser | null = null;
     export let isAdmin: boolean = false;
@@ -11,12 +12,31 @@
     export let notificationCount: number = 0;
     $: isLoggedIn = user !== null;
 
-    let menuOpen = false;
     let currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+    let menuOpen = false;
+
+    const routeMap: Record<string, { title: string; back?: string }> = {
+        "/dashboard": { title: "Dashboard" },
+        "/settings": { title: "Settings", back: "Back" },
+        "/profile": { title: "Profile", back: "Back" },
+        "/notifications": { title: "Notifications", back: "Back" },
+        "/chat": { title: "Messages", back: "Back" },
+        "/session/create": { title: "New Session", back: "Back" },
+        "/about": { title: "About" },
+        "/": { title: "Home" },
+    };
+
+    $: routeInfo = routeMap[currentPath] || { title: "SkillSwap" };
+    $: pageTitle = routeInfo.title;
+    $: backLabel = routeInfo.back || "";
+
+    function toggleMenu() { menuOpen = !menuOpen; }
+    function closeMenu() { menuOpen = false; }
+    function goBack() { window.history.back(); }
 
     import { onMount } from "svelte";
     onMount(() => {
-        const update = () => { currentPath = window.location.pathname; menuOpen = false; };
+        const update = () => { currentPath = window.location.pathname; };
         window.addEventListener("popstate", update);
         document.addEventListener("astro:after-swap", update);
         return () => {
@@ -24,21 +44,44 @@
             document.removeEventListener("astro:after-swap", update);
         };
     });
-
-    function toggleMenu(value?: boolean) {
-        menuOpen = value ?? !menuOpen;
-    }
 </script>
 
-<div class="topbar">
-    <div class="logo">
-        <a href={isLoggedIn ? "/dashboard" : "/"}>
+<div class="topbar" class:compact-mobile={isLoggedIn}>
+    <!-- LOGGED OUT MOBILE: hamburger bar -->
+    <div class="mobile-bar" class:mobile-hidden={isLoggedIn}>
+        <a href="/" class="mobile-logo">
             <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" aria-label="SkillSwap Logo" />
         </a>
+        <button class="hamburger" on:click={toggleMenu} aria-label="Menu">
+            <Icon icon={menuOpen ? "mdi:close" : "mdi:menu"} width={28} height={28} />
+        </button>
     </div>
 
-    <!-- Desktop nav (hidden on mobile) -->
+    <!-- LOGGED IN MOBILE: breadcrumb header -->
+    <div class="mobile-header" class:mobile-hidden={!isLoggedIn}>
+        {#if backLabel}
+            <button class="back-btn" on:click={goBack} aria-label="Go back">
+                <Icon icon="mdi:chevron-left" width={22} height={22} />
+                <span class="back-label">{backLabel}</span>
+            </button>
+        {:else}
+            <div class="back-spacer"></div>
+        {/if}
+        <span class="page-title">{pageTitle}</span>
+        <div class="header-actions">
+            <NotificationBell {notificationCount} />
+            <ThemeToggle />
+        </div>
+    </div>
+
+    <!-- DESKTOP: full nav -->
     <nav>
+        <div class="logo">
+            <a href={isLoggedIn ? "/dashboard" : "/"}>
+                <img src="/images/logos/logo-lg-transparent.png" alt="SkillSwap" aria-label="SkillSwap Logo" />
+            </a>
+        </div>
+
         <a href="/" class:active={currentPath === "/" || currentPath === ""}>Home</a>
         <a href="/about" class:active={currentPath.startsWith("/about")}>About</a>
         <a href="/#features">Features</a>
@@ -63,100 +106,40 @@
             {/if}
         </div>
     </nav>
-
-    <!-- Mobile actions (hidden on desktop) -->
-    <div class="mobile-actions">
-        {#if isLoggedIn}
-            <a href="/notifications" class="mobile-icon-btn" aria-label="Notifications">
-                <iconify-icon icon="mdi:bell" width="22" height="22"></iconify-icon>
-                {#if notificationCount > 0}
-                    <span class="mobile-badge">{notificationCount > 99 ? "99+" : notificationCount}</span>
-                {/if}
-            </a>
-        {/if}
-        <button type="button" class="hamburger" class:open={menuOpen} on:click={() => toggleMenu()} aria-label="Toggle menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-    </div>
 </div>
 
-{#if isDemo}
-    <div class="demo-banner">
-        <iconify-icon icon="mdi:information-outline" width="16" height="16"></iconify-icon>
-        Demo mode — you can browse, but can't make changes.
-    </div>
-{/if}
-
-<!-- Dropdown Menu (mobile) -->
-{#if menuOpen}
-    <div class="dropdown-menu" class:open={menuOpen}>
-        <a href="/" on:click={() => toggleMenu(false)}>
-            <iconify-icon icon="mdi:home" width="20" height="20"></iconify-icon>
-            Home
-        </a>
-        <a href="/about" on:click={() => toggleMenu(false)}>
-            <iconify-icon icon="mdi:information" width="20" height="20"></iconify-icon>
-            About
-        </a>
-        <a href="/#features" on:click={() => toggleMenu(false)}>
-            <iconify-icon icon="mdi:star" width="20" height="20"></iconify-icon>
-            Features
-        </a>
-        <a href="/about#contact" on:click={() => toggleMenu(false)}>
-            <iconify-icon icon="mdi:email" width="20" height="20"></iconify-icon>
-            Contact
-        </a>
-
+<!-- Hamburger dropdown overlay (logged out, mobile only) -->
+{#if menuOpen && !isLoggedIn}
+    <div class="dropdown-backdrop" on:click={closeMenu} on:keydown={(e) => e.key === "Escape" && closeMenu()}></div>
+    <div class="mobile-dropdown">
+        <a href="/" on:click={closeMenu}>Home</a>
+        <a href="/about" on:click={closeMenu}>About</a>
+        <a href="/#features" on:click={closeMenu}>Features</a>
+        <a href="/about#contact" on:click={closeMenu}>Contact</a>
+        <SearchBar placeholder="Find skills, mentors..." />
         <div class="dropdown-divider"></div>
-
-        {#if isAdmin}
-            <a href="/admin" on:click={() => toggleMenu(false)}>
-                <iconify-icon icon="mdi:shield" width="20" height="20"></iconify-icon>
-                Admin
-            </a>
-        {/if}
-
-        {#if isLoggedIn}
-            {#if !isDemo}
-                <a href="/settings" on:click={() => toggleMenu(false)}>
-                    <iconify-icon icon="mdi:cog" width="20" height="20"></iconify-icon>
-                    Settings
-                </a>
-            {/if}
-            <a href="/profile" on:click={() => toggleMenu(false)}>
-                <iconify-icon icon="mdi:account" width="20" height="20"></iconify-icon>
-                Profile
-            </a>
-        {:else}
-            <a href="/auth/login" on:click={() => toggleMenu(false)}>
-                <iconify-icon icon="mdi:login" width="20" height="20"></iconify-icon>
-                Login
-            </a>
-            <a href="/auth/register" on:click={() => toggleMenu(false)}>
-                <iconify-icon icon="mdi:account-plus" width="20" height="20"></iconify-icon>
-                Register
-            </a>
-        {/if}
-
-        <div class="dropdown-divider"></div>
-
+        <div class="dropdown-auth">
+            <Button href="/auth/login" variant="secondary" size="sm" block>Log In</Button>
+            <Button href="/auth/register" variant="primary" size="sm" block>Sign Up</Button>
+        </div>
         <div class="dropdown-theme">
-            <span>Theme</span>
             <ThemeToggle />
         </div>
     </div>
+{/if}
 
-    <!-- Overlay -->
-    <div class="overlay" on:click={() => toggleMenu(false)} role="presentation" aria-hidden="true"></div>
+{#if isDemo}
+    <div class="demo-banner">
+        <Icon icon="mdi:information-outline" width={16} height={16} />
+        Demo mode — you can browse, but can't make changes.
+    </div>
 {/if}
 
 <style lang="scss">
     .topbar {
         display: flex;
         align-items: center;
-        gap: 3rem;
+        gap: 1.5rem;
         height: 4rem;
         padding: 0 2rem;
         box-sizing: border-box;
@@ -167,8 +150,12 @@
         background: var(--background);
 
         .logo {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+
             img {
-                height: 40px;
+                height: 36px;
                 width: auto;
             }
         }
@@ -178,211 +165,213 @@
             align-items: center;
             gap: 1.5rem;
             flex: 1;
+            min-width: 0;
 
             a {
                 text-decoration: none;
                 color: var(--foreground);
                 font-weight: 500;
                 font-size: 0.95rem;
-                &:hover {
-                    color: var(--accent-1);
-                }
-                &.active {
-                    color: var(--accent-1);
-                }
+                white-space: nowrap;
+
+                &:hover { color: var(--accent-1); }
+                &.active { color: var(--accent-1); }
+            }
+
+            :global(.search) {
+                flex: 1;
+                min-width: 120px;
+                max-width: 300px;
+                margin: auto 0;
             }
 
             .auth-buttons {
                 display: flex;
-                gap: 1rem;
+                gap: 0.5rem;
                 margin-left: auto;
+                flex-shrink: 0;
             }
+        }
 
+        // Hide desktop nav on mobile
+        nav {
             @media (max-width: 768px) {
                 display: none;
             }
         }
 
-        .mobile-actions {
-            display: none;
-            align-items: center;
-            gap: 0.25rem;
-            margin-left: auto;
-
+        // Hide logo on mobile (mobile-bar/mobile-header handle it)
+        .logo {
             @media (max-width: 768px) {
-                display: flex;
+                display: none;
             }
         }
 
-        .mobile-icon-btn {
-            position: relative;
+        @media (max-width: 768px) {
+            height: auto;
+            padding: 0;
+            gap: 0;
+        }
+    }
+
+    // === MOBILE BAR (logged out) ===
+    .mobile-bar {
+        display: none;
+
+        @media (max-width: 768px) {
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
+            justify-content: space-between;
+            padding: 0 1rem;
+            height: 48px;
+            width: 100%;
+            border-bottom: 1px solid var(--accent-3);
+            background: var(--background);
+        }
+
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+
+            img {
+                height: 28px;
+                width: auto;
+            }
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
             color: var(--foreground);
-            text-decoration: none;
-            border-radius: 50%;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 8px;
             transition: background 0.2s;
 
-            &:hover {
-                background: rgba(0, 0, 0, 0.05);
-            }
+            &:hover { background: rgba(0, 0, 0, 0.05); }
         }
+    }
 
-        .mobile-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            min-width: 16px;
-            height: 16px;
-            padding: 0 4px;
-            background: var(--base-red);
-            color: white;
-            font-size: 10px;
-            font-weight: 600;
-            border-radius: 8px;
+    // === COMPACT HEADER (logged in) ===
+    .mobile-header {
+        display: none;
+
+        @media (max-width: 768px) {
             display: flex;
             align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-
-        @media (max-width: 768px) {
-            height: 3rem;
             padding: 0 1rem;
-            gap: 0;
-
-            .logo img {
-                height: 32px;
-            }
+            height: 48px;
+            gap: 0.5rem;
+            width: 100%;
+            border-bottom: 1px solid var(--accent-3);
+            background: var(--background);
         }
-    }
 
-    // Hamburger button (3-bar animated to X)
-    .hamburger {
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 40px;
-        height: 40px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        gap: 5px;
-
-        @media (max-width: 768px) {
+        .back-btn {
             display: flex;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: var(--accent-1);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.25rem 0;
+            flex-shrink: 0;
+            font-family: inherit;
         }
 
-        .bar {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: var(--foreground);
-            border-radius: 1px;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+        .back-spacer {
+            width: 60px;
+            flex-shrink: 0;
         }
 
-        &.open {
-            .bar:nth-child(1) {
-                transform: translateY(7px) rotate(45deg);
+        .page-title {
+            flex: 1;
+            text-align: center;
+            font-family: "Montserrat", sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--foreground);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex-shrink: 0;
+
+            :global(.theme-toggle) {
+                padding: 0.35rem;
             }
-            .bar:nth-child(2) {
-                opacity: 0;
-            }
-            .bar:nth-child(3) {
-                transform: translateY(-7px) rotate(-45deg);
+
+            :global(.bell-button) {
+                padding: 0.35rem;
             }
         }
     }
 
-    // Dropdown menu (replaces flyout)
-    .dropdown-menu {
+    // === HAMBURGER DROPDOWN ===
+    .dropdown-backdrop {
         position: fixed;
-        top: 3rem;
-        left: 0;
-        right: 0;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 40;
+
+        @media (min-width: 769px) { display: none; }
+    }
+
+    .mobile-dropdown {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
         background: var(--card-bg);
         border-bottom: 1px solid var(--accent-3);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        z-index: 100;
-        padding: 0.5rem 0;
-        animation: slideDown 0.2s ease;
+        gap: 0.5rem;
+        animation: slideDown 0.2s ease-out;
+        position: relative;
+        z-index: 50;
 
-        @media (min-width: 769px) {
-            display: none;
-        }
+        @media (min-width: 769px) { display: none; }
 
         a {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            width: 100%;
-            padding: 0.875rem 1.25rem;
-            border: none;
-            background: none;
-            color: var(--foreground);
-            font-size: 0.95rem;
-            font-weight: 500;
             text-decoration: none;
-            min-height: 44px;
-            box-sizing: border-box;
+            color: var(--foreground);
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.6rem 0.5rem;
+            border-radius: 8px;
             transition: background 0.15s;
 
-            &:hover,
-            &:active {
-                background: rgba(0, 0, 0, 0.04);
-                color: var(--accent-1);
-            }
-
-            iconify-icon {
-                flex-shrink: 0;
-            }
+            &:hover { background: rgba(0, 0, 0, 0.05); }
         }
-    }
 
-    .dropdown-divider {
-        height: 1px;
-        background: var(--accent-3);
-        margin: 0.25rem 1rem;
-    }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--accent-3);
+            margin: 0.25rem 0;
+        }
 
-    .dropdown-theme {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1.25rem;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-    }
+        .dropdown-auth {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
 
-    .overlay {
-        position: fixed;
-        top: 3rem;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 90;
-
-        @media (min-width: 769px) {
-            display: none;
+        .dropdown-theme {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5rem;
         }
     }
 
     @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .demo-banner {
@@ -397,5 +386,11 @@
         font-weight: 500;
         text-align: center;
         border-bottom: 1px solid rgba(255, 152, 0, 0.25);
+    }
+
+    .mobile-hidden {
+        @media (max-width: 768px) {
+            display: none !important;
+        }
     }
 </style>

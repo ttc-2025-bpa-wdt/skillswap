@@ -203,6 +203,7 @@ const competitionMetadata = {
 
 <script>
     import { showAlert } from "@lib/ui";
+    import { apiFetch } from "@lib/api";
     const contactForm = document.getElementById("contact-form") as HTMLFormElement;
     contactForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -218,7 +219,7 @@ const competitionMetadata = {
         const formData = new FormData(contactForm);
 
         try {
-            const res = await fetch("/api/v1/feedback", {
+            const res = await apiFetch("/api/v1/feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

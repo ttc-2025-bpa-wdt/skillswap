@@ -21,8 +21,8 @@
             <p>{state.message}</p>
             <div class="modal-actions">
                 {#if state.type === "confirm"}
-                    <Button onclick={() => handleClose(false)} variant="ghost">Cancel</Button>
-                    <Button onclick={() => handleClose(true)} variant="primary">Confirm</Button>
+                    <Button onclick={() => handleClose(false)} variant="ghost">{state.cancelLabel || 'Cancel'}</Button>
+                    <Button onclick={() => handleClose(true)} variant="primary">{state.confirmLabel || 'Confirm'}</Button>
                 {:else}
                     <Button onclick={() => handleClose()} variant="primary">OK</Button>
                 {/if}

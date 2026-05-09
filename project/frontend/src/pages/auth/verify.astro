@@ -24,7 +24,7 @@ import Layout from "@layouts/global.astro";
                     if (res.ok) {
                         if (statusEl) {
                             statusEl.innerHTML = `
-                                <iconify-icon icon="mdi:check-circle" width="48" height="48" style="color: #10b981;"></iconify-icon>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" style="color: #10b981;"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.4-1.4L10 14.2l7.6-7.6L19 8l-9 9z"/></svg>
                                 <h2>Email Verified!</h2>
                                 <p>Your email has been verified successfully.</p>
                                 <a href="/dashboard" class="btn">Go to Dashboard</a>
@@ -33,7 +33,7 @@ import Layout from "@layouts/global.astro";
                     } else {
                         if (statusEl) {
                             statusEl.innerHTML = `
-                                <iconify-icon icon="mdi:alert-circle" width="48" height="48" style="color: var(--base-red);"></iconify-icon>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" style="color: var(--base-red);"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                                 <h2>Verification Failed</h2>
                                 <p>This link may have expired. Please request a new one.</p>
                                 <a href="/auth/login" class="btn">Back to Login</a>
@@ -44,7 +44,7 @@ import Layout from "@layouts/global.astro";
                 .catch(() => {
                     if (statusEl) {
                         statusEl.innerHTML = `
-                            <iconify-icon icon="mdi:alert-circle" width="48" height="48" style="color: var(--base-red);"></iconify-icon>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" style="color: var(--base-red);"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                             <h2>Verification Failed</h2>
                             <p>Something went wrong. Please try again later.</p>
                             <a href="/auth/login" class="btn">Back to Login</a>
@@ -54,7 +54,7 @@ import Layout from "@layouts/global.astro";
         } else {
             if (statusEl) {
                 statusEl.innerHTML = `
-                    <iconify-icon icon="mdi:alert-circle" width="48" height="48" style="color: var(--base-red);"></iconify-icon>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" style="color: var(--base-red);"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                     <h2>Invalid Link</h2>
                     <p>This verification link is invalid or has expired.</p>
                     <a href="/auth/login" class="btn">Back to Login</a>

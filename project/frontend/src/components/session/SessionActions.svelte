@@ -1,5 +1,7 @@
 <script lang="ts">
     import Button from "@components/base/Button.svelte";
+    import Icon from '@lib/Icon.svelte';
+    import { apiFetch } from "@lib/api";
 
     export let sessionId: string;
     export let isRegistered: boolean = false;
@@ -18,7 +20,7 @@
         loading = true;
         error = "";
         try {
-            const res = await fetch("/api/v1/session/register", {
+            const res = await apiFetch("/api/v1/session/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sessionId }),
@@ -45,7 +47,7 @@
         loading = true;
         error = "";
         try {
-            const res = await fetch("/api/v1/contact/host", {
+            const res = await apiFetch("/api/v1/contact/host", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sessionId, message }),
@@ -67,7 +69,7 @@
     async function rateSession(rating: number) {
         userRating = rating;
         try {
-            const res = await fetch("/api/v1/session/rate", {
+            const res = await apiFetch("/api/v1/session/rate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ sessionId, rating }),
@@ -111,12 +113,12 @@
             <div class="stars">
                 {#each [1, 2, 3, 4, 5] as star}
                     <button class="star-btn" onclick={() => rateSession(star)}>
-                        <iconify-icon
+                        <Icon
                             icon={userRating >= star ? "material-symbols:star" : "material-symbols:star-outline"}
-                            width="24"
-                            height="24"
+                            width={24}
+                            height={24}
                             aria-label="Star"
-                        ></iconify-icon>
+                        />
                     </button>
                 {/each}
             </div>

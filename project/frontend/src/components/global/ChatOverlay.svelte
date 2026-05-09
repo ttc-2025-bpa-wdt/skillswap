@@ -1,7 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import Icon from '@lib/Icon.svelte';
     import { io, type Socket } from "socket.io-client";
     import { type IUser } from "shared/schema";
+    import { apiFetch } from "@lib/api";
 
     const { user } = $props<{ user: IUser }>();
 
@@ -20,7 +22,7 @@
 
     async function loadConversations() {
         try {
-            const res = await fetch("/api/v1/messages");
+            const res = await apiFetch("/api/v1/messages");
             const data = await res.json();
             if (data.success) conversations = data.conversations;
         } catch (e) {
@@ -31,7 +33,7 @@
     async function loadConversation(partnerId: string) {
         loading = true;
         try {
-            const res = await fetch(`/api/v1/messages?user=${partnerId}`);
+            const res = await apiFetch(`/api/v1/messages?user=${partnerId}`);
             const data = await res.json();
             if (data.success) {
                 messages = data.messages || [];
@@ -64,7 +66,7 @@
             socket.emit("message", { handle: activePartnerHandle, content });
         } else {
             try {
-                await fetch("/api/v1/contact/host", {
+                await apiFetch("/api/v1/contact/host", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ hostId: activePartnerId, message: content }),
@@ -122,7 +124,7 @@
 
 <div class="chat-widget">
     <button class="chat-fab" on:click={toggleChat} aria-label={isOpen ? "Close chat" : "Open chat"}>
-        <iconify-icon icon={isOpen ? "mdi:close" : "mdi:message-outline"} width="28" height="28"></iconify-icon>
+        <Icon icon={isOpen ? "mdi:close" : "mdi:message-outline"} width={28} height={28} />
     </button>
 
     {#if isOpen}
@@ -130,7 +132,7 @@
             <header class="chat-header">
                 {#if activeView === "chat"}
                     <button class="icon-btn" on:click={goBack} aria-label="Back">
-                        <iconify-icon icon="mdi:chevron-left" width="20" height="20"></iconify-icon>
+                        <Icon icon="mdi:chevron-left" width={20} height={20} />
                     </button>
                 {/if}
                 <div class="header-title">
@@ -188,7 +190,7 @@
                         maxlength="1000"
                     />
                     <button type="submit" disabled={!newMessage.trim()}>
-                        <iconify-icon icon="mdi:send" width="20" height="20"></iconify-icon>
+                        <Icon icon="mdi:send" width={20} height={20} />
                     </button>
                 </form>
             {/if}

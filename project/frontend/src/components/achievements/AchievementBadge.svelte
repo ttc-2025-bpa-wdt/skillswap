@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from '@lib/Icon.svelte';
+
     export let achievement: {
         key: string;
         name: string;
@@ -33,7 +35,7 @@
     aria-label={`${achievement.name} achievement${achievement.unlocked ? " (unlocked)" : " (locked)"}`}
 >
     <div class="badge-icon">
-        <iconify-icon icon={achievement.icon} width={size === "lg" ? 48 : size === "md" ? 36 : 24} height={size === "lg" ? 48 : size === "md" ? 36 : 24}></iconify-icon>
+        <Icon icon={achievement.icon} width={size === "lg" ? 48 : size === "md" ? 36 : 24} height={size === "lg" ? 48 : size === "md" ? 36 : 24} />
         {#if achievement.unlocked}
             <div class="unlock-glow"></div>
         {/if}
@@ -55,14 +57,14 @@
         {/if}
 
         <div class="badge-points">
-            <iconify-icon icon="mdi:star" width="14" height="14"></iconify-icon>
+            <Icon icon="mdi:star" width={14} height={14} />
             <span>{achievement.points} pts</span>
         </div>
     </div>
 
     {#if !achievement.unlocked}
         <div class="lock-overlay">
-            <iconify-icon icon="mdi:lock" width="24" height="24"></iconify-icon>
+            <Icon icon="mdi:lock" width={24} height={24} />
         </div>
     {/if}
 </div>

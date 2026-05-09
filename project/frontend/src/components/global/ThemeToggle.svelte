@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import Icon from '@lib/Icon.svelte';
 
     let currentTheme = $state<"light" | "dark">("light");
 
@@ -20,9 +21,9 @@
 
 <button class="theme-toggle" on:click={toggle} aria-label={`Switch to ${currentTheme === 'light' ? 'dark' : 'light'} mode`}>
     {#if currentTheme === 'light'}
-        <iconify-icon icon="mdi:weather-night" width="20" height="20"></iconify-icon>
+        <Icon icon="mdi:weather-night" width={20} height={20} />
     {:else}
-        <iconify-icon icon="mdi:weather-sunny" width="20" height="20"></iconify-icon>
+        <Icon icon="mdi:weather-sunny" width={20} height={20} />
     {/if}
 </button>
 

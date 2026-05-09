@@ -4,6 +4,7 @@ import Button from "@components/base/Button.svelte";
 import Card from "@components/base/Card.svelte";
 import SessionCard from "@components/cards/SessionCard.svelte";
 import SearchBar from "@components/base/SearchBar.svelte";
+import { Icon } from "astro-iconify";
 
 import { Authentication } from "shared/models";
 import { db } from "shared/helpers";
@@ -105,12 +106,12 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                                     <div class="session-details">
                                         {session.zoomLink && (
                                             <a href={session.zoomLink} target="_blank" class="detail-item zoom-link">
-                                                <iconify-icon icon="mdi:video-outline" width="16" height="16" aria-label="Zoom Link"></iconify-icon>
+                                                <Icon name="mdi:video-outline" width={16} height={16} aria-label="Zoom Link" />
                                                 Zoom Link
                                             </a>
                                         )}
                                         <span class="detail-item">
-                                            <iconify-icon icon="mdi:clock-outline" width="16" height="16" aria-label="Time"></iconify-icon>
+                                            <Icon name="mdi:clock-outline" width={16} height={16} aria-label="Time" />
                                             {session.time}
                                         </span>
                                     </div>
@@ -184,7 +185,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                                             class="btn-delete-message"
                                             data-id={message.id}
                                             aria-label="Delete message">
-                                            <iconify-icon aria-label="Delete" icon="material-symbols:close" width="16" height="16" />
+                                            <Icon name="material-symbols:close" width={16} height={16} aria-label="Delete" />
                                         </button>
                                     </div>
                                 </div>
@@ -232,8 +233,8 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                                             </span>
                                             <div class="stars">
                                                 {Array.from({ length: 5 }).map((_, i) => (
-                                                    <iconify-icon
-                                                        icon={
+                                                    <Icon
+                                                        name={
                                                             i < review.rating
                                                                 ? "material-symbols:star"
                                                                 : "material-symbols:star-outline"
@@ -253,11 +254,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                                             aria-label="Hide rating"
                                             title="Hide this rating"
                                         >
-                                            <iconify-icon
-                                                icon="material-symbols:visibility-off-outline"
+                                            <Icon
+                                                name="material-symbols:visibility-off-outline"
                                                 aria-label="Hide rating"
-                                                width="16"
-                                                height="16"
+                                                width={16}
+                                                height={16}
                                             />
                                         </button>
                                     </div>
@@ -400,6 +401,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             flex-direction: column;
             text-align: center;
             gap: 1.5rem;
+            padding: 1.5rem;
         }
 
         .banner-content {
@@ -407,7 +409,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 font-size: 1.75rem;
                 margin-bottom: 0.75rem;
                 font-family: "Montserrat", sans-serif;
-                color: white; /* Explicitly set color for h3 */
+                color: white;
+
+                @media (max-width: 768px) {
+                    font-size: 1.25rem;
+                }
             }
 
             p {
@@ -415,7 +421,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 opacity: 0.9;
                 max-width: 600px;
                 margin: 0;
-                color: white; /* Explicitly set color for p */
+                color: white;
+
+                @media (max-width: 768px) {
+                    font-size: 0.9rem;
+                }
             }
         }
     }
@@ -425,19 +435,18 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
         margin: 0 auto;
         padding: 2rem;
 
-        @media (max-width: 600px) {
-            padding: 1rem;
+        @media (max-width: 768px) {
+            padding: 0.75rem;
         }
     }
 
     .welcome-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
 
         h1 {
             font-family: "Montserrat", sans-serif;
             font-size: 2rem;
             color: var(--foreground);
-            margin-bottom: 2rem;
             margin-bottom: 0.5rem;
         }
 
@@ -445,6 +454,18 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             color: var(--foreground);
             opacity: 0.8;
             font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            margin-bottom: 1rem;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
         }
     }
 
@@ -496,6 +517,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             color: var(--foreground);
             padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--accent-3);
+
+            @media (max-width: 768px) {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
         }
     }
 
@@ -553,10 +579,19 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
     .reviews-section {
         margin-bottom: 3rem;
 
+        @media (max-width: 768px) {
+            margin-bottom: 2rem;
+        }
+
         .reviews-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+
+            @media (max-width: 600px) {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
         }
 
         .review-card {
@@ -564,6 +599,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+
+            @media (max-width: 600px) {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
         }
 
         .review-header {
@@ -632,7 +672,9 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                     opacity: 1;
                 }
 
-                iconify-icon {
+                :global(svg) {
+                    width: 16px;
+                    height: 16px;
                     font-size: 16px;
                 }
             }
@@ -673,6 +715,10 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
     .teacher-dashboard {
         margin: 2rem 0;
 
+        @media (max-width: 768px) {
+            margin: 1rem 0;
+        }
+
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -685,6 +731,11 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 border: none;
                 padding: 0;
                 margin: 0;
+                font-size: 1.1rem;
+            }
+
+            @media (max-width: 768px) {
+                margin-bottom: 1rem;
             }
         }
 
@@ -703,6 +754,8 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             @media (max-width: 600px) {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 0.75rem 0;
+                gap: 0.5rem;
             }
         }
 
@@ -712,12 +765,16 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             .session-header {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
+                gap: 0.5rem;
                 margin-bottom: 0.5rem;
 
                 h3 {
                     margin: 0;
                     font-size: 1.1rem;
+
+                    @media (max-width: 768px) {
+                        font-size: 0.95rem;
+                    }
                 }
             }
 
@@ -725,16 +782,21 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 font-size: 0.75rem;
                 padding: 0.2rem 0.5rem;
                 border-radius: 4px;
-                background: #eee;
+                background: var(--accent-3);
+                color: var(--foreground);
                 font-weight: 600;
 
                 &.upcoming {
-                    background: rgba(52, 152, 219, 0.15);
+                    background: color-mix(in srgb, var(--accent-1) 15%, var(--card-bg));
                     color: var(--accent-1);
                 }
+                &.past {
+                    background: color-mix(in srgb, var(--text-muted) 15%, var(--card-bg));
+                    color: var(--text-muted);
+                }
                 &.pending {
-                    background: rgba(230, 126, 34, 0.15);
-                    color: #e67e22;
+                    background: color-mix(in srgb, var(--base-orange) 15%, var(--card-bg));
+                    color: var(--base-orange);
                 }
             }
 
@@ -793,6 +855,10 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
     .discover-section {
         margin-top: 3rem;
         padding: 0;
+
+        @media (max-width: 768px) {
+            margin-top: 1.5rem;
+        }
     }
 
     .discover-layout {
@@ -1017,6 +1083,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
 
 <script>
     import { showAlert, showConfirm } from "@lib/ui";
+    import { apiFetch } from "@lib/api";
 
     const cancelButtons = document.querySelectorAll(".btn-cancel-session");
 
@@ -1039,7 +1106,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
                 // Host deletes via { id }, student unregisters via { sessionId }
                 const body = isHost ? { id: sessionId } : { sessionId: sessionId };
 
-                const response = await fetch(url, {
+                const response = await apiFetch(url, {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
@@ -1075,7 +1142,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             const reviewId = buttonEl.getAttribute("data-id");
 
             try {
-                const response = await fetch("/api/v1/session/rate", {
+                const response = await apiFetch("/api/v1/session/rate", {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
@@ -1117,7 +1184,7 @@ const suggestedTopics = [...allTopics].sort((a, b) => {
             const messageId = buttonEl.getAttribute("data-id");
 
             try {
-                const response = await fetch("/api/v1/message", {
+                const response = await apiFetch("/api/v1/message", {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",

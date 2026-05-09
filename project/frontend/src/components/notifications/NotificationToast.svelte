@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import Icon from '@lib/Icon.svelte';
 
     let toasts: Array<{
         id: string;
@@ -68,14 +69,14 @@
     {#each toasts as toast}
         <div class="toast toast-{toast.type}" data-testid="toast">
             <div class="toast-icon">
-                <iconify-icon icon={getIcon(toast.type)} width="24" height="24"></iconify-icon>
+                <Icon icon={getIcon(toast.type)} width={24} height={24} />
             </div>
             <div class="toast-content">
                 <strong class="toast-title">{toast.title}</strong>
                 <p class="toast-message">{toast.message}</p>
             </div>
             <button class="toast-close" on:click={() => removeToast(toast.id)} aria-label="Close">
-                <iconify-icon icon="mdi:close" width="18" height="18"></iconify-icon>
+                <Icon icon="mdi:close" width={18} height={18} />
             </button>
 
             {#if toast.duration && toast.duration > 0}

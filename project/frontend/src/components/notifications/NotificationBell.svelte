@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import Icon from '@lib/Icon.svelte';
+    import { apiFetch } from "@lib/api";
 
     export let notificationCount: number = 0;
     export let isOpen: boolean = false;
@@ -23,7 +25,7 @@
     async function fetchNotifications() {
         loading = true;
         try {
-            const response = await fetch("/api/v1/notifications?limit=10");
+            const response = await apiFetch("/api/v1/notifications?limit=10");
             const data = await response.json();
             if (data.success) {
                 notifications = data.notifications;
@@ -36,7 +38,7 @@
 
     async function markAsRead(notificationId: string) {
         try {
-            await fetch(`/api/v1/notifications/${notificationId}`, {
+            await apiFetch(`/api/v1/notifications/${notificationId}`, {
                 method: "PATCH",
             });
             notifications = notifications.map((n) =>
@@ -50,7 +52,7 @@
 
     async function markAllAsRead() {
         try {
-            await fetch("/api/v1/notifications/read-all", {
+            await apiFetch("/api/v1/notifications/read-all", {
                 method: "PATCH",
             });
             notifications = notifications.map((n) => ({ ...n, read: true }));
@@ -118,7 +120,7 @@
         aria-expanded={isOpen}
         aria-haspopup="true"
     >
-        <iconify-icon icon="mdi:bell" width="24" height="24"></iconify-icon>
+        <Icon icon="mdi:bell" width={24} height={24} />
         {#if hasUnread}
             <span class="badge">{notificationCount > 99 ? "99+" : notificationCount}</span>
         {/if}
@@ -149,11 +151,11 @@
                             on:click={() => markAsRead(notification.id)}
                         >
                             <div class="notification-icon">
-                                <iconify-icon
+                                <Icon
                                     icon={getNotificationIcon(notification.type)}
-                                    width="20"
-                                    height="20"
-                                ></iconify-icon>
+                                    width={20}
+                                    height={20}
+                                />
                             </div>
                             <div class="notification-content">
                                 <strong>{notification.title}</strong>
